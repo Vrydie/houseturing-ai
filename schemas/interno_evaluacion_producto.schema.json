@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "interno_evaluacion_producto",
+  "title": "Evaluación IA de un producto candidato (salida de DS-43)",
+  "description": "Salida estructurada del prompt evaluador_productos.md. El LLM solo califica (1-5) y justifica; n8n calcula puntaje_ia (0-100) con los pesos de config. Los criterios marcados 'inverso' puntúan 5 = riesgo BAJO.",
+  "type": "object",
+  "required": ["criterios", "bandera_roja", "veredicto", "confianza", "angulos_de_venta", "avatar", "objeciones_probables", "keywords_busqueda", "resumen"],
+  "additionalProperties": false,
+  "$defs": {
+    "criterio": {
+      "type": "object",
+      "required": ["puntaje", "razon"],
+      "additionalProperties": false,
+      "properties": {
+        "puntaje": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "razon": { "type": "string", "maxLength": 200 }
+      }
+    }
+  },
+  "properties": {
+    "criterios": {
+      "type": "object",
+      "required": ["problema_o_deseo", "efecto_wow", "tamano_mercado", "diferenciacion", "valor_percibido", "facilidad_venta_chat", "riesgo_devolucion", "riesgo_politicas", "potencial_upsell", "estacionalidad"],
+      "additionalProperties": false,
+      "properties": {
+        "problema_o_deseo": { "$ref": "#/$defs/criterio", "description": "Resuelve un problema claro o un deseo fuerte." },
+        "efecto_wow": { "$ref": "#/$defs/criterio", "description": "Se entiende y sorprende en los primeros 3 segundos de un video." },
+        "tamano_mercado": { "$ref": "#/$defs/criterio", "description": "Cuánta gente en Colombia podría quererlo." },
+        "diferenciacion": { "$ref": "#/$defs/criterio", "description": "No se consigue fácil en tiendas físicas a precio similar." },
+        "valor_percibido": { "$ref": "#/$defs/criterio", "description": "Parece valer más que el precio de venta propuesto." },
+        "facilidad_venta_chat": { "$ref": "#/$defs/criterio", "description": "Se explica y se resuelven dudas por WhatsApp sin asesoría técnica." },
+        "riesgo_devolucion": { "$ref": "#/$defs/criterio", "description": "Inverso. Fragilidad, tallas, fallas técnicas, expectativa vs. realidad." },
+        "riesgo_politicas": { "$ref": "#/$defs/criterio", "description": "Inverso. Políticas de Meta, registro INVIMA, marcas registradas." },
+        "potencial_upsell": { "$ref": "#/$defs/criterio", "description": "Tiene sentido llevar 2 o más (regalo, pareja, repuesto)." },
+        "estacionalidad": { "$ref": "#/$defs/criterio", "description": "5 = se vende todo el año o su temporada empieza ahora; 1 = su temporada ya pasó." }
+      }
+    },
+    "bandera_roja": {
+      "type": "object",
+      "required": ["activa", "motivo"],
+      "properties": {
+        "activa": { "type": "boolean", "description": "true = descartar sin importar el score (prohibido, peligroso, regulado, réplica)." },
+        "motivo": { "type": ["string", "null"] }
+      }
+    },
+    "veredicto": { "enum": ["probar", "tal_vez", "descartar"] },
+    "confianza": { "enum": ["alta", "media", "baja"], "description": "Baja si la descripción o las imágenes del proveedor son insuficientes." },
+    "angulos_de_venta": {
+      "type": "array", "minItems": 3, "maxItems": 3,
+      "items": { "type": "string", "maxLength": 160 },
+      "description": "Tres enfoques distintos para anuncios (problema, transformación, regalo…)."
+    },
+    "avatar": { "type": "string", "maxLength": 300, "description": "Quién lo compra, para qué y cuándo." },
+    "objeciones_probables": {
+      "type": "array", "minItems": 3, "maxItems": 6,
+      "items": { "type": "string", "maxLength": 120 }
+    },
+    "keywords_busqueda": {
+      "type": "array", "minItems": 2, "maxItems": 5,
+      "items": { "type": "string", "maxLength": 40 },
+      "description": "Términos genéricos (sin marca) para buscar en MercadoLibre y en la Biblioteca de anuncios."
+    },
+    "resumen": { "type": "string", "maxLength": 400, "description": "Por qué sí o por qué no, en 2-3 frases." }
+  }
+}

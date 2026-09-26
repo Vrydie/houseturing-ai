@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "interno_mensaje_normalizado",
+  "title": "Mensaje normalizado (DS-01 → DS-02)",
+  "description": "Lo que DS-01 entrega al agente después de verificar la firma, deduplicar, transcribir audios y agrupar la ráfaga de mensajes (debounce). DS-02 no vuelve a leer el payload crudo de Meta.",
+  "type": "object",
+  "required": ["wa_id", "conversacion_id", "wamids", "texto", "tipos", "origen", "recibido_en"],
+  "additionalProperties": false,
+  "properties": {
+    "wa_id": {
+      "type": "string",
+      "pattern": "^[0-9]{8,15}$",
+      "description": "Número del cliente en formato internacional sin '+'. También es la sessionKey de la memoria."
+    },
+    "nombre_perfil": {
+      "type": ["string", "null"],
+      "description": "contacts[0].profile.name. Puede ser un apodo; no usarlo como nombre de envío."
+    },
+    "conversacion_id": { "type": "integer" },
+    "wamids": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "Ids de todos los mensajes agrupados por el debounce. El último se marca como leído."
+    },
+    "texto": {
+      "type": "string",
+      "description": "Mensajes concatenados con saltos de línea. Audios transcritos con prefijo '[nota de voz] '. Imágenes como '[imagen] <caption o descripción>'."
+    },
+    "tipos": {
+      "type": "array",
+      "items": { "enum": ["text", "audio", "image", "button", "interactive", "location", "sticker", "other"] }
+    },
+    "ubicacion": {
+      "type": ["object", "null"],
+      "properties": {
+        "latitud": { "type": "number" },
+        "longitud": { "type": "number" },
+        "direccion": { "type": ["string", "null"] }
+      }
+    },
+    "origen": {
+      "type": "object",
+      "required": ["tipo"],
+      "properties": {
+        "tipo": { "enum": ["ctwa", "lead_ad", "web", "organico"], "description": "web = el texto trae el código (web-SKU) del botón de la tienda" },
+        "ad_id": { "type": ["string", "null"] },
+        "ad_headline": { "type": ["string", "null"] },
+        "ctwa_clid": { "type": ["string", "null"] }
+      }
+    },
+    "recibido_en": { "type": "string", "format": "date-time" }
+  }
+}

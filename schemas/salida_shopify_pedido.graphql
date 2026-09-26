@@ -1,0 +1,125 @@
+# Shopify Admin GraphQL API — creación de pedidos desde el agente.
+#
+# Endpoint:  POST https://{SHOPIFY_STORE_DOMAIN}/admin/api/{SHOPIFY_API_VERSION}/graphql.json
+# Headers:   Content-Type: application/json
+#            X-Shopify-Access-Token: {config.shopify_access_token}
+#
+# El token de una app del Dev Dashboard expira en 24 h. DS-05 lo renueva así:
+#   POST https://{SHOPIFY_STORE_DOMAIN}/admin/oauth/access_token
+#   Content-Type: application/x-www-form-urlencoded
+#   grant_type=client_credentials&client_id={SHOPIFY_CLIENT_ID}&client_secret={SHOPIFY_CLIENT_SECRET}
+#   → { "access_token": "...", "scope": "...", "expires_in": 86399 }
+#
+# Siempre revisar userErrors: una respuesta HTTP 200 puede traer errores de validación.
+
+
+# ---------------------------------------------------------------------------
+# 1) CONTRAENTREGA  (DS-T2)  — scope write_orders
+#    Crea el pedido directamente con pago pendiente. Dropify lo toma en 5-10 min.
+#    ⚠️ Fase 0.4: confirmar que Dropi lo importa bien con este formato
+#       (nombre de la pasarela, teléfono, provinceCode).
+# ---------------------------------------------------------------------------
+mutation CrearPedidoContraentrega($order: OrderCreateOrderInput!, $options: OrderCreateOptionsInput) {
+  orderCreate(order: $order, options: $options) {
+    order {
+      id
+      name
+      displayFinancialStatus
+      totalPriceSet { shopMoney { amount currencyCode } }
+    }
+    userErrors { field message }
+  }
+}
+
+# Variables (DS-T2 las arma; el precio sale de la tabla `ofertas`, nunca del LLM):
+# {
+#   "order": {
+#     "currency": "COP",
+#     "financialStatus": "PENDING",
+#     "phone": "+573001112233",
+#     "lineItems": [
+#       {
+#         "variantId": "gid://shopify/ProductVariant/45123456789012",
+#         "quantity": 2,
+#         "priceSet": { "shopMoney": { "amount": "64950.00", "currencyCode": "COP" } }
+#       }
+#     ],
+#     "shippingAddress": {
+#       "firstName": "Laura",
+#       "lastName": "Gómez",
+#       "address1": "Calle 45 # 13-20",
+#       "address2": "Apto 302 - Barrio Chapinero",
+#       "city": "Bogotá",
+#       "provinceCode": "DC",
+#       "countryCode": "CO",
+#       "phone": "+573001112233"
+#     },
+#     "billingAddress": { ...igual que shippingAddress... },
+#     "customer": {
+#       "toUpsert": { "firstName": "Laura", "lastName": "Gómez", "phone": "+573001112233" }
+#     },
+#     "tags": ["canal:whatsapp", "wa:573001112233"],
+#     "note": "Barrio: Chapinero. Referencia: portería café. Preferencia: tarde.",
+#     "customAttributes": [
+#       { "key": "wa_id", "value": "573001112233" },
+#       { "key": "conversacion_id", "value": "418" }
+#     ],
+#     "transactions": [
+#       {
+#         "kind": "SALE",
+#         "status": "PENDING",
+#         "gateway": "Pago contra entrega",
+#         "amountSet": { "shopMoney": { "amount": "129900.00", "currencyCode": "COP" } }
+#       }
+#     ]
+#   },
+#   "options": { "sendReceipt": false, "sendFulfillmentReceipt": false }
+# }
+#
+# Notas:
+# - priceSet es el precio UNITARIO = ofertas.precio_total / ofertas.cantidad.
+#   Si la división no es exacta, crea en Shopify/Dropi una variante "Pack x2" y usa quantity 1.
+# - provinceCode: código de departamento que usa Shopify para Colombia (p. ej. DC, ANT, VAC).
+#   Guárdalo en cobertura.shopify_province_code; verifícalo contra la configuración de la tienda.
+# - Pedidos de prueba: añade el tag "TEST".
+
+
+# ---------------------------------------------------------------------------
+# 2) LINK DE PAGO  (DS-T3)  — scope write_draft_orders
+#    El borrador devuelve invoiceUrl: checkout con los datos prellenados.
+#    Cuando el cliente paga, Shopify crea el pedido → webhook orders/create
+#    con financial_status "paid" → DS-10.
+# ---------------------------------------------------------------------------
+mutation CrearLinkPago($input: DraftOrderInput!) {
+  draftOrderCreate(input: $input) {
+    draftOrder {
+      id
+      name
+      invoiceUrl
+      totalPriceSet { shopMoney { amount currencyCode } }
+    }
+    userErrors { field message }
+  }
+}
+
+# Variables:
+# {
+#   "input": {
+#     "email": "laura@example.com",
+#     "phone": "+573001112233",
+#     "lineItems": [
+#       { "variantId": "gid://shopify/ProductVariant/45123456789012", "quantity": 2 }
+#     ],
+#     "shippingAddress": { ...igual que arriba... },
+#     "billingAddress":  { ...igual que arriba... },
+#     "tags": ["canal:whatsapp", "wa:573001112233", "link_pago"],
+#     "customAttributes": [
+#       { "key": "wa_id", "value": "573001112233" },
+#       { "key": "conversacion_id", "value": "418" }
+#     ]
+#   }
+# }
+#
+# Nota: el draft toma el precio de la variante. Si la oferta es un combo con
+# descuento, agrega "appliedDiscount" (valueType FIXED_AMOUNT) por la diferencia
+# y compara totalPriceSet con ofertas.precio_total antes de enviar el link.

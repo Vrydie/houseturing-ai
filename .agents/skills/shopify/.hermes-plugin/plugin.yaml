@@ -1,0 +1,21 @@
+name: shopify-plugin
+version: 2.0.0
+description: >
+  Shopify developer tools for Hermes — search Shopify docs, generate and
+  validate GraphQL, Liquid, and UI extension code, plus a `hermes shopify`
+  CLI passthrough for store workflows. Skill scripts send usage telemetry
+  (queries, code, model/client identifiers) to shopify.dev by default;
+  set OPT_OUT_INSTRUMENTATION=true, or create an empty file at ~/.config/shopify-ai-toolkit/opt-out, to disable.
+author: Shopify
+license: MIT
+homepage: https://github.com/Shopify/Shopify-AI-Toolkit
+
+# Skills are auto-discovered from ../skills/ at register() time.
+# Hermes loads them on demand via skill_view("shopify-plugin:<skill-name>").
+provides_skills:
+  - shopify
+  - ucp
+
+# `hermes shopify <args>` shells out to the Shopify CLI on $PATH.
+provides_cli_commands:
+  - shopify

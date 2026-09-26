@@ -1,0 +1,113 @@
+{
+  "_nota": "Solicitudes que hace DS-03 a WhatsApp Cloud API. Base: https://graph.facebook.com/{META_GRAPH_VERSION}. Header en todas: Authorization: Bearer {META_SYSTEM_USER_TOKEN}. Respuesta de /messages: {\"messages\":[{\"id\":\"wamid...\"}]} → guardar en mensajes (direccion='out').",
+
+  "enviar_texto": {
+    "method": "POST",
+    "url": "/{WA_PHONE_NUMBER_ID}/messages",
+    "_cuando": "Dentro de la ventana de 24 h desde el último mensaje del cliente.",
+    "body": {
+      "messaging_product": "whatsapp",
+      "recipient_type": "individual",
+      "to": "573001112233",
+      "type": "text",
+      "text": { "preview_url": false, "body": "¡Hola Laura! Con gusto te cuento..." }
+    }
+  },
+
+  "enviar_plantilla": {
+    "method": "POST",
+    "url": "/{WA_PHONE_NUMBER_ID}/messages",
+    "_cuando": "Fuera de la ventana de 24 h (postventa). La plantilla debe estar APROBADA; name y language deben coincidir exactamente con lo registrado.",
+    "body": {
+      "messaging_product": "whatsapp",
+      "to": "573001112233",
+      "type": "template",
+      "template": {
+        "name": "pedido_despachado",
+        "language": { "code": "es" },
+        "components": [
+          {
+            "type": "body",
+            "parameters": [
+              { "type": "text", "text": "Laura" },
+              { "type": "text", "text": "#1023" },
+              { "type": "text", "text": "Transportadora" },
+              { "type": "text", "text": "240012345678" }
+            ]
+          }
+        ]
+      }
+    }
+  },
+
+  "enviar_botones": {
+    "method": "POST",
+    "url": "/{WA_PHONE_NUMBER_ID}/messages",
+    "_cuando": "Opcional: confirmación del resumen del pedido con botones (máx. 3, título ≤ 20 caracteres).",
+    "body": {
+      "messaging_product": "whatsapp",
+      "to": "573001112233",
+      "type": "interactive",
+      "interactive": {
+        "type": "button",
+        "body": { "text": "¿Confirmas tu pedido?" },
+        "action": {
+          "buttons": [
+            { "type": "reply", "reply": { "id": "CONFIRMAR", "title": "Sí, confirmo" } },
+            { "type": "reply", "reply": { "id": "CORREGIR", "title": "Corregir datos" } }
+          ]
+        }
+      }
+    }
+  },
+
+  "marcar_leido_y_escribiendo": {
+    "method": "POST",
+    "url": "/{WA_PHONE_NUMBER_ID}/messages",
+    "_cuando": "1-3 s después del debounce y otra vez antes de cada burbuja. Marca como leído (también los mensajes anteriores) y muestra 'escribiendo…' hasta que respondas o pasen 25 s. Úsalo solo si de verdad vas a responder.",
+    "body": {
+      "messaging_product": "whatsapp",
+      "status": "read",
+      "message_id": "wamid.HBgMNTczMDAxMTEyMjMzFQIAEhgUM0E...",
+      "typing_indicator": { "type": "text" }
+    }
+  },
+
+  "reaccionar": {
+    "method": "POST",
+    "url": "/{WA_PHONE_NUMBER_ID}/messages",
+    "_cuando": "Opcional y ocasional: 👍 o ❤️ a 'listo', 'gracias' o a la confirmación del pedido.",
+    "body": {
+      "messaging_product": "whatsapp",
+      "recipient_type": "individual",
+      "to": "573001112233",
+      "type": "reaction",
+      "reaction": { "message_id": "wamid.HBgMNTczMDAxMTEyMjMzFQIAEhgUM0E...", "emoji": "👍" }
+    }
+  },
+
+  "responder_citando": {
+    "method": "POST",
+    "url": "/{WA_PHONE_NUMBER_ID}/messages",
+    "_cuando": "El cliente hizo varias preguntas sueltas y respondes una en particular.",
+    "body": {
+      "messaging_product": "whatsapp",
+      "to": "573001112233",
+      "context": { "message_id": "wamid.HBgMNTczMDAxMTEyMjMzFQIAEhgUM0E..." },
+      "type": "text",
+      "text": { "body": "Sí, ese mismo te sirve para el carro también" }
+    }
+  },
+
+  "obtener_url_media": {
+    "method": "GET",
+    "url": "/{MEDIA_ID}",
+    "_respuesta": { "url": "https://lookaside.fbsbx.com/whatsapp_business/attachments/?mid=...", "mime_type": "audio/ogg", "file_size": 12345, "id": "MEDIA_ID", "messaging_product": "whatsapp" }
+  },
+
+  "descargar_media": {
+    "method": "GET",
+    "url": "{url devuelta por obtener_url_media}",
+    "_nota": "Requiere el mismo header Authorization. La URL expira en minutos: descargar de inmediato. Respuesta binaria → nodo de transcripción."
+  }
+}

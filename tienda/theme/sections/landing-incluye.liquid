@@ -1,0 +1,21 @@
+
+{% assign selected_product = section.settings.main_product | default: product %}
+<div style="background: var(--color-gris-claro); color: var(--color-grafito); padding: 40px 20px;">
+  <h2 style="font-weight: 800; font-size: 32px; text-align: center; margin-bottom: 24px; text-transform: uppercase;">¿Qué incluye?</h2>
+  
+  <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 24px;">
+    <video src="{{ 'video_taladro.mp4' | asset_url }}" autoplay loop muted playsinline style="width: 100%; max-width: 600px; border-radius: 8px;"></video>
+    
+    <ul style="max-width: 400px; list-style: none; padding: 0;">
+    {% for item in selected_product.metafields.landing.beneficios.value %}
+      <li style="display: flex; gap: 12px; margin-bottom: 12px; font-size: 18px; align-items: center;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-naranja); flex-shrink: 0;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        {{ item }}
+      </li>
+    {% endfor %}
+    </ul>
+  </div>
+</div>
+{% schema %}
+{ "name": "Landing Incluye", "settings": [{ "type": "product", "id": "main_product", "label": "Producto Estrella" }], "presets": [{ "name": "Landing Incluye" }] }
+{% endschema %}

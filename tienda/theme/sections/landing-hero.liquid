@@ -1,0 +1,133 @@
+
+{% assign selected_product = section.settings.main_product | default: product %}
+
+<style>
+@keyframes latido {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37,211,102,0.7); }
+  5% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(37,211,102,0); }
+  10% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37,211,102,0); }
+  15% { transform: scale(1.05); box-shadow: 0 0 0 16px rgba(37,211,102,0); }
+  20% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37,211,102,0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37,211,102,0); }
+}
+@keyframes sello {
+  0% { transform: scale(2) rotate(-15deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.btn-whatsapp {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--color-whatsapp); color: var(--color-whatsapp-text);
+  font-family: var(--font-titulos); font-size: 20px; font-weight: 800;
+  text-decoration: none; padding: 16px 32px; border-radius: 8px;
+  width: 100%; max-width: 400px; margin: 16px auto; text-transform: none;
+  transition: transform 0.2s;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .btn-whatsapp.is-visible-btn {
+    animation: latido 6s infinite;
+  }
+}
+
+.btn-whatsapp:hover, .btn-whatsapp:focus {
+  animation-play-state: paused;
+}
+
+.anim-sello {
+  display: inline-block;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .anim-sello {
+    animation: sello 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+}
+</style>
+
+<div style="background: var(--color-grafito); color: var(--color-gris-claro); padding: 40px 20px;">
+  <div class="hero-container">
+    <div class="hero-text">
+      {% if selected_product.metafields.landing.hook %}
+        <h1 style="color: var(--color-naranja); font-weight: 800; font-size: 40px; margin-bottom: 16px; text-transform: uppercase;">
+          {{ selected_product.metafields.landing.hook.value }}
+        </h1>
+      {% endif %}
+      {% if selected_product.metafields.landing.subtitulo %}
+        <p style="font-size: 18px; margin-bottom: 24px;">{{ selected_product.metafields.landing.subtitulo.value }}</p>
+      {% endif %}
+      
+      <div class="price anim-sello" style="font-family: var(--font-titulos); font-size: 48px; font-weight: 800; margin-bottom: 16px; color: var(--color-naranja);">
+        {{ selected_product.price | money }}
+      </div>
+
+      <a id="hero-btn" href="https://wa.me/573000000000?text={{ selected_product.metafields.landing.whatsapp_texto.value | url_encode }} (web-{{ selected_product.sku }})" class="btn-whatsapp is-visible-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"></path><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"></path></svg> Pedir por WhatsApp
+      </a>
+    </div>
+    
+    <div class="hero-image">
+      {% assign first_video = selected_product.media | where: "media_type", "video" | first %}
+      {% assign first_external_video = selected_product.media | where: "media_type", "external_video" | first %}
+      
+      {% if selected_product.metafields.landing.video != blank %}
+        <video src="{{ selected_product.metafields.landing.video.value.url }}" autoplay loop muted playsinline style="width: 100%; border-radius: 8px;"></video>
+      {% elsif first_video %}
+        {{ first_video | video_tag: autoplay: true, loop: true, muted: true, controls: false, image_size: "800x", style: "width: 100%; border-radius: 8px;" }}
+      {% elsif first_external_video %}
+        {{ first_external_video | external_video_tag: autoplay: true, loop: true, muted: true, style: "width: 100%; border-radius: 8px; aspect-ratio: 16/9;" }}
+      {% elsif selected_product.images[0] %}
+        <img src="{{ selected_product.images[0] | image_url: width: 800 }}" style="width: 100%; border-radius: 8px;" alt="Portada">
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+.hero-container {
+  max-width: 1200px; margin: 0 auto;
+  text-align: center;
+}
+.hero-image {
+  margin-top: 24px;
+}
+@media (min-width: 1024px) {
+  .hero-container {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;
+    text-align: left;
+  }
+  .hero-text { order: 1; }
+  .hero-image { order: 2; margin-top: 0; }
+  .btn-whatsapp { margin: 16px 0; }
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const heroBtn = document.getElementById('hero-btn');
+  const stickyBar = document.getElementById('sticky-bar');
+  const stickyBtn = document.getElementById('sticky-btn');
+  
+  if (heroBtn && stickyBar) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Hero button is visible
+          stickyBar.style.transform = 'translateY(100%)';
+          heroBtn.classList.add('is-visible-btn');
+          stickyBtn.classList.remove('is-visible-btn');
+        } else {
+          // Hero button is hidden
+          stickyBar.style.transform = 'translateY(0)';
+          heroBtn.classList.remove('is-visible-btn');
+          stickyBtn.classList.add('is-visible-btn');
+        }
+      });
+    }, { threshold: 0 });
+    
+    observer.observe(heroBtn);
+  }
+});
+</script>
+{% schema %}
+{ "name": "Landing Hero", "settings": [{ "type": "product", "id": "main_product", "label": "Producto Estrella" }], "presets": [{ "name": "Landing Hero" }] }
+{% endschema %}

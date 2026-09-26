@@ -1,0 +1,54 @@
+{
+  "_nota": "Webhook POST de WhatsApp Cloud API: primer mensaje de un cliente que hizo clic en un anuncio Click-to-WhatsApp. El bloque 'referral' solo viene en el mensaje que abre la conversación desde el anuncio. Rutas que usa DS-01: entry[0].changes[0].value.{metadata, contacts, messages}.",
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "WABA_ID",
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "573009998877",
+              "phone_number_id": "PHONE_NUMBER_ID"
+            },
+            "contacts": [
+              {
+                "profile": { "name": "Laura Gómez" },
+                "wa_id": "573001112233"
+              }
+            ],
+            "messages": [
+              {
+                "from": "573001112233",
+                "id": "wamid.HBgMNTczMDAxMTEyMjMzFQIAEhgUM0E...",
+                "timestamp": "1758873600",
+                "type": "text",
+                "text": { "body": "Hola, quiero más información del producto" },
+                "referral": {
+                  "source_url": "https://fb.me/abc123",
+                  "source_id": "120211234567890123",
+                  "source_type": "ad",
+                  "headline": "Titular del anuncio",
+                  "body": "Texto principal del anuncio",
+                  "media_type": "video",
+                  "video_url": "https://...",
+                  "thumbnail_url": "https://...",
+                  "ctwa_clid": "ARAkLkA8rmlFeiCktEJQ-QTwRiyYHAFDLMNDBH0CD3qpjd0HR4irJ6LEkR7JwFF4XvnO2E4Nx0-eM-GABDLOPaOdRMv-_zfUQ2a"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "_otros_tipos_de_mensaje": {
+    "audio": { "type": "audio", "audio": { "id": "MEDIA_ID", "mime_type": "audio/ogg; codecs=opus", "voice": true } },
+    "image": { "type": "image", "image": { "id": "MEDIA_ID", "mime_type": "image/jpeg", "caption": "opcional" } },
+    "button": { "type": "button", "button": { "text": "Sí, confirmo", "payload": "CONFIRMAR" } },
+    "interactive": { "type": "interactive", "interactive": { "type": "button_reply", "button_reply": { "id": "x2", "title": "2 unidades" } } },
+    "location": { "type": "location", "location": { "latitude": 4.711, "longitude": -74.072, "name": "opcional", "address": "opcional" } }
+  }
+}

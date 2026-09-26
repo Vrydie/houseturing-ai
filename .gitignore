@@ -1,0 +1,21 @@
+# --- Secretos: NUNCA al repositorio ---
+.env
+*.env
+!.env.example
+infra/.env
+infra/data/
+
+# --- Dependencias y cachés ---
+node_modules/
+.cache/
+__pycache__/
+*.pyc
+
+# --- Estado local de herramientas ---
+tienda/.shopify/
+.claude/settings.local.json
+
+# --- Sistema y logs ---
+*.log
+.DS_Store
+Thumbs.db

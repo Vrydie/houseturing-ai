@@ -1,0 +1,208 @@
+# shopify-plugin
+
+## 2.0.0
+
+### Major Changes
+
+- d7a3e1e: Publish every Shopify topic as a single `shopify` skill: one routing table picks the surface, `references/<topic>.md` carries that topic's contract and guide, and `search_docs.mjs`/`validate.mjs` take the topic as `--api`. UCP ships separately as `ucp`.
+
+  **Breaking.** The 22 per-topic skills (`shopify-admin`, `shopify-liquid`, …) no longer exist. Replace a skill name with `shopify` and name the topic instead: a saved prompt or agent that loaded `shopify-admin` should load `shopify`; an allowlist entry or `shopify-*` glob needs `shopify`; `skills/shopify-admin/scripts/validate.mjs --code …` becomes `skills/shopify/scripts/validate.mjs --api admin --code …`; and an install that targeted `skills/shopify-liquid/` targets `skills/shopify/`. `ucp` is unchanged.
+
+### Minor Changes
+
+- bcb174e: The Hydrogen, CLI and developer-onboarding guides now name Shopify topics the way the tooling does, instead of an argument syntax and an API id that do not exist.
+- 510b795: The GraphQL, component and Liquid-codeblock validators are one `validate` tool selected by `api`. Tool descriptions and skill references no longer restate content the same turn already carries.
+- ee3b2a3: Telemetry keeps reporting the skill name each topic published under, so topic-level usage survives the collapse to one skill with no change for existing consumers.
+- 77fe9cf: The shopify skill's routing table now carries each topic's search filter and validate flags behind one shared five-step procedure, and reference files carry only their topic's instructions.
+- 019ec3f: The `shopify` router no longer lists every topic's `--version` values or the Function API matrix — the tools already name the valid values when you pass a wrong one, and `validate.mjs` now rejects a missing or unknown `--target` with that surface's real targets.
+
+### Patch Changes
+
+- 932376a: `npx skills update` (skills CLI 1.5.24+) now replaces each retired per-topic skill (`shopify-admin`, `shopify-liquid`, …) with a notice telling the user to remove it and add `shopify`; new `npx skills add` installs and plugins never see these notices.
+- 0c16df2: Help merchants customize their new store with direct theme edits, Horizon palette guidance, and automatic preview refresh and visual review when browser tools are available.
+- 7e5805f: Guide agents to use Shopify CLI JSON output and jq filters while avoiding redundant help and schema lookups.
+
+## 1.8.4
+
+### Patch Changes
+
+- f6c3d26: Route App Home UI extensions (`admin.app.home.render`) to Admin UI Extensions instead of the iframe App Home surface, and bundle Admin UI Extensions `2026-07` so `s-form` validates there.
+
+## 1.8.3
+
+### Patch Changes
+
+- 5499761: Clarify that App Store review guides the user's LLM to generate a local pre-submission report against checkable criteria.
+- 5cbfc3d: Refactor build and instruction generation without changing default behavior.
+- 772f718: `onboarding-merchant` now fetches the preview store's save link with `shopify store info --json` instead of expecting a `store.saveUrl` that `store create preview` never returns.
+- 4e548c4: Prevent config filenames from becoming shell commands in CLI validation guidance.
+- 77802a8: Keep credentials out of mock.shop requests and direct real-store setup to Shopify's Storefront API guide.
+- 3f56cab: Skill `compatibility` frontmatter now describes environment requirements (Node.js, Shopify CLI) instead of an outdated list of three agent hosts.
+- 82efb5f: Expose version-aware Polaris App Home validation, including CDN major-track pins.
+
+## 1.8.2
+
+### Patch Changes
+
+- 74fb50b: Route "build an app with [language/framework]" prompts to Shopify's official backend libraries: the `onboarding-dev`, `polaris-checkout-extensions`, `polaris-customer-account-extensions`, and `pos-ui` topics now name the `@shopify/shopify-app-react-router`, `@shopify/shopify-app-remix`, and `@shopify/shopify-app-express` packages for Node.js, `shopify_app` for Rails, `shopify_api` for Ruby without Rails, `shopify-app-php`, and `shopify-app-python`.
+- c2cdc8e: Guide merchants from a mock.shop reference catalog to a visible Shopify preview store, offer a matching reference catalog as the first step after preview creation, name a nameless merchant's store after the reference they pick, and bundle `scripts/import_mock_shop_catalog.mjs` so the import runs as one deterministic command: catalog, brand hero and logo, menus, pages, blog articles, and Horizon homepage wiring (a full-width hero banner with the top two collections featured beneath it).
+
+## 1.8.1
+
+### Patch Changes
+
+- 7ff9a83: Point the Hydrogen and Storefront GraphQL topics at mock.shop for building without a store: the store directory at mock.shop/llms.txt, the `/api` recipe, and the Hydrogen `--mock-shop` flag.
+
+## 1.8.0
+
+### Minor Changes
+
+- 240b92e: Add an `app-pricing` topic that routes supported app monetization to required unscoped Shopify.dev search, with explicit handoffs for Manual Pricing exceptions and merchant product subscriptions.
+
+### Patch Changes
+
+- 0c78d28: Publish each mirrored Shopify AI Toolkit npm release to ClawHub automatically.
+- 61e53ec: Publish matching `vX.Y.Z` tags and GitHub releases when versioned content reaches the public mirror.
+- 1df934b: Generated skills now bundle a once-per-turn `scripts/log_feedback.mjs` capability-scorecard finalizer, with a matching SKILL.md instruction and privacy notice. Skill telemetry emitters honor `SKILL_TELEMETRY_TEST_MODE=1` (print the would-be request to stderr instead of sending), matching the bash telemetry hook.
+
+## 1.7.2
+
+### Patch Changes
+
+- 2cde724: Add built-in `--help` usage to every bundled skill script and advertise it in generated skill instructions.
+- 4f01990: Preserve executable permissions on generated skill helper scripts in the published AI Toolkit package.
+
+## 1.7.1
+
+### Patch Changes
+
+- 58984bd: Add concise Shopify CLI guidance for creating and deleting development stores.
+- 2c32cb7: Telemetry opt-out now works on agents that spawn scripts without your shell environment: create `~/.config/shopify-ai-toolkit/opt-out` (or set `DO_NOT_TRACK`). Any opt-out signal is always respected and can no longer be overridden.
+
+## 1.7.0
+
+### Minor Changes
+
+- c6cd10c: Add OpenClaw plugin manifest so the toolkit installs as a native OpenClaw plugin
+- dbd5579: Publish pi plugin bundle to npm as @shopify/ai-toolkit for pi.dev gallery visibility
+
+### Patch Changes
+
+- 1ac3a4c: App Home instructions now say when to reach for `s-grid` over an inline `s-stack`, so a field and its action keep explicit columns instead of the field taking the whole row.
+- 1f7f4ce: GraphQL instructions now name the API in `validate_graphql_codeblocks` directives, so non-admin operations are less likely to be validated against the admin schema, and explain when to scope `search_docs_chunks` by `api_name`.
+  Functions skill: `validate.mjs` examples now show the required `--api <api-name>` flag and list the valid function API names.
+- 4423508: Fix `openclaw plugins install npm:@shopify/ai-toolkit` by adding the no-op runtime entry OpenClaw's npm installer requires.
+- 5f9c38f: Rename the plugin bundle branding from "Shopify Dev MCP" to "Shopify AI Toolkit" in the README title and package description.
+
+## 1.6.1
+
+### Patch Changes
+
+- 167ca4f: Hermes plugin now advertises all 21 skills (adds `shopify-shopifyql`) and the current version in its install output.
+
+## 1.6.0
+
+### Minor Changes
+
+- 8400c8f: Add Pi as a supported harness. The plugin bundle now declares a `pi` package manifest (`pi.skills`) and the `pi-package` keyword, so it can be installed with `pi install git:github.com/Shopify/Shopify-AI-Toolkit`.
+
+### Patch Changes
+
+- e00fae0: Open merchant stores in the browser at natural viewing points instead of asking merchants to run the command.
+- 7b9189c: Remove POS event observe targets from generated POS UI guidance.
+- 0596360: Add an independent, version-aware `shopifyql` topic to `learn_shopify_api` so the MCP can answer merchant analytics questions (sales, orders, sessions, trends, period-over-period) with ShopifyQL — reporting the Admin GraphQL API can't compute. The standalone ShopifyQL skill searches the developer docs to ground field and table names instead of guessing.
+
+## 1.5.3
+
+### Patch Changes
+
+- e5ff2d4: Use the `values` shorthand for metaobject writes and Admin API reads in custom data instructions.
+- 9777171: Fix generated GraphQL skills so standalone validation can load schema metadata.
+- 31d8759: Move brand-new merchant preview-store onboarding onto `onboarding-merchant`, trim that skill down to preview creation plus merchant follow-up guidance, and stop treating preview-store creation as a primary `use-shopify-cli` workflow. Merchants now view a preview store with `shopify store open` rather than surfacing the raw storefront URL, and the `onboarding-merchant` routing description no longer advertises connecting an existing merchant-owned store. Tighten the focused preview-store evals around the new onboarding boundary and merchant-facing response contract.
+- b76276a: Quote `${CLAUDE_PLUGIN_ROOT}`/`${CURSOR_PLUGIN_ROOT}`/`${PLUGIN_ROOT}` in the telemetry hook manifests so skill telemetry runs on plugin paths that contain a space (e.g. a Windows username with a space) instead of erroring on every tool call.
+
+## 1.5.2
+
+### Patch Changes
+
+- fd29ec1: Update the AI Toolkit plugin README installation instructions to match the public docs. (Retroactive changeset for #1162.)
+
+## 1.5.1
+
+### Patch Changes
+
+- b1a40b9: Use `log!` + `process::abort()` in the Functions `main.rs` example so the documented template matches the runtime the rest of the SKILL recommends.
+
+## 1.5.0
+
+### Minor Changes
+
+- f9cef30: Add Codex repo marketplace metadata for installing the Shopify plugin from a marketplace source.
+
+### Patch Changes
+
+- 4d50229: App review now retrieves the requirements page with the Shopify CLI's `shopify doc fetch`, giving a cleaner, more predictable fetch of the canonical Markdown than ad-hoc browser or web-fetch retrieval.
+- 5cf5a15: Fix invalid `s-badge tone="success"` examples in the checkout and customer-account extension instructions (their badge tone is `auto`/`neutral`/`critical`).
+- 0da06ce: store execute attribution: add an `m:<model>` tag to `SHOPIFY_CLI_AGENT_INFO`, give concrete per-field examples, disambiguate the version field, and add a "use `none` if unknown" rule so agent-run CLI commands stop reporting generic provider/version values and start capturing the actual model.
+- 6897a17: Remove stale JS template-literal `\$` escapes from the Functions instructions so example GraphQL operations use valid `$variable` syntax.
+- b222a16: Reduce false positives in theme validation by skipping single-codeblock checks that require co-resident files, including snippets/assets/blocks/locales.
+
+  Treat `WARNING` and `INFO` theme-check findings as advice rather than failures across MCP and CLI theme validators, while still surfacing them in result detail.
+
+- 87b0111: Reject duplicate theme codeblock paths instead of silently overwriting them, and document the `--context <theme|app>` flag in the stateless validation instructions.
+
+## 1.4.1
+
+### Patch Changes
+
+- 68c6757: Capture user_prompt out-of-band on Claude Code: a `UserPromptSubmit` hook stashes the verbatim prompt locally and the `PostToolUse` telemetry hook attaches it (truncated to 2000 chars) when a Shopify skill activates. Honors `OPT_OUT_INSTRUMENTATION`; other hosts are unchanged.
+
+## 1.4.0
+
+### Minor Changes
+
+- 64d4b72: Capture the user's most recent prompt (verbatim, truncated to 2000 chars) in skill telemetry. Each skill ships exactly one user_prompt-capturing script: `validate.mjs` for skills with validation, or a new `log_skill_use.mjs` for skills without. The hook does not carry user_prompt — it identifies the activation and supplies dedup keys (`sessionId`, `toolUseId`). Honors `OPT_OUT_INSTRUMENTATION=true`.
+- d1533d2: Add version-aware Shopify API context, search, validation, and generated skills.
+- f9d177b: Add a `PostToolUse` telemetry hook to the Claude Code, Cursor, and GitHub Copilot plugin manifests that reports `skill_invocation` events when the agent calls the host `Skill` tool with a Shopify AI Toolkit skill or reads a `SKILL.md`. Closes the telemetry gap for markdown-only skills that never invoke a script. Honors `OPT_OUT_INSTRUMENTATION=true`; the hook never reports tool inputs, file contents, prompts, or code.
+- 84645c5: Inject a `hooks:` block into every generated `SKILL.md` so Claude Code emits `skill_invocation` telemetry when skills are installed standalone (e.g. `npx skills add Shopify/shopify-ai-toolkit`), not only when the plugin is installed. Events from the plugin-manifest and skill-frontmatter hooks are labeled with `hookSource` and carry the agent's `sessionId` + `toolUseId` inside the body's `parameters` object, so downstream consumers can dedup on `(sessionId, toolUseId)` when both surfaces fire for the same tool call.
+
+### Patch Changes
+
+- 19a9a93: Fix the skill-frontmatter telemetry hook to resolve its script via `$CLAUDE_PLUGIN_ROOT` so standalone Claude Code skill installs emit `skill_invocation` instead of failing with a no-such-file hook error.
+- a137176: Pass the captured user prompt to skill telemetry as a base64 argument (`--user-prompt-base64`) instead of a shell heredoc, closing a shell-injection seam for prompts containing the heredoc delimiter.
+
+## 1.3.0
+
+### Minor Changes
+
+- d9be812: Add Hermes client manifest (`.hermes-plugin/`).
+
+  Hermes users can now install the Shopify AI Toolkit with a single command:
+
+  ```
+  curl -fsSL https://raw.githubusercontent.com/Shopify/Shopify-AI-Toolkit/main/.hermes-plugin/install.sh | bash
+  ```
+
+  The manifest resolves skills from the shared `skills/` folder — no
+  vendoring, no separate sync step. Re-running the install command updates
+  the plugin to the latest published version.
+
+## 1.2.2
+
+### Patch Changes
+
+- 716d22b: `shopify-app-store-review` skill now points the agent at the canonical shopify.dev requirements page (https://shopify.dev/docs/apps/launch/app-store-review/app-store-ai-self-review-requirements) instead of carrying a hand-maintained inline copy, and adds 5.x category-specific requirements. Output format and status taxonomy are unchanged. (Retroactive changeset for #722, which merged without one.)
+- f8d1abd: Disclose default-on telemetry more clearly in mirrored plugin install surfaces and generated skill privacy notices, including the opt-out environment variable. Clarify that validation and search scripts report specific request data to `shopify.dev/mcp/usage`.
+- 716d22b: Skill validate scripts (`validate_graphql`, `validate_components`, `validate_functions`, `validate_theme`) now emit the same markdown summary the MCP `validate_*_codeblocks` tools return, including artifact ID and revision lines. The id is auto-minted when not supplied and echoed back to the agent, matching the MCP behavior so retries can chain across revisions on either surface.
+
+## 1.2.1
+
+### Patch Changes
+
+- aab0a72: `shopify-app-store-review` skill now points the agent at the canonical shopify.dev requirements page (https://shopify.dev/docs/apps/launch/app-store-review/app-store-ai-self-review-requirements) instead of carrying a hand-maintained inline copy, and adds 5.x category-specific requirements. Output format and status taxonomy are unchanged. (Retroactive changeset for #722, which merged without one.)
+
+## 1.2.0
+
+### Minor Changes
+
+- d7608c7: Changeset to force a new release

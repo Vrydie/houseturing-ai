@@ -1,0 +1,55 @@
+{
+  "sections": {
+    "hero": {
+      "type": "landing-hero",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta"
+      }
+    },
+    "incluye": {
+      "type": "landing-incluye",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta"
+      }
+    },
+    "pasos": {
+      "type": "landing-pasos",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta"
+      }
+    },
+    "garantia": {
+      "type": "landing-garantia",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta"
+      }
+    },
+    "faq": {
+      "type": "landing-faq",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta"
+      }
+    },
+    "cierre": {
+      "type": "landing-cierre",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta"
+      }
+    },
+    "sticky": {
+      "type": "landing-sticky",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta"
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "incluye",
+    "pasos",
+    "garantia",
+    "faq",
+    "cierre",
+    "sticky"
+  ]
+}

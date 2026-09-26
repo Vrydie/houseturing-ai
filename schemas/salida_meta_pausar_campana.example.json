@@ -1,0 +1,17 @@
+{
+  "_nota": "DS-21 (guardián de stock) → Marketing API. Requiere ads_management en el token del usuario del sistema y que la cuenta publicitaria esté asignada a ese usuario. Una llamada por cada campaign_id del SKU agotado (tabla campanas). También la usa DS-46 para matar pruebas. Reactivar = mismo request con status ACTIVE (se recomienda hacerlo a mano).",
+
+  "pausar": {
+    "method": "POST",
+    "url": "https://graph.facebook.com/{META_GRAPH_VERSION}/{CAMPAIGN_ID}",
+    "headers": { "Authorization": "Bearer {META_SYSTEM_USER_TOKEN}" },
+    "body": { "status": "PAUSED" },
+    "_respuesta": { "success": true }
+  },
+
+  "verificar_estado": {
+    "method": "GET",
+    "url": "https://graph.facebook.com/{META_GRAPH_VERSION}/{CAMPAIGN_ID}?fields=name,status,effective_status",
+    "_respuesta": { "name": "CTWA - Producto Estrella", "status": "PAUSED", "effective_status": "PAUSED", "id": "{CAMPAIGN_ID}" }
+  }
+}

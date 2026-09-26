@@ -1,0 +1,50 @@
+{
+  "_nota": "Webhook orders/create de Shopify (subconjunto de campos que usa DS-10; el payload real trae muchos más). Headers relevantes: X-Shopify-Topic, X-Shopify-Hmac-Sha256, X-Shopify-Webhook-Id, X-Shopify-Shop-Domain. El vínculo con WhatsApp viaja en tags ('wa:573001112233') y note_attributes, que puso DS-T2 al crear el pedido.",
+  "id": 5912345678901,
+  "admin_graphql_api_id": "gid://shopify/Order/5912345678901",
+  "name": "#1023",
+  "created_at": "2026-09-26T10:15:00-05:00",
+  "financial_status": "pending",
+  "fulfillment_status": null,
+  "currency": "COP",
+  "total_price": "129900.00",
+  "phone": "+573001112233",
+  "email": null,
+  "tags": "canal:whatsapp, wa:573001112233",
+  "payment_gateway_names": ["Pago contra entrega"],
+  "note": "Barrio: Chapinero. Referencia: portería café",
+  "note_attributes": [
+    { "name": "wa_id", "value": "573001112233" },
+    { "name": "conversacion_id", "value": "418" }
+  ],
+  "customer": {
+    "id": 7012345678901,
+    "first_name": "Laura",
+    "last_name": "Gómez",
+    "phone": "+573001112233"
+  },
+  "shipping_address": {
+    "first_name": "Laura",
+    "last_name": "Gómez",
+    "address1": "Calle 45 # 13-20",
+    "address2": "Apto 302",
+    "city": "Bogotá",
+    "province": "Bogotá, D.C.",
+    "province_code": "DC",
+    "country": "Colombia",
+    "country_code": "CO",
+    "zip": "110231",
+    "phone": "+573001112233"
+  },
+  "line_items": [
+    {
+      "id": 14123456789012,
+      "product_id": 8123456789012,
+      "variant_id": 45123456789012,
+      "sku": "SKU-ESTRELLA-01",
+      "title": "Producto Estrella",
+      "quantity": 2,
+      "price": "64950.00"
+    }
+  ]
+}

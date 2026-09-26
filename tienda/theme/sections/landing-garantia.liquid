@@ -1,0 +1,12 @@
+
+{% assign selected_product = section.settings.main_product | default: product %}
+<div style="background: var(--color-gris-claro); color: var(--color-grafito); padding: 40px 20px;">
+  <div style="border: 2px solid var(--color-linea); padding: 32px 20px; border-radius: 8px; max-width: 600px; margin: 0 auto; text-align: center;">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+    <h2 style="font-weight: 800; font-size: 28px; margin-bottom: 16px; text-transform: uppercase;">Garantía</h2>
+    <p style="font-size: 18px; line-height: 1.5;">{{ selected_product.metafields.landing.garantia.value }}</p>
+  </div>
+</div>
+{% schema %}
+{ "name": "Landing Garantia", "settings": [{ "type": "product", "id": "main_product", "label": "Producto Estrella" }], "presets": [{ "name": "Landing Garantia" }] }
+{% endschema %}

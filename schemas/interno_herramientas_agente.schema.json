@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "interno_herramientas_agente",
+  "title": "Herramientas del agente de ventas (entradas que genera el LLM)",
+  "description": "Cada $def es el esquema de entrada de una tool de n8n (sub-workflow). wa_id y conversacion_id NO los manda el LLM: el sub-workflow los toma del contexto de la ejecución, así el modelo no puede suplantar a otro cliente. Los precios tampoco: el LLM solo elige oferta_id.",
+  "$defs": {
+    "consultar_cobertura": {
+      "description": "Verifica si hay envío a una ciudad y devuelve el nombre oficial. Úsala ANTES de mostrar el resumen del pedido.",
+      "type": "object",
+      "required": ["ciudad"],
+      "additionalProperties": false,
+      "properties": {
+        "ciudad": { "type": "string", "minLength": 2, "description": "Ciudad o municipio tal como lo escribió el cliente." },
+        "departamento": { "type": "string", "description": "Departamento si el cliente lo dio; ayuda a desambiguar." }
+      }
+    },
+    "consultar_cobertura_salida": {
+      "type": "object",
+      "properties": {
+        "cubierto": { "type": "boolean" },
+        "ciudad_oficial": { "type": ["string", "null"] },
+        "departamento_oficial": { "type": ["string", "null"] },
+        "acepta_contraentrega": { "type": "boolean" },
+        "dias_entrega": { "type": ["string", "null"], "description": "Rango, p. ej. '2 a 4 días hábiles'." },
+        "opciones": {
+          "type": "array",
+          "description": "Si la ciudad es ambigua (p. ej. varias 'San José'), las candidatas para que el agente pregunte.",
+          "items": { "type": "object", "properties": { "ciudad": { "type": "string" }, "departamento": { "type": "string" } } }
+        }
+      }
+    },
+
+    "datos_envio": {
+      "type": "object",
+      "required": ["nombre", "apellido", "celular", "departamento", "ciudad", "direccion", "barrio"],
+      "properties": {
+        "nombre": { "type": "string", "minLength": 2 },
+        "apellido": { "type": "string", "minLength": 2 },
+        "celular": { "type": "string", "pattern": "^3[0-9]{9}$", "description": "Celular colombiano de 10 dígitos, sin +57 ni espacios." },
+        "documento": { "type": "string", "pattern": "^[0-9]{5,12}$", "description": "Cédula. Opcional; algunas transportadoras la piden." },
+        "departamento": { "type": "string", "description": "departamento_oficial devuelto por consultar_cobertura." },
+        "ciudad": { "type": "string", "description": "ciudad_oficial devuelta por consultar_cobertura." },
+        "direccion": { "type": "string", "minLength": 5, "description": "Calle/carrera y número. Ej.: 'Calle 45 # 13-20'." },
+        "complemento": { "type": "string", "description": "Apto, torre, casa, conjunto." },
+        "barrio": { "type": "string", "minLength": 2 },
+        "referencias": { "type": "string", "description": "Puntos de referencia para el mensajero." },
+        "email": { "type": "string", "format": "email" }
+      }
+    },
+
+    "crear_pedido_contraentrega": {
+      "description": "Crea el pedido con pago contra entrega. SOLO después de que el cliente respondió 'sí' al resumen completo.",
+      "type": "object",
+      "required": ["oferta_id", "datos_envio", "confirmado_por_cliente"],
+      "additionalProperties": false,
+      "properties": {
+        "oferta_id": { "type": "string", "description": "Id de la oferta elegida (ver ficha de producto: x1, x2, x3)." },
+        "datos_envio": { "$ref": "#/$defs/datos_envio" },
+        "confirmado_por_cliente": { "const": true, "description": "true solo si el cliente confirmó explícitamente el resumen." },
+        "notas": { "type": "string", "description": "Preferencias de entrega (horario, etc.)." }
+      }
+    },
+    "crear_pedido_salida": {
+      "type": "object",
+      "properties": {
+        "ok": { "type": "boolean" },
+        "numero_pedido": { "type": "string", "description": "'#1023'" },
+        "total": { "type": "number" },
+        "moneda": { "type": "string" },
+        "dias_entrega": { "type": "string" },
+        "error": { "type": ["string", "null"], "description": "Motivo legible si ok=false (dato inválido, sin cobertura, sin stock)." }
+      }
+    },
+
+    "generar_link_pago": {
+      "description": "Genera un enlace de pago en línea (checkout de Shopify con datos prellenados) para quien prefiere pagar por adelantado.",
+      "type": "object",
+      "required": ["oferta_id", "datos_envio", "confirmado_por_cliente"],
+      "additionalProperties": false,
+      "properties": {
+        "oferta_id": { "type": "string" },
+        "datos_envio": { "$ref": "#/$defs/datos_envio" },
+        "confirmado_por_cliente": { "const": true }
+      }
+    },
+
+    "consultar_estado_pedido": {
+      "description": "Devuelve los pedidos del cliente actual (estado, transportadora, guía). Sin parámetros obligatorios: el wa_id se toma del contexto.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "numero_pedido": { "type": "string", "description": "Opcional, si el cliente lo menciona (#1023)." }
+      }
+    },
+
+    "escalar_a_humano": {
+      "description": "Pausa el bot en esta conversación y avisa al operador. Después de llamarla, informa al cliente que un asesor le escribirá y no sigas con ese tema.",
+      "type": "object",
+      "required": ["motivo", "resumen"],
+      "additionalProperties": false,
+      "properties": {
+        "motivo": {
+          "enum": [
+            "cliente_molesto",
+            "reclamo_pedido",
+            "pide_humano",
+            "pregunta_sin_respuesta",
+            "venta_mayorista",
+            "error_herramienta",
+            "opt_out",
+            "otro"
+          ]
+        },
+        "resumen": { "type": "string", "maxLength": 500, "description": "Qué pasó y qué necesita el cliente, en 1-3 frases para el operador." },
+        "urgencia": { "enum": ["normal", "alta"], "default": "normal" }
+      }
+    }
+  }
+}

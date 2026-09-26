@@ -1,0 +1,41 @@
+{
+  "sections": {
+    "hero": {
+      "type": "landing-hero",
+      "settings": {}
+    },
+    "incluye": {
+      "type": "landing-incluye",
+      "settings": {}
+    },
+    "pasos": {
+      "type": "landing-pasos",
+      "settings": {}
+    },
+    "garantia": {
+      "type": "landing-garantia",
+      "settings": {}
+    },
+    "faq": {
+      "type": "landing-faq",
+      "settings": {}
+    },
+    "cierre": {
+      "type": "landing-cierre",
+      "settings": {}
+    },
+    "sticky": {
+      "type": "landing-sticky",
+      "settings": {}
+    }
+  },
+  "order": [
+    "hero",
+    "incluye",
+    "pasos",
+    "garantia",
+    "faq",
+    "cierre",
+    "sticky"
+  ]
+}

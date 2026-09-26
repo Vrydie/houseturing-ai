@@ -1,0 +1,44 @@
+{
+  "name": "shopify-plugin",
+  "version": "2.0.0",
+  "private": true,
+  "publishConfig": {
+    "executableFiles": [
+      "./skills/shopify/scripts/_validate_components.mjs",
+      "./skills/shopify/scripts/_validate_functions.mjs",
+      "./skills/shopify/scripts/_validate_graphql.mjs",
+      "./skills/shopify/scripts/_validate_theme.mjs",
+      "./skills/shopify/scripts/import_mock_shop_catalog.mjs",
+      "./skills/shopify/scripts/log_feedback.mjs",
+      "./skills/shopify/scripts/log_skill_use.mjs",
+      "./skills/shopify/scripts/search_docs.mjs",
+      "./skills/shopify/scripts/validate.mjs",
+      "./skills/ucp/scripts/log_feedback.mjs",
+      "./skills/ucp/scripts/log_skill_use.mjs"
+    ]
+  },
+  "description": "Shopify AI Toolkit — agent skills to search Shopify docs, generate and validate GraphQL, Liquid, and UI extension code, and manage stores through the Shopify CLI.",
+  "author": "Shopify",
+  "license": "MIT",
+  "keywords": [
+    "shopify",
+    "mcp",
+    "graphql",
+    "liquid",
+    "storefront",
+    "admin-api",
+    "plugin",
+    "pi-package"
+  ],
+  "openclaw": {
+    "extensions": [
+      "./openclaw.extension.mjs"
+    ]
+  },
+  "pi": {
+    "skills": [
+      "./skills"
+    ],
+    "image": "https://raw.githubusercontent.com/Shopify/Shopify-AI-Toolkit/main/assets/shopify_glyph.png"
+  }
+}

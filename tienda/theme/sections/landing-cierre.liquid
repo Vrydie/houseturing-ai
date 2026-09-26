@@ -1,0 +1,17 @@
+
+{% assign selected_product = section.settings.main_product | default: product %}
+<div style="background: var(--color-acero); color: var(--color-gris-claro); padding: 60px 20px; text-align: center;">
+  {% if selected_product.images[2] %}
+    <img src="{{ selected_product.images[2] | image_url: width: 800 }}" style="width: 100%; max-width: 600px; border-radius: 8px; margin-bottom: 32px;" alt="Cierre">
+  {% endif %}
+  <h2 style="font-weight: 800; font-size: 36px; margin-bottom: 16px; text-transform: uppercase; color: var(--color-naranja);">¿Listo para trabajar?</h2>
+  <div style="font-family: var(--font-titulos); font-size: 40px; font-weight: 800; margin-bottom: 24px;">
+    {{ selected_product.price | money }}
+  </div>
+  <a href="https://wa.me/573000000000?text={{ selected_product.metafields.landing.whatsapp_texto.value | url_encode }} (web-{{ selected_product.sku }})" class="btn-whatsapp">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"></path><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"></path></svg> Pedir por WhatsApp
+  </a>
+</div>
+{% schema %}
+{ "name": "Landing Cierre", "settings": [{ "type": "product", "id": "main_product", "label": "Producto Estrella" }], "presets": [{ "name": "Landing Cierre" }] }
+{% endschema %}
