@@ -1,0 +1,34 @@
+# Dueños por carpeta (ver COLABORACION.md). En repos privados con GitHub gratis
+# esto es documentación; con GitHub Pro/Team se aplica en los pull requests.
+
+# Por defecto: el dueño
+*                                   @https-JosephJoestar
+
+# Frente B — Automatización (Vrydie)
+/infra/                             @Vrydie
+/workflows/                         @Vrydie
+/tests/                             @Vrydie
+/db/migrations/                     @Vrydie
+/db/seeds/                          @Vrydie
+/planes/evidencia/                  @Vrydie
+/prompts/plantillas_whatsapp.md     @Vrydie
+/prompts/evaluador_productos.md     @Vrydie
+/prompts/emparejador_mercado.md     @Vrydie
+/planes/OT-01_infra_fase1.md        @Vrydie
+/planes/OT-03_entrada_whatsapp.md   @Vrydie
+
+# Frente A — Tienda y ventas (dueño)
+/tienda/                            @https-JosephJoestar
+/prompts/base_conocimiento_producto.md @https-JosephJoestar
+/prompts/generador_ficha_producto.md   @https-JosephJoestar
+/.agents/skills/diseno-visual/      @https-JosephJoestar
+
+# Compartido: requiere a ambos
+/AGENTS.md                          @https-JosephJoestar @Vrydie
+/ROADMAP.md                         @https-JosephJoestar @Vrydie
+/COLABORACION.md                    @https-JosephJoestar @Vrydie
+/MODULO_PRODUCTOS.md                @https-JosephJoestar @Vrydie
+/planes/README.md                   @https-JosephJoestar @Vrydie
+/schemas/                           @https-JosephJoestar @Vrydie
+/db/schema.sql                      @https-JosephJoestar @Vrydie
+/prompts/agente_ventas_system.md    @https-JosephJoestar @Vrydie

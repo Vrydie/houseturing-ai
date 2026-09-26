@@ -1,6 +1,6 @@
 # OT-01 — Infraestructura del proyecto (Fase 1)
 
-**Estado:** lista · **Ejecuta:** Antigravity · **Planifica:** Claude
+**Estado:** lista · **Frente:** B · **Responsable:** Vrydie · **Ejecuta:** Antigravity · **Planifica:** Claude
 **Lecturas obligatorias:** [AGENTS.md](../AGENTS.md), [ROADMAP.md §Fase 1](../ROADMAP.md), [db/schema.sql](../db/schema.sql)
 
 ## Objetivo
@@ -24,7 +24,7 @@ Una instancia de n8n **exclusiva del proyecto**, con su Postgres, corriendo en D
 4. Levantar el stack y verificar:
    - `curl -s http://127.0.0.1:5690/healthz` → `{"status":"ok"}`.
    - En `dropship` existen las 18 tablas de `schema.sql` y las filas semilla de `config` y `fuentes_categoria`.
-5. Pedir al dueño que abra `http://127.0.0.1:5690` y cree la cuenta de owner (paso manual).
+5. Pedir al usuario (Vrydie) que abra `http://127.0.0.1:5690` y cree la cuenta de owner de su n8n (paso manual). Cada persona que levante `infra/` tiene su propia instancia local.
 6. `infra/README.md` corto con cómo levantar, detener, respaldar (`pg_dump`) y restaurar.
 
 ## Criterios de aceptación

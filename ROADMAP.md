@@ -2,7 +2,7 @@
 
 > Documento de trabajo basado en [contexto_proyecto.md](contexto_proyecto.md).
 > Los ejemplos usan **Colombia / COP** (mercado principal de Dropi). Si operas en otro país, cambia moneda, formato de teléfono, departamentos y transportadoras.
-> **Cómo se ejecuta:** Claude planifica y Antigravity ejecuta, mediante órdenes de trabajo en [planes/](planes/README.md). Las reglas para agentes están en [AGENTS.md](AGENTS.md).
+> **Cómo se ejecuta:** dos frentes. **A — Tienda y ventas** (dueño, con Claude + Antigravity) y **B — Automatización** (Vrydie, con Antigravity). Se trabaja con órdenes de trabajo en [planes/](planes/README.md). Reglas para agentes: [AGENTS.md](AGENTS.md). Cómo colaborar sin pisarse: [COLABORACION.md](COLABORACION.md).
 >
 > **Alcance:** todo el proyecto vive en esta carpeta (`Shopify/`). **No se toca** nada fuera de ella: ni el n8n del sistema (servicio systemd en `:5678`, `/etc/default/n8n`), ni sus workflows (*farmacia*), ni otras carpetas. Por eso el proyecto corre su **propia instancia de n8n en Docker**, definida en `infra/`, en `localhost:5690`.
 

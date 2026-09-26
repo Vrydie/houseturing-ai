@@ -1,6 +1,6 @@
 # OT-02 — Tienda Shopify: landing del producto estrella
 
-**Estado:** **reabierta — construir la plantilla con el producto de EJEMPLO (taladro)**. Ejecutar C1-C7; **prohibido publicar el tema o anunciar con este producto** · **Ejecuta:** Antigravity · **Planifica:** Claude
+**Frente:** A · **Responsable:** dueño · **Estado:** **reabierta — construir la plantilla con el producto de EJEMPLO (taladro)**. Ejecutar C1-C7; **prohibido publicar el tema o anunciar con este producto** · **Ejecuta:** Antigravity · **Planifica:** Claude
 **Lecturas obligatorias:** [AGENTS.md](../AGENTS.md), [ROADMAP.md](../ROADMAP.md) (decisiones D1-D13), [prompts/base_conocimiento_producto.md](../prompts/base_conocimiento_producto.md) (ficha del producto = fuente de los textos)
 
 ---

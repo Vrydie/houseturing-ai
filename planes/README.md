@@ -1,24 +1,36 @@
 # Órdenes de trabajo (OT)
 
-**Roles:**
-- **Claude** planifica y orquesta: escribe las órdenes de trabajo y revisa los reportes.
-- **Antigravity** ejecuta: construye, prueba y reporta.
-- **El dueño** aprueba, pone credenciales y hace lo que exige su cuenta o su criterio (trámites, pagos, textos legales, publicar).
+**Frentes** (detalle en [COLABORACION.md](../COLABORACION.md)):
+- **Frente A — Tienda y ventas:** `https-JosephJoestar` (dueño). Claude planifica y revisa; Antigravity ejecuta.
+- **Frente B — Automatización:** `Vrydie`. Antigravity Pro ejecuta. El dueño revisa los PR, si quiere con Claude.
+
+**El dueño** aprueba, pone credenciales y hace lo que exige su cuenta o su criterio (trámites, pagos, textos legales, publicar).
+
+## Comandos de Antigravity
+| Comando | Para qué |
+|---|---|
+| `/tomar-ot` | Tomar y ejecutar la siguiente OT `lista` de tu frente |
+| `/sincronizar` | Traer lo último de GitHub sin pisar al otro frente |
+| `/entregar` | Revisar secretos y carpetas, hacer commit, subir y abrir el PR |
+| `/redactar-ot` | Frente B: redactar la siguiente OT desde el ROADMAP, como `borrador` |
 
 ## Protocolo
-1. Antigravity toma **una OT a la vez**, en el orden de la cola, cuando su estado es `lista`.
-2. Antes de ejecutar comandos, muestra su plan al dueño.
+1. Cada agente toma **una OT a la vez de su frente**, en el orden de la cola, cuando está `lista` y sus dependencias están `cerradas`.
+2. Antes de ejecutar comandos, muestra su plan al usuario.
 3. Si falta una precondición del dueño, marca la OT como `bloqueada`, anota qué falta y se detiene.
-4. **Las revisiones de diseño y los gates marcados como bloqueantes son obligatorios:** al llegar a uno, detente y espera la aprobación. Nunca marques una OT como `cerrada`; eso lo hace Claude.
-5. Al terminar, llena la sección **Reporte de ejecución** de la OT: qué hizo, qué probó (con evidencia), qué no probó, desvíos del plan y decisiones que necesita. Cambia el estado a `para revisión`.
-6. Claude revisa el reporte, marca la OT como `cerrada` (o abre correcciones) y prepara la siguiente.
+4. **Las revisiones de diseño y los gates bloqueantes son obligatorios:** al llegar a uno, se detiene y espera la aprobación.
+5. Al terminar, llena el **Reporte de ejecución** de la OT (qué hizo, evidencia, qué no probó, desvíos, decisiones que necesita), pasa a `para revisión` y entrega con `/entregar`.
+6. **Nadie marca su propia OT como `cerrada`:**
+   - Frente A: la cierra Claude.
+   - Frente B: la cierra el dueño al revisar el PR.
 
 Estados: `borrador` → `lista` → `en curso` → `bloqueada` → `para revisión` → `cerrada`.
 
 ## Cola
 
-| OT | Tema | Fase del ROADMAP | Estado | Depende de |
-|---|---|---|---|---|
-| [OT-01](OT-01_infra_fase1.md) | Infraestructura del proyecto (n8n propio + Postgres) | F1 | lista | — |
-| [OT-02](OT-02_tienda_shopify.md) | Tienda Shopify: skills de diseño (T-S), landing del producto estrella, páginas, políticas, tema | T (nueva) | para revisión de diseño | Precondiciones T0 del dueño |
-| OT-03 | Entrada WhatsApp (DS-01) + cobertura (DS-T1) con payloads de prueba | F4 / F5 | por escribir | OT-01 |
+| OT | Frente | Responsable | Tema | Fase | Estado | Depende de |
+|---|---|---|---|---|---|---|
+| [OT-01](OT-01_infra_fase1.md) | B | Vrydie | Infraestructura del proyecto (n8n propio + Postgres en Docker) | F1 | lista | — |
+| [OT-02](OT-02_tienda_shopify.md) | A | dueño | Tienda Shopify: plantilla de landing (producto de ejemplo) | T | para revisión de diseño | — |
+| [OT-03](OT-03_entrada_whatsapp.md) | B | Vrydie | Entrada de WhatsApp (DS-01), envío (DS-03) y cobertura (DS-T1) | F4 / F5 | lista | OT-01 |
+| OT-04 | B | Vrydie | Agente de ventas (DS-02) y herramientas de pedido (DS-T2 a T5) | F4 / F5 | por redactar (`/redactar-ot`) | OT-03 |

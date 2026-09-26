@@ -73,3 +73,11 @@ Idioma de trabajo: español.
 - Nombra los workflows `DS-XX Nombre` como en el inventario del ROADMAP y expórtalos a `workflows/` al terminar cada uno.
 - Prueba con los payloads de `schemas/` antes de conectar servicios reales.
 - Al terminar cada tarea, marca su casilla en el ROADMAP y reporta qué se probó y qué no.
+
+## 11. Frentes (dos personas en el mismo repositorio)
+- **Identifica tu frente** con `git config user.name`: `https-JosephJoestar` = **Frente A** (tienda y ventas) · `Vrydie` = **Frente B** (automatización). Si no coincide con ninguno, detente y pide configurarlo. Detalle en [COLABORACION.md](COLABORACION.md).
+- **Solo tomas OTs de tu frente** (columna "Frente" de `planes/README.md`) y **solo modificas las carpetas de tu frente** (COLABORACION.md §2). Los archivos compartidos se cambian en un PR que aprueba el otro frente.
+- **Nunca trabajes directo en `main`:** ramas `a/…` o `b/…`. Empieza con `/sincronizar` y termina con `/entregar`.
+- **El Frente B no toca temas de Shopify** (solo la Admin API). **El Frente A no importa workflows al n8n del servidor.**
+- **Cambios de base de datos:** siempre como migración numerada en `db/migrations/`, actualizando `db/schema.sql` en el mismo PR.
+
