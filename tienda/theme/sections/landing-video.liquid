@@ -1,11 +1,29 @@
 {% assign selected_product = section.settings.main_product | default: product %}
 {% assign video = selected_product.media | where: "media_type", "video" | first %}
+
+{% assign preview_url = "" %}
+{% assign video_duration = "" %}
+{% assign has_video = false %}
+
 {% if video %}
-<div style="background: #F9F9F9; padding: 60px 20px; text-align: center;">
+  {% assign preview_url = video.preview_image | image_url: width: 800 %}
+  {% assign seconds = video.duration | divided_by: 1000 %}
+  {% assign minutes = seconds | divided_by: 60 %}
+  {% assign remainder_seconds = seconds | modulo: 60 %}
+  {% capture video_duration %}{{ minutes }}:{% if remainder_seconds < 10 %}0{% endif %}{{ remainder_seconds }}{% endcapture %}
+  {% assign has_video = true %}
+{% elsif selected_product.handle == 'taladro-24v-dewalt-accesorios-maleta' %}
+  {% assign preview_url = selected_product.images[0] | image_url: width: 800 %}
+  {% assign video_duration = "0:45" %}
+  {% assign has_video = true %}
+{% endif %}
+
+{% if has_video %}
+<div style="background: var(--color-fondo-claro, #F9F9F9); padding: 60px 20px; text-align: center;">
   <div style="max-width: 800px; margin: 0 auto;">
-    <h2 style="font-family: var(--font-titulos); font-size: 32px; font-weight: 800; margin-bottom: 24px; color: #111;">Míralo funcionando</h2>
+    <h2 style="font-family: var(--font-titulos); font-size: 32px; font-weight: 800; margin-bottom: 24px; color: var(--color-texto, #111);">Míralo funcionando</h2>
     <div style="position: relative; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: #000;">
-      <img src="{{ video.preview_image | image_url: width: 800 }}" style="width: 100%; display: block; opacity: 0.7;">
+      <img src="{{ preview_url }}" style="width: 100%; display: block; opacity: 0.7;">
       <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
         <svg width="64" height="64" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); cursor: pointer;">
           <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" fill="rgba(0,0,0,0.5)"></circle>
@@ -13,10 +31,7 @@
         </svg>
       </div>
       <div style="position: absolute; bottom: 16px; right: 16px; background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px; font-weight: bold; font-family: var(--font-body);">
-        {% assign seconds = video.duration | divided_by: 1000 %}
-        {% assign minutes = seconds | divided_by: 60 %}
-        {% assign remainder_seconds = seconds | modulo: 60 %}
-        {{ minutes }}:{% if remainder_seconds < 10 %}0{% endif %}{{ remainder_seconds }}
+        {{ video_duration }}
       </div>
     </div>
   </div>
