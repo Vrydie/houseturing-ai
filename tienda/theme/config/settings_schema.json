@@ -2123,8 +2123,7 @@
       {
         "type": "text",
         "id": "whatsapp_number",
-        "label": "Número de WhatsApp",
-        "default": "573000000000"
+        "label": "Número de WhatsApp"
       }
     ]
   }
