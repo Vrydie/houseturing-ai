@@ -1,0 +1,74 @@
+{
+  "name": "DS-T1 consultar_cobertura",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT ciudad, departamento, acepta_contraentrega, dias_entrega_min, dias_entrega_max FROM cobertura WHERE ciudad_norm = unaccent(LOWER('{{ $json.ciudad }}')){{ $json.departamento ? ' AND departamento = ' + $json.departamento : '' }}"
+      },
+      "id": "pg",
+      "name": "Postgres",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "credentials": {
+        "postgres": {
+          "id": "b1b2JJ18qDVF2dWp",
+          "name": "Postgres"
+        }
+      },
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "if ($input.all().length === 0) return [{ json: { cubierto: false } }];\nif ($input.all().length === 1) {\n  const row = $input.first().json;\n  return [{ json: { cubierto: true, ciudad_oficial: row.ciudad, acepta_contraentrega: row.acepta_contraentrega } }];\n}\nreturn [{ json: { opciones: $input.all().map(i => i.json) } }];"
+      },
+      "id": "code",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "id": "a38f3836-9dcf-434e-9654-f79d912d7d67"
+}
