@@ -22,18 +22,31 @@
 <div style="background: var(--color-fondo-claro, #F9F9F9); padding: 60px 20px; text-align: center;">
   <div style="max-width: 800px; margin: 0 auto;">
     <h2 style="font-family: var(--font-titulos); font-size: 32px; font-weight: 800; margin-bottom: 24px; color: var(--color-texto, #111);">Míralo funcionando</h2>
-    <div style="position: relative; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: #000;">
-      <img src="{{ preview_url }}" style="width: 100%; display: block; opacity: 0.7;">
-      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); cursor: pointer;">
-          <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" fill="rgba(0,0,0,0.5)"></circle>
-          <path d="M10 8l6 4-6 4V8z"></path>
-        </svg>
+    
+    <div style="position: relative; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: #000; cursor: pointer;" onclick="const v = this.querySelector('video'); v.play(); v.setAttribute('controls', 'controls'); this.querySelector('.play-overlay').style.display='none';">
+      
+      {% if video %}
+        {{ video | video_tag: style: 'width: 100%; display: block;', image_size: '800x' }}
+      {% else %}
+        <video style="width: 100%; display: block; opacity: 0.8;" poster="{{ preview_url }}" playsinline>
+          <source src="{{ 'video_taladro.mp4' | asset_url }}" type="video/mp4">
+        </video>
+      {% endif %}
+
+      <div class="play-overlay">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));">
+            <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" fill="rgba(0,0,0,0.5)"></circle>
+            <path d="M10 8l6 4-6 4V8z"></path>
+          </svg>
+        </div>
+        <div style="position: absolute; bottom: 16px; right: 16px; background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px; font-weight: bold; font-family: var(--font-body);">
+          {{ video_duration }}
+        </div>
       </div>
-      <div style="position: absolute; bottom: 16px; right: 16px; background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px; font-weight: bold; font-family: var(--font-body);">
-        {{ video_duration }}
-      </div>
+
     </div>
+
   </div>
 </div>
 {% endif %}
