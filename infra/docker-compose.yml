@@ -45,7 +45,7 @@ services:
         condition: service_healthy
 
   cloudflared:
-    image: cloudflare/cloudflared:latest
+    image: cloudflare/cloudflared:2026.9.3
     container_name: houseturing_tunnel
     restart: unless-stopped
     command: tunnel run

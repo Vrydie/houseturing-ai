@@ -1,6 +1,6 @@
 # OT-01 — Infraestructura del proyecto (Fase 1)
 
-**Estado:** bloqueada · **Frente:** B · **Responsable:** Vrydie · **Ejecuta:** Antigravity · **Planifica:** Claude
+**Estado:** para revisión · **Frente:** B · **Responsable:** Vrydie · **Ejecuta:** Antigravity · **Planifica:** Claude
 **Lecturas obligatorias:** [AGENTS.md](../AGENTS.md), [ROADMAP.md §Fase 1](../ROADMAP.md), [db/schema.sql](../db/schema.sql)
 
 ## Objetivo
