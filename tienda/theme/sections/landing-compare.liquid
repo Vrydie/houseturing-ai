@@ -1,29 +1,55 @@
-<div style="background: #111; color: white; padding: 60px 20px; text-align: center;">
+<div style="background: var(--color-grafito, #1A1A1A); color: white; padding: 60px 16px; text-align: center;">
   <div style="max-width: 800px; margin: 0 auto;">
-    <h2 style="font-family: var(--font-titulos); font-size: 32px; font-weight: 800; margin-bottom: 40px; color: var(--color-naranja, #F2661B);">¿Por separado o en un solo maletín?</h2>
-    <table style="width: 100%; border-collapse: collapse; text-align: left; background: #222; border-radius: 8px; overflow: hidden;">
-      <thead>
-        <tr style="background: #333;">
-          <th style="padding: 16px;">Característica</th>
-          <th style="padding: 16px; text-align: center;">Comprando suelto</th>
-          <th style="padding: 16px; text-align: center; color: var(--color-naranja, #F2661B);">Nuestro Kit</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr style="border-bottom: 1px solid #444;">
-          <td style="padding: 16px;">Taladro inalámbrico</td><td style="padding: 16px; text-align: center;">$150.000</td><td style="padding: 16px; text-align: center; color: var(--color-naranja, #F2661B);">Incluido</td>
-        </tr>
-        <tr style="border-bottom: 1px solid #444;">
-          <td style="padding: 16px;">Batería extra</td><td style="padding: 16px; text-align: center;">$60.000</td><td style="padding: 16px; text-align: center; color: var(--color-naranja, #F2661B);">Incluida</td>
-        </tr>
-        <tr style="border-bottom: 1px solid #444;">
-          <td style="padding: 16px;">Set de brocas y copas</td><td style="padding: 16px; text-align: center;">$80.000</td><td style="padding: 16px; text-align: center; color: var(--color-naranja, #F2661B);">Incluido</td>
-        </tr>
-        <tr>
-          <td style="padding: 16px; font-weight: bold;">Total aproximado</td><td style="padding: 16px; text-align: center; text-decoration: line-through;">$290.000</td><td style="padding: 16px; text-align: center; font-weight: bold; font-size: 20px; color: var(--color-naranja, #F2661B);">$219.900</td>
-        </tr>
-      </tbody>
-    </table>
+    <h2 style="font-family: var(--font-titulos); font-size: 32px; font-weight: 800; margin-bottom: 32px; color: var(--color-naranja, #F2661B);">¿Por separado o en un solo maletín?</h2>
+    
+    <style>
+      .compare-table { width: 100%; border-collapse: collapse; text-align: left; background: #222; border-radius: 8px; overflow: hidden; font-family: var(--font-body); font-size: 13px; }
+      .compare-table th, .compare-table td { padding: 10px 4px; border-bottom: 1px solid #333; }
+      .compare-table th { background: #2A2A2A; font-weight: bold; }
+      .compare-table th:not(:first-child), .compare-table td:not(:first-child) { text-align: center; }
+      .compare-highlight { color: var(--color-naranja, #F2661B); }
+      .compare-table tbody tr:last-child td { border-bottom: none; font-weight: bold; font-size: 16px; }
+      .compare-table tbody tr:last-child td:nth-child(3) { font-size: 20px; color: var(--color-naranja, #F2661B); }
+      @media (min-width: 768px) {
+        .compare-table { font-size: 16px; }
+        .compare-table th, .compare-table td { padding: 16px; }
+        .compare-table tbody tr:last-child td:nth-child(3) { font-size: 24px; }
+      }
+    </style>
+
+    <div style="overflow-x: auto; max-width: 100%;">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Característica</th>
+            <th>Comprando suelto</th>
+            <th class="compare-highlight">Nuestro Kit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Taladro inalámbrico</td>
+            <td>$150.000</td>
+            <td class="compare-highlight">Incluido</td>
+          </tr>
+          <tr>
+            <td>Batería extra</td>
+            <td>$60.000</td>
+            <td class="compare-highlight">Incluida</td>
+          </tr>
+          <tr>
+            <td>Set de brocas</td>
+            <td>$80.000</td>
+            <td class="compare-highlight">Incluido</td>
+          </tr>
+          <tr>
+            <td>Total aprox.</td>
+            <td style="text-decoration: line-through;">$290.000</td>
+            <td>$219.900</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 {% schema %}
