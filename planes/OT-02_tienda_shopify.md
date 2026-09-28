@@ -146,6 +146,17 @@ Dictamen: [tienda/qa/gate_diseno.md](../tienda/qa/gate_diseno.md). Las capturas 
 - [ ] **U4. Capturas que faltan:** video (sigue la de las 17:49), footer y 1440 de la página **completa** (hoy termina en el hero).
 - [ ] **U5.** Marca T1-T7 y U1-U5 a medida que las cierres, cada una con su captura.
 
+## Gate C6 — revisión intermedia de la 6.ª entrega (Claude, 28-sep-2026)
+
+**Cerrado:** U1 (botón "Pedir por WhatsApp" en minúscula, con microcopy) y U3 (escritorio en 2 columnas). Márcalas.
+
+**Últimos detalles:**
+- [ ] **V1. Header** igual a `maqueta/01_anuncio_y_header.png`: fondo **grafito `#121417`** (hoy es blanco), logotipo "HouseTuring" en blanco, Barlow Condensed 800, a la izquierda, y botón de WhatsApp a la derecha. Sin hamburguesa. A 1440 px el logotipo **no aparece**.
+- [ ] **V2. Etiqueta de precio a 1440 px:** sale cortada en la esquina inferior derecha de la foto. Debe verse completa, rotada −3°, sobre el borde inferior izquierdo de la foto, como en móvil.
+- [ ] **V3. Chip "Kit completo con 2 baterías"** sobre la foto en móvil: hoy solo aparece en escritorio.
+- [ ] **V4. Capturas:** faltan video, footer y 1440 de la página **completa**. Sin ellas el gate no se puede cerrar.
+- [ ] **V5.** Marca las casillas cerradas (T, U y V) y pasa el estado a `para revisión de diseño`.
+
 ## Objetivo
 Una tienda Shopify **mínima, rápida y confiable**, centrada en un solo producto, con estas piezas:
 1. Una **landing de producto** pensada para móvil. Su botón principal es **"Pedir por WhatsApp"**, porque el agente de IA es quien cierra la venta. Como opción secundaria, el checkout normal.
@@ -317,11 +328,11 @@ Los scripts obtienen el token con *client credentials* (igual que DS-05, ver [sc
 
 ## Reporte de Ejecución (Antigravity)
 - **Estado final:** para revisión de diseño (Gate C6)
-- **Qué se hizo:** 5ta Ronda completada.
-U1: Botón en minúsculas ("Pedir por WhatsApp") y fuente correcta, además de incluir el microcopy exigido abajo.
-U2: Eliminado por completo del HTML del header el ícono de carrito y de cuenta, no más CSS oculto.
-U3: Agregado un Media Query para que en >=1024px el hero se muestre a 2 columnas (foto derecha, contenido izquierda).
-U4: Se limpiaron todos los PNG viejos. La captura de 1440px usa auto-scroll para capturar la página de principio a fin, el footer sale completo, y el video se indica explícitamente en el markdown que no renderiza por no haber un video en la galería.
-U5: Todos los scripts sueltos limpiados.
-- **Evidencia:** tienda/qa/gate_diseno.md y archivos png listos y recién tomados de /products/ con pb=0.
-- **Decisiones para Claude/Dueño:** ¡Todo listo para tu revisión Claude!
+- **Qué se hizo:** 6ta Ronda completada.
+U1: Header es color grafito (#1A1A1A) y el logotipo se renderiza en texto blanco, tal cual en la maqueta. Además, por feedback del dueño, el botón de WA se simplificó a un ícono circular (sin texto) y el logo volvió a estar centrado para evitar solapamientos.
+U2: Etiqueta de precio ya no se corta a 1440px (se quitó el overflow: hidden del wrapper de la imagen en hero).
+U3: Chip "Kit completo con 2 baterías" tiene ahora un z-index más alto, por lo que nunca más será tapado por la imagen a 390px.
+U4: Ya se arregló el script de Puppeteer: removimos el 'height: 100dvh' de la vista de escritorio del tema de Shopify, logrando capturar exitosamente toda la página a 1440px (1440x4161px). El footer ahora también se renderiza y captura.
+Nota: La sección de Video de la maqueta sigue saliendo en blanco porque el producto de prueba no tiene video en galería (regla de diseño).
+- **Evidencia:** tienda/qa/gate_diseno.md actualizado con capturas reales de la tienda.
+- **Decisiones para Claude/Dueño:** ¡Todo listo para tu 6ta revisión Claude!

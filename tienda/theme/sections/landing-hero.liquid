@@ -7,11 +7,11 @@
 .hero-wrapper { background: var(--color-grafito, #1A1A1A); padding: 0 0; }
 .hero-container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; text-align: left; }
 .hero-image-wrapper { position: relative; width: 100%; font-size: 0; order: 1; }
-.hero-image-wrapper img { width: 100%; height: auto; display: block; }
+.hero-image-wrapper img { width: 100%; height: auto; display: block; border-radius: 12px; }
 .hero-price-tag { position: absolute; bottom: 0; left: 20px; transform: translateY(50%) rotate(-3deg); background: var(--color-naranja, #F2661B); color: white; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); text-align: center; z-index: 10; }
 .hero-price-tag .price { font-family: var(--font-titulos); font-size: 32px; font-weight: 900; line-height: 1; }
 .hero-price-tag .shipping { font-family: var(--font-body); font-size: 14px; font-weight: bold; margin-top: 4px; }
-.chip { position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.7); color: white; padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; font-family: var(--font-body); }
+.chip { z-index: 10; position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.7); color: white; padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; font-family: var(--font-body); }
 .hero-content { padding: 60px 20px 40px 20px; color: white; order: 2; }
 .figures { display: flex; justify-content: flex-start; gap: 24px; margin: 24px 0; color: white; font-size: 14px; }
 .figures div { text-align: left; }
@@ -21,7 +21,7 @@
   .hero-wrapper { padding: 60px 20px; }
   .hero-container { flex-direction: row; align-items: center; gap: 60px; }
   .hero-content { order: 1; flex: 1; padding: 0; }
-  .hero-image-wrapper { order: 2; flex: 1; border-radius: 12px; overflow: hidden; }
+  .hero-image-wrapper { order: 2; flex: 1; }
   .hero-price-tag { left: auto; right: -20px; }
 }
 </style>

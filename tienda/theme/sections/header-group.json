@@ -56,13 +56,16 @@
         "divider_width": 0,
         "divider_size": "page-width",
         "border_width": 0,
-        "background_color_top": "{{ settings.color_palette.background }}",
+        "background_color_top": "#1A1A1A",
         "enable_transparent_header_home": false,
         "enable_transparent_header_product": false,
         "enable_transparent_header_collection": false,
         "show_country_selector": false,
         "show_language_selector": false,
-        "menu": ""
+        "menu": "",
+        "text_color_top": "#FFFFFF",
+        "background_color_bottom": "#1A1A1A",
+        "text_color_bottom": "#FFFFFF"
       }
     }
   },

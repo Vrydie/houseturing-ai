@@ -20,14 +20,15 @@ dotenv.config({ path: 'infra/.env' });
   
   await page.goto('https://zp1wvd-02.myshopify.com/products/taladro-24v-dewalt-accesorios-maleta?preview_theme_id=157512106102&pb=0', { waitUntil: 'networkidle2' });
 
-  // SCROLL TO BOTTOM TO TRIGGER LAZY LOAD
+  // SCROLL TO BOTTOM OF .page-wrapper TO TRIGGER LAZY LOAD
   await page.evaluate(async () => {
+    const pw = document.querySelector('.page-wrapper') || document.documentElement;
     await new Promise((resolve) => {
       let totalHeight = 0;
       const distance = 100;
       const timer = setInterval(() => {
-        const scrollHeight = document.body.scrollHeight;
-        window.scrollBy(0, distance);
+        const scrollHeight = pw.scrollHeight;
+        pw.scrollBy(0, distance);
         totalHeight += distance;
         if(totalHeight >= scrollHeight){
           clearInterval(timer);
@@ -35,17 +36,26 @@ dotenv.config({ path: 'infra/.env' });
         }
       }, 50);
     });
-    window.scrollTo(0, 0);
+    pw.scrollTo(0, 0);
   });
   await new Promise(r => setTimeout(r, 1000));
 
-  // FORCE HIDE STICKY BAR FOR ALL ELEMENT SCREENSHOTS
+  // FORCE HEIGHT AUTO FOR FULLPAGE SCREENSHOT
   await page.evaluate(() => {
-    const s = document.querySelector('#sticky-bar');
-    if (s) s.style.display = 'none';
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .page-wrapper, body, html {
+        height: auto !important;
+        min-height: 100% !important;
+        overflow-y: visible !important;
+      }
+      #sticky-bar { display: none !important; }
+    `;
+    document.head.appendChild(style);
   });
-
-  await page.setViewport({ width: 1440, height: 900 });
+  
+  await new Promise(r => setTimeout(r, 500));
+  
   await page.screenshot({ path: 'tienda/qa/1440px_completa.png', fullPage: true });
 
   await page.setViewport({ width: 390, height: 844 });
@@ -63,7 +73,7 @@ dotenv.config({ path: 'infra/.env' });
     { idSelector: '[id$="__cierre"]', name: '10_cierre' }
   ];
 
-  const h = await page.$('.header-wrapper');
+  const h = await page.$('header-component');
   if (h) {
     try { await h.screenshot({ path: `tienda/qa/390px_00_header.png` }); } catch(e){}
   }
@@ -87,17 +97,15 @@ dotenv.config({ path: 'infra/.env' });
   // FORCE SHOW STICKY BAR, HIDE HERO BUTTON
   await page.evaluate(() => {
     window.scrollTo(0, document.body.scrollHeight);
-    const s = document.querySelector('#sticky-bar');
-    if (s) {
-      s.style.display = 'flex';
-      s.style.transform = 'translateY(0)';
-    }
-    const hb = document.querySelector('#hero-btn');
-    if (hb) hb.style.display = 'none';
+    const style = document.createElement('style');
+    style.innerHTML = `
+      #sticky-bar { display: flex !important; transform: translateY(0) !important; }
+      #hero-btn { display: none !important; }
+    `;
+    document.head.appendChild(style);
   });
   
   await new Promise(r => setTimeout(r, 1000));
-  // Take screenshot of the viewport
   await page.screenshot({ path: `tienda/qa/390px_12_sticky_bar.png` });
 
   await browser.close();
