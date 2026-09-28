@@ -1,0 +1,105 @@
+{
+  "name": "DS-03 Enviar WhatsApp",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT valor FROM config WHERE clave = 'whatsapp_modo_simulado'"
+      },
+      "id": "check_simulado",
+      "name": "Postgres Check Modo",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "credentials": {
+        "postgres": {
+          "id": "b1b2JJ18qDVF2dWp",
+          "name": "Postgres"
+        }
+      },
+      "position": [
+        200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const wa_id = $('Execute Workflow Trigger').first().json.wa_id;\nconst texto = $('Execute Workflow Trigger').first().json.texto;\nreturn [{ json: { wa_id, texto, simulado: $input.first().json.valor === 'true' } }];"
+      },
+      "id": "code",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO mensajes (wamid, wa_id, direccion, tipo, texto) VALUES (gen_random_uuid()::text, '{{ $json.wa_id }}', 'out', 'text', '{{ $json.texto }}')"
+      },
+      "id": "pg_insert",
+      "name": "Postgres Insert",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "credentials": {
+        "postgres": {
+          "id": "b1b2JJ18qDVF2dWp",
+          "name": "Postgres"
+        }
+      },
+      "position": [
+        600,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Postgres Check Modo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Check Modo": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Postgres Insert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "id": "0c54dca5-e075-4c6d-9408-15b4fbe1b60a"
+}

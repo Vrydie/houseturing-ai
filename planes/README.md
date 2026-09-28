@@ -32,5 +32,5 @@ Estados: `borrador` → `lista` → `en curso` → `bloqueada` → `para revisi�
 |---|---|---|---|---|---|---|
 | [OT-01](OT-01_infra_fase1.md) | B | Vrydie | Infraestructura del proyecto (n8n propio + Postgres en Docker) | F1 | para revisión | — |
 | [OT-02](OT-02_tienda_shopify.md) | A | dueño | Tienda Shopify: plantilla de landing (producto de ejemplo) | T | para revisión de diseño | — |
-| [OT-03](OT-03_entrada_whatsapp.md) | B | Vrydie | Entrada de WhatsApp (DS-01), envío (DS-03) y cobertura (DS-T1) | F4 / F5 | lista | OT-01 |
+| [OT-03](OT-03_entrada_whatsapp.md) | B | Vrydie | Entrada de WhatsApp (DS-01), envío (DS-03) y cobertura (DS-T1) | F4 / F5 | en curso | OT-01 |
 | OT-04 | B | Vrydie | Agente de ventas (DS-02) y herramientas de pedido (DS-T2 a T5) | F4 / F5 | por redactar (`/redactar-ot`) | OT-03 |

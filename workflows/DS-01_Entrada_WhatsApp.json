@@ -1,0 +1,235 @@
+{
+  "name": "DS-01 Entrada WhatsApp",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp",
+        "responseMode": "lastNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "whatsapp-in"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"status\":\"ok\"}",
+        "options": {}
+      },
+      "id": "respond200",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        200,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT valor FROM config WHERE clave = 'whatsapp_app_secret_prueba'"
+      },
+      "id": "get_secret",
+      "name": "Get Secret",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "credentials": {
+        "postgres": {
+          "id": "b1b2JJ18qDVF2dWp",
+          "name": "Postgres"
+        }
+      },
+      "position": [
+        200,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "action": "hmac",
+        "type": "SHA256",
+        "value": "={{ JSON.stringify($('Webhook').first().json.body) }}",
+        "dataPropertyName": "hmac",
+        "secret": "={{ $json.valor }}"
+      },
+      "id": "crypto",
+      "name": "Crypto",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        400,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const sig = $('Webhook').first().json.headers['x-hub-signature-256'];\nif (sig !== 'sha256=' + $json.hmac) throw new Error('Invalid signature. sig=' + sig + ' | expected=sha256=' + $json.hmac);\nreturn [{json: $('Webhook').first().json.body}];"
+      },
+      "id": "verify",
+      "name": "Verify Signature",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const entry = $json.entry[0].changes[0].value;\nif (entry.messages) return [{json: entry}];\nreturn [];"
+      },
+      "id": "router",
+      "name": "Router",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO mensajes (wamid, wa_id, direccion, tipo) VALUES ('{{ $json.messages[0].id }}', '{{ $json.contacts[0].wa_id }}', 'in', 'text') ON CONFLICT DO NOTHING RETURNING wamid"
+      },
+      "id": "dedupe",
+      "name": "Dedupe Postgres",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "credentials": {
+        "postgres": {
+          "id": "b1b2JJ18qDVF2dWp",
+          "name": "Postgres"
+        }
+      },
+      "position": [
+        1000,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "47415668-dea8-4059-aafb-d20d3f8f3213",
+        "options": {}
+      },
+      "id": "call_stub",
+      "name": "Call Stub",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "0c54dca5-e075-4c6d-9408-15b4fbe1b60a",
+        "options": {}
+      },
+      "id": "call_send",
+      "name": "Call Send",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        200
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Secret",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Respond 200",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Secret": {
+      "main": [
+        [
+          {
+            "node": "Crypto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto": {
+      "main": [
+        [
+          {
+            "node": "Verify Signature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Signature": {
+      "main": [
+        [
+          {
+            "node": "Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Router": {
+      "main": [
+        [
+          {
+            "node": "Dedupe Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedupe Postgres": {
+      "main": [
+        [
+          {
+            "node": "Call Stub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Stub": {
+      "main": [
+        [
+          {
+            "node": "Call Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "id": "4a1e5af4-45a7-42e3-b343-6821745b71a5"
+}

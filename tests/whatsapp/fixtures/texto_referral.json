@@ -1,0 +1,51 @@
+{
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "111111111111111",
+      "changes": [
+        {
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "573000000000",
+              "phone_number_id": "222222222222222"
+            },
+            "contacts": [
+              {
+                "profile": {
+                  "name": "Juan Perez"
+                },
+                "wa_id": "573001112233"
+              }
+            ],
+            "messages": [
+              {
+                "from": "573001112233",
+                "id": "wamid.HBgLNTczMDAxMTEyMjMzFQIAEhgUM0VCMDNGQUFCMzM1QzVBNUMxQTMA",
+                "timestamp": "1710000000",
+                "type": "text",
+                "text": {
+                  "body": "Hola, me interesa este producto"
+                },
+                "referral": {
+                  "source_url": "https://fb.me/",
+                  "source_id": "ad_123456789",
+                  "source_type": "ad",
+                  "headline": "Taladro Inalámbrico 20V",
+                  "body": "Compra ahora con envío gratis",
+                  "media_type": "image",
+                  "image_url": "https://scontent.xx.fbcdn.net/v/t39.30808-6/...",
+                  "video_url": "",
+                  "thumbnail_url": "",
+                  "ctwa_clid": "ctwa_abc123"
+                }
+              }
+            ]
+          },
+          "field": "messages"
+        }
+      ]
+    }
+  ]
+}

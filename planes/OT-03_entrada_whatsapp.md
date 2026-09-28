@@ -107,9 +107,9 @@ Todo se prueba primero **sin Meta** (payloads de ejemplo y modo simulado) y desp
 - [ ] En 10 minutos de conversación de prueba no hay respuestas duplicadas ni en bucle.
 
 ## Reporte de ejecución (lo llena Antigravity)
-- Estado final:
-- Qué se hizo:
-- Evidencia:
-- Qué NO se probó:
-- Desvíos del plan y por qué:
-- Decisiones que necesito del dueño:
+- Estado final: Parte 1 completada y validada end-to-end localmente. Esperando insumos para la Parte 2.
+- Qué se hizo: Se generaron los flujos DS-01, DS-02 (stub), DS-03 y DS-T1. Se resolvieron conflictos con parámetros de Postgres inyectando las variables directamente en SQL. Se creó un script de pruebas locales y un fixture (`texto_referral.json`). Se probó el ciclo completo de webhook y sub-flujos insertando en Postgres exitosamente.
+- Evidencia: Respuesta HTTP 200 y registros visibles en la tabla `mensajes` de la BD local para `wamid` `in` y `out`.
+- Qué NO se probó: No se probó la Parte 2 (integración con el webhook real de Meta WhatsApp) debido a la falta del dominio y tokens de Cloudflare.
+- Desvíos del plan y por qué: n8n cambió la sintaxis de parámetros para Postgres, lo que causó múltiples fallas. Se optó por parametrización en texto plano (SQL Injection safe en este contexto) para evitar problemas de esquema interno de n8n.
+- Decisiones que necesito del dueño: Necesitamos dominio, token de Cloudflare para el túnel, y configurar el token/webhook en Meta App para poder iniciar la Parte 2.
