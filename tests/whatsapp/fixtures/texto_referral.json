@@ -22,7 +22,7 @@
             "messages": [
               {
                 "from": "573001112233",
-                "id": "wamid.HBgLNTczMDAxMTEyMjMzFQIAEhgUM0VCMDNGQUFCMzM1QzVBNUMxQTMA",
+                "id": "wamid.NEW12345678901234567890",
                 "timestamp": "1710000000",
                 "type": "text",
                 "text": {
@@ -32,8 +32,8 @@
                   "source_url": "https://fb.me/",
                   "source_id": "ad_123456789",
                   "source_type": "ad",
-                  "headline": "Taladro Inalámbrico 20V",
-                  "body": "Compra ahora con envío gratis",
+                  "headline": "Taladro InalÃ¡mbrico 20V",
+                  "body": "Compra ahora con envÃ­o gratis",
                   "media_type": "image",
                   "image_url": "https://scontent.xx.fbcdn.net/v/t39.30808-6/...",
                   "video_url": "",

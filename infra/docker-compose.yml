@@ -37,6 +37,7 @@ services:
       - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
       - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-America/Bogota}
       - WEBHOOK_URL=${WEBHOOK_URL}
+      - NODE_FUNCTION_ALLOW_BUILTIN=*
     volumes:
       - ./data/n8n:/home/node/.n8n
       - ../workflows:/workflows

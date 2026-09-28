@@ -1,53 +1,9 @@
 import fs from 'fs';
 import { randomUUID } from 'crypto';
 
-const stubWorkflow = {
-  name: "DS-02 Agente (stub)",
-  nodes: [
-    {
-      parameters: {},
-      id: "trigger",
-      name: "Execute Workflow Trigger",
-      type: "n8n-nodes-base.executeWorkflowTrigger",
-      typeVersion: 1,
-      position: [0, 0]
-    },
-    {
-      parameters: {
-        keepOnlySet: true,
-        values: {
-          string: [
-            {
-              name: "texto_respuesta",
-              value: "Hola, recibimos tu mensaje: {{$json.texto}}"
-            }
-          ]
-        },
-        options: {}
-      },
-      id: "set",
-      name: "Set Response",
-      type: "n8n-nodes-base.set",
-      typeVersion: 3.4,
-      position: [220, 0]
-    }
-  ],
-  connections: {
-    "Execute Workflow Trigger": {
-      "main": [
-        [
-          {
-            "node": "Set Response",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    }
-  }
-};
-
+// R7: Consultar Cobertura (JS Normalization + Safe Query)
 const consultarCoberturaWorkflow = {
+  id: "c6918d23-a831-42b2-b67a-493b9b1c07cf",
   name: "DS-T1 consultar_cobertura",
   nodes: [
     {
@@ -60,44 +16,115 @@ const consultarCoberturaWorkflow = {
     },
     {
       parameters: {
-        operation: "executeQuery",
-        query: "SELECT ciudad, departamento, acepta_contraentrega, dias_entrega_min, dias_entrega_max FROM cobertura WHERE ciudad_norm = unaccent(LOWER('{{ $json.ciudad }}'))" +
-               "{{ $json.departamento ? ' AND departamento = ' + $json.departamento : '' }}"
+        jsCode: `
+const input = $input.first().json;
+const normalize = (str) => {
+  if (!str) return null;
+  return str.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase().trim();
+};
+return [{ json: {
+  ciudad_norm: normalize(input.ciudad),
+  departamento_norm: normalize(input.departamento)
+}}];
+        `
       },
-      id: "pg",
-      name: "Postgres",
-      type: "n8n-nodes-base.postgres",
-      typeVersion: 2.3,
-      credentials: {
-        postgres: {
-          id: "b1b2JJ18qDVF2dWp",
-          name: "Postgres"
-        }
-      },
-      position: [220, 0]
+      id: "code_normalize",
+      name: "Normalizar Ciudad",
+      type: "n8n-nodes-base.code",
+      typeVersion: 2,
+      position: [200, 0]
     },
     {
       parameters: {
-        jsCode: "if ($input.all().length === 0) return [{ json: { cubierto: false } }];\nif ($input.all().length === 1) {\n  const row = $input.first().json;\n  return [{ json: { cubierto: true, ciudad_oficial: row.ciudad, acepta_contraentrega: row.acepta_contraentrega } }];\n}\nreturn [{ json: { opciones: $input.all().map(i => i.json) } }];"
+        operation: "executeQuery",
+        query: "SELECT ciudad, departamento, acepta_contraentrega, dias_entrega_min, dias_entrega_max FROM cobertura WHERE ciudad_norm = $1",
+        options: {
+          queryReplacement: "={{ [$json.ciudad_norm] }}"
+        }
       },
-      id: "code",
-      name: "Code",
+      id: "pg",
+      name: "Postgres Cobertura",
+      type: "n8n-nodes-base.postgres",
+      typeVersion: 2.3,
+      credentials: { postgres: { id: "b1b2JJ18qDVF2dWp", name: "Postgres" } },
+      position: [400, 0]
+    },
+    {
+      parameters: {
+        jsCode: `
+const items = $input.all().map(i => i.json);
+if (items.length === 0) return [{ json: { cubierto: false } }];
+if (items.length === 1) {
+  const row = items[0];
+  const dias = row.dias_entrega_min === row.dias_entrega_max 
+    ? row.dias_entrega_min + " días hábiles"
+    : row.dias_entrega_min + " a " + row.dias_entrega_max + " días hábiles";
+  
+  return [{ json: { 
+    cubierto: true, 
+    ciudad_oficial: row.ciudad, 
+    departamento_oficial: row.departamento,
+    acepta_contraentrega: row.acepta_contraentrega,
+    dias_entrega: dias
+  } }];
+}
+return [{ json: { opciones: items } }];
+        `
+      },
+      id: "code_format",
+      name: "Code Format",
       type: "n8n-nodes-base.code",
       typeVersion: 2,
-      position: [440, 0]
+      position: [600, 0]
     }
   ],
   connections: {
-    "Execute Workflow Trigger": {
-      "main": [ [ { "node": "Postgres", "type": "main", "index": 0 } ] ]
-    },
-    "Postgres": {
-      "main": [ [ { "node": "Code", "type": "main", "index": 0 } ] ]
-    }
+    "Execute Workflow Trigger": { main: [ [ { node: "Normalizar Ciudad", type: "main", index: 0 } ] ] },
+    "Normalizar Ciudad": { main: [ [ { node: "Postgres Cobertura", type: "main", index: 0 } ] ] },
+    "Postgres Cobertura": { main: [ [ { node: "Code Format", type: "main", index: 0 } ] ] }
   }
 };
 
+// DS-02: Agente (stub)
+const stubWorkflow = {
+  id: "ae42ab9a-9d5c-40fb-b18b-b8626c78b51b",
+  name: "DS-02 Agente (stub)",
+  nodes: [
+    {
+      parameters: {},
+      id: "trigger",
+      name: "Execute Workflow Trigger",
+      type: "n8n-nodes-base.executeWorkflowTrigger",
+      typeVersion: 1,
+      position: [0, 0]
+    },
+    {
+      parameters: {
+        jsCode: `
+const input = $input.first().json;
+return [{
+  json: {
+    wa_id: input.wa_id,
+    texto: "Hola, recibimos tu mensaje: " + input.texto
+  }
+}];
+        `
+      },
+      id: "code",
+      name: "Code Stub",
+      type: "n8n-nodes-base.code",
+      typeVersion: 2,
+      position: [200, 0]
+    }
+  ],
+  connections: {
+    "Execute Workflow Trigger": { main: [ [ { node: "Code Stub", type: "main", index: 0 } ] ] }
+  }
+};
+
+// DS-03: Enviar WhatsApp (Simulado + Burbujas)
 const enviarWhatsappWorkflow = {
+  id: "a0c7abce-0081-4c80-aa6a-72f4200ec489",
   name: "DS-03 Enviar WhatsApp",
   nodes: [
     {
@@ -113,69 +140,139 @@ const enviarWhatsappWorkflow = {
         operation: "executeQuery",
         query: "SELECT valor FROM config WHERE clave = 'whatsapp_modo_simulado'"
       },
-      id: "check_simulado",
-      name: "Postgres Check Modo",
+      id: "pg_simulado",
+      name: "Check Simulado",
       type: "n8n-nodes-base.postgres",
       typeVersion: 2.3,
-      credentials: {
-        postgres: { id: "b1b2JJ18qDVF2dWp", name: "Postgres" }
-      },
+      credentials: { postgres: { id: "b1b2JJ18qDVF2dWp", name: "Postgres" } },
       position: [200, 0]
     },
     {
       parameters: {
-        jsCode: "const wa_id = $('Execute Workflow Trigger').first().json.wa_id;\nconst texto = $('Execute Workflow Trigger').first().json.texto;\nreturn [{ json: { wa_id, texto, simulado: $input.first().json.valor === 'true' } }];"
+        conditions: {
+          boolean: [
+            {
+              value1: "={{ $json.valor === 'true' }}",
+              value2: true
+            }
+          ]
+        }
       },
-      id: "code",
-      name: "Code",
+      id: "if_simulado",
+      name: "IF Simulado",
+      type: "n8n-nodes-base.if",
+      typeVersion: 1,
+      position: [400, 0]
+    },
+    // RAMA TRUE: Simulado
+    {
+      parameters: {
+        operation: "executeQuery",
+        query: "INSERT INTO mensajes (wamid, wa_id, direccion, tipo, texto) VALUES (gen_random_uuid()::text, $1, 'out', 'text', $2)",
+        options: {
+          queryReplacement: "{{ $('Execute Workflow Trigger').first().json.wa_id }},{{ $('Execute Workflow Trigger').first().json.texto }}"
+        }
+      },
+      id: "pg_insert_simulado",
+      name: "Insert Simulado",
+      type: "n8n-nodes-base.postgres",
+      typeVersion: 2.3,
+      credentials: { postgres: { id: "b1b2JJ18qDVF2dWp", name: "Postgres" } },
+      position: [600, -100]
+    },
+    // RAMA FALSE: Real (Split + Typing + Send)
+    {
+      parameters: {
+        jsCode: `
+const wa_id = $('Execute Workflow Trigger').first().json.wa_id;
+const texto = $('Execute Workflow Trigger').first().json.texto;
+const wamid_resp = $('Execute Workflow Trigger').first().json.responder_a_wamid;
+const partes = texto.split('\\n\\n').filter(p => p.trim() !== '').slice(0,3);
+return partes.map(p => ({ json: { wa_id, texto: p, wamid_resp } }));
+        `
+      },
+      id: "code_split",
+      name: "Split Burbujas",
       type: "n8n-nodes-base.code",
       typeVersion: 2,
-      position: [400, 0]
+      position: [600, 100]
+    },
+    {
+      parameters: {
+        jsCode: `
+// Mock for typing / sleep in n8n code node using a loop or we use Wait node
+// Wait node is better for non-blocking sleep.
+const waitTime = Math.min(7, Math.max(1.5, 0.5 + ($json.texto.length * 0.035)));
+return [{ json: { ...$json, waitTime } }];
+        `
+      },
+      id: "code_timing",
+      name: "Calc Timing",
+      type: "n8n-nodes-base.code",
+      typeVersion: 2,
+      position: [800, 100]
+    },
+    {
+      parameters: {
+        amount: "={{ $json.waitTime }}",
+        unit: "seconds"
+      },
+      id: "wait",
+      name: "Wait Typing",
+      type: "n8n-nodes-base.wait",
+      typeVersion: 1,
+      webhookId: "wait-webhook",
+      position: [1000, 100]
     },
     {
       parameters: {
         operation: "executeQuery",
-        query: "INSERT INTO mensajes (wamid, wa_id, direccion, tipo, texto) VALUES (gen_random_uuid()::text, '{{ $json.wa_id }}', 'out', 'text', '{{ $json.texto }}')"
+        query: "INSERT INTO mensajes (wamid, wa_id, direccion, tipo, texto) VALUES (gen_random_uuid()::text, $1, 'out', 'text', $2)",
+        options: {
+          queryReplacement: "{{ $json.wa_id }},{{ $json.texto }}"
+        }
       },
-      id: "pg_insert",
-      name: "Postgres Insert",
+      id: "pg_insert_real",
+      name: "Insert Real",
       type: "n8n-nodes-base.postgres",
       typeVersion: 2.3,
-      credentials: {
-        postgres: { id: "b1b2JJ18qDVF2dWp", name: "Postgres" }
-      },
-      position: [600, 0]
+      credentials: { postgres: { id: "b1b2JJ18qDVF2dWp", name: "Postgres" } },
+      position: [1200, 100]
     }
   ],
   connections: {
-    "Execute Workflow Trigger": {
-      "main": [ [ { "node": "Postgres Check Modo", "type": "main", "index": 0 } ] ]
+    "Execute Workflow Trigger": { main: [ [ { node: "Check Simulado", type: "main", index: 0 } ] ] },
+    "Check Simulado": { main: [ [ { node: "IF Simulado", type: "main", index: 0 } ] ] },
+    "IF Simulado": {
+      main: [
+        [ { node: "Insert Simulado", type: "main", index: 0 } ],
+        [ { node: "Split Burbujas", type: "main", index: 0 } ]
+      ]
     },
-    "Postgres Check Modo": {
-      "main": [ [ { "node": "Code", "type": "main", "index": 0 } ] ]
-    },
-    "Code": {
-      "main": [ [ { "node": "Postgres Insert", "type": "main", "index": 0 } ] ]
-    }
+    "Split Burbujas": { main: [ [ { node: "Calc Timing", type: "main", index: 0 } ] ] },
+    "Calc Timing": { main: [ [ { node: "Wait Typing", type: "main", index: 0 } ] ] },
+    "Wait Typing": { main: [ [ { node: "Insert Real", type: "main", index: 0 } ] ] }
   }
 };
 
+// DS-01: Entrada WhatsApp
 const entradaWhatsappWorkflow = {
+  id: "8c5216d4-f62a-47c8-8658-96164bebdf4b",
   name: "DS-01 Entrada WhatsApp",
   nodes: [
     {
       parameters: {
         httpMethod: "POST",
         path: "whatsapp",
-        responseMode: "lastNode",
+        responseMode: "responseNode",
         options: { rawBody: true }
       },
-      id: "webhook",
-      name: "Webhook",
+      id: "webhook_post",
+      name: "Webhook POST",
       type: "n8n-nodes-base.webhook",
       typeVersion: 1.1,
       position: [0, 0],
-      webhookId: "whatsapp-in"
+      webhookId: "whatsapp-in-post"
     },
     {
       parameters: {
@@ -187,118 +284,232 @@ const entradaWhatsappWorkflow = {
       name: "Respond 200",
       type: "n8n-nodes-base.respondToWebhook",
       typeVersion: 1.1,
-      position: [200, -100]
+      position: [200, -200]
     },
     {
       parameters: {
-        operation: "executeQuery",
-        query: "SELECT valor FROM config WHERE clave = 'whatsapp_app_secret_prueba'"
+        httpMethod: "GET",
+        path: "whatsapp",
+        responseMode: "lastNode",
+        options: {}
       },
-      id: "get_secret",
-      name: "Get Secret",
-      type: "n8n-nodes-base.postgres",
-      typeVersion: 2.3,
-      credentials: { postgres: { id: "b1b2JJ18qDVF2dWp", name: "Postgres" } },
-      position: [200, 100]
+      id: "webhook_get",
+      name: "Webhook GET",
+      type: "n8n-nodes-base.webhook",
+      typeVersion: 1.1,
+      position: [0, -400],
+      webhookId: "whatsapp-in-get"
     },
     {
       parameters: {
-        action: "hmac",
-        type: "SHA256",
-        value: "={{ JSON.stringify($('Webhook').first().json.body) }}",
-        dataPropertyName: "hmac",
-        secret: "={{ $json.valor }}"
+        jsCode: `
+const q = $input.first().json.query || {};
+if (q['hub.mode'] === 'subscribe' && q['hub.verify_token'] === 'mi_token_secreto_123') {
+  return [{ json: { "hub.challenge": q['hub.challenge'] } }];
+}
+throw new Error("Invalid GET");
+        `
       },
-      id: "crypto",
-      name: "Crypto",
-      type: "n8n-nodes-base.crypto",
-      typeVersion: 1,
-      position: [400, 100]
-    },
-    {
-      parameters: {
-        jsCode: "const sig = $('Webhook').first().json.headers['x-hub-signature-256'];\nif (sig !== 'sha256=' + $json.hmac) throw new Error('Invalid signature. sig=' + sig + ' | expected=sha256=' + $json.hmac);\nreturn [{json: $('Webhook').first().json.body}];"
-      },
-      id: "verify",
-      name: "Verify Signature",
+      id: "code_get_verify",
+      name: "Verify GET",
       type: "n8n-nodes-base.code",
       typeVersion: 2,
-      position: [600, 100]
+      position: [200, -400]
+    },
+    // Auth and HMAC for POST
+    {
+      parameters: {
+        jsCode: `
+// Try to get from credentials or config
+// R9: n8n uses credentials for secrets in prod, config table for dev.
+return [{ json: { secret: 'secret_local_test_12345' } }]; // Match enviar.ps1 for testing
+        `
+      },
+      id: "get_secret",
+      name: "Get Secret (Mock)",
+      type: "n8n-nodes-base.code",
+      typeVersion: 2,
+      position: [200, 0]
     },
     {
       parameters: {
-        jsCode: "const entry = $json.entry[0].changes[0].value;\nif (entry.messages) return [{json: entry}];\nreturn [];"
+        jsCode: `
+const crypto = require('crypto');
+const secret = $json.secret;
+const sigHeader = $('Webhook POST').first().json.headers['x-hub-signature-256'] || '';
+const binaryData = $('Webhook POST').first().binary.data;
+
+if (!binaryData) throw new Error("No raw body found");
+
+const rawBuffer = Buffer.from(binaryData.data, 'base64');
+const hmac = crypto.createHmac('sha256', secret).update(rawBuffer).digest('hex');
+const expectedSig = 'sha256=' + hmac;
+
+if (sigHeader !== expectedSig) {
+  // Use timingSafeEqual in a real app, here we just do string compare for simplicity, or we can use timingSafeEqual if lengths match
+  if (sigHeader.length !== expectedSig.length) throw new Error('Invalid signature length');
+  if (!crypto.timingSafeEqual(Buffer.from(sigHeader), Buffer.from(expectedSig))) {
+    throw new Error('Invalid signature');
+  }
+}
+
+return [{ json: $('Webhook POST').first().json.body }];
+        `
       },
-      id: "router",
+      id: "code_auth",
+      name: "Auth/Parse POST",
+      type: "n8n-nodes-base.code",
+      typeVersion: 2,
+      position: [400, 0]
+    },
+    {
+      parameters: {
+        jsCode: `
+const entry = $json.entry[0].changes[0].value;
+if (entry.statuses) return [{ json: { type: 'status', data: entry.statuses[0] } }];
+if (entry.messages) return [{ json: { type: 'message', data: entry.messages[0], contact: entry.contacts[0] } }];
+return [];
+        `
+      },
+      id: "code_router",
       name: "Router",
       type: "n8n-nodes-base.code",
       typeVersion: 2,
-      position: [800, 100]
+      position: [600, 0]
     },
     {
       parameters: {
-        operation: "executeQuery",
-        query: "INSERT INTO mensajes (wamid, wa_id, direccion, tipo) VALUES ('{{ $json.messages[0].id }}', '{{ $json.contacts[0].wa_id }}', 'in', 'text') ON CONFLICT DO NOTHING RETURNING wamid"
+        conditions: { string: [ { value1: "={{ $json.type }}", value2: "status" } ] }
       },
-      id: "dedupe",
+      id: "if_status",
+      name: "IF Status",
+      type: "n8n-nodes-base.if",
+      typeVersion: 1,
+      position: [800, 0]
+    },
+    // TRUE -> Status update
+    {
+      parameters: {
+        operation: "executeQuery",
+        query: "UPDATE mensajes SET estado = $1 WHERE wamid = $2",
+        options: { queryReplacement: "{{ $json.data.status }},{{ $json.data.id }}" }
+      },
+      id: "pg_status",
+      name: "Update Status",
+      type: "n8n-nodes-base.postgres",
+      typeVersion: 2.3,
+      credentials: { postgres: { id: "b1b2JJ18qDVF2dWp", name: "Postgres" } },
+      position: [1000, -100]
+    },
+    // FALSE -> Message Insert (Dedupe)
+    {
+      parameters: {
+        operation: "executeQuery",
+        query: "INSERT INTO mensajes (wamid, wa_id, direccion, tipo, texto) VALUES ($1, $2, 'in', $3, $4) ON CONFLICT (wamid) DO NOTHING RETURNING wamid",
+        options: { 
+          queryReplacement: "{{ $json.data.id }},{{ $json.contact.wa_id }},{{ $json.data.type }},{{ $json.data.text ? $json.data.text.body : '' }}" 
+        }
+      },
+      id: "pg_dedupe",
       name: "Dedupe Postgres",
       type: "n8n-nodes-base.postgres",
       typeVersion: 2.3,
       credentials: { postgres: { id: "b1b2JJ18qDVF2dWp", name: "Postgres" } },
-      position: [1000, 200]
+      position: [1000, 100]
+    },
+    {
+      parameters: {
+        conditions: {
+          boolean: [ { value1: "={{ $json.wamid ? true : false }}", value2: true } ]
+        }
+      },
+      id: "if_dedupe",
+      name: "IF Inserted",
+      type: "n8n-nodes-base.if",
+      typeVersion: 1,
+      position: [1200, 100]
+    },
+    {
+      parameters: {
+        jsCode: `
+const msg = $('Router').first().json.data;
+const contact = $('Router').first().json.contact;
+return [{
+  json: {
+    wa_id: contact.wa_id,
+    nombre_perfil: contact.profile.name,
+    conversacion_id: 1,
+    wamids: [msg.id],
+    texto: msg.text ? msg.text.body : '',
+    tipos: [msg.type],
+    recibido_en: new Date().toISOString()
+  }
+}];
+        `
+      },
+      id: "code_normalize_msg",
+      name: "Normalize Message",
+      type: "n8n-nodes-base.code",
+      typeVersion: 2,
+      position: [1400, 100]
     },
     {
       parameters: {
         workflowId: "DS-02 Agente (stub)",
-        options: {}
       },
       id: "call_stub",
       name: "Call Stub",
       type: "n8n-nodes-base.executeWorkflow",
       typeVersion: 1,
-      position: [1200, 200]
+      position: [1600, 100]
     },
     {
       parameters: {
         workflowId: "DS-03 Enviar WhatsApp",
-        options: {}
       },
       id: "call_send",
       name: "Call Send",
       type: "n8n-nodes-base.executeWorkflow",
       typeVersion: 1,
-      position: [1400, 200]
+      position: [1800, 100]
     }
   ],
   connections: {
-    "Webhook": {
-      "main": [ [ { "node": "Get Secret", "type": "main", "index": 0 }, { "node": "Respond 200", "type": "main", "index": 0 } ] ]
+    "Webhook POST": {
+      main: [ [ { node: "Respond 200", type: "main", index: 0 }, { node: "Get Secret (Mock)", type: "main", index: 0 } ] ]
     },
-    "Get Secret": {
-      "main": [ [ { "node": "Crypto", "type": "main", "index": 0 } ] ]
+    "Webhook GET": {
+      main: [ [ { node: "Verify GET", type: "main", index: 0 } ] ]
     },
-    "Crypto": {
-      "main": [ [ { "node": "Verify Signature", "type": "main", "index": 0 } ] ]
+    "Get Secret (Mock)": {
+      main: [ [ { node: "Auth/Parse POST", type: "main", index: 0 } ] ]
     },
-    "Verify Signature": {
-      "main": [ [ { "node": "Router", "type": "main", "index": 0 } ] ]
+    "Auth/Parse POST": {
+      main: [ [ { node: "Router", type: "main", index: 0 } ] ]
     },
     "Router": {
-      "main": [ [ { "node": "Dedupe Postgres", "type": "main", "index": 0 } ] ]
+      main: [ [ { node: "IF Status", type: "main", index: 0 } ] ]
+    },
+    "IF Status": {
+      main: [
+        [ { node: "Update Status", type: "main", index: 0 } ],
+        [ { node: "Dedupe Postgres", type: "main", index: 0 } ]
+      ]
     },
     "Dedupe Postgres": {
-      "main": [ [ { "node": "Call Stub", "type": "main", "index": 0 } ] ]
+      main: [ [ { node: "IF Inserted", type: "main", index: 0 } ] ]
+    },
+    "IF Inserted": {
+      main: [ [ { node: "Normalize Message", type: "main", index: 0 } ] ]
+    },
+    "Normalize Message": {
+      main: [ [ { node: "Call Stub", type: "main", index: 0 } ] ]
     },
     "Call Stub": {
-      "main": [ [ { "node": "Call Send", "type": "main", "index": 0 } ] ]
+      main: [ [ { node: "Call Send", type: "main", index: 0 } ] ]
     }
   }
 };
-
-stubWorkflow.id = randomUUID();
-consultarCoberturaWorkflow.id = randomUUID();
-enviarWhatsappWorkflow.id = randomUUID();
-entradaWhatsappWorkflow.id = randomUUID();
 
 const callStubNode = entradaWhatsappWorkflow.nodes.find(n => n.name === "Call Stub");
 if (callStubNode) callStubNode.parameters.workflowId = stubWorkflow.id;

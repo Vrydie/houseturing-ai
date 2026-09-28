@@ -1,0 +1,43 @@
+{
+  "id": "ae42ab9a-9d5c-40fb-b18b-b8626c78b51b",
+  "name": "DS-02 Agente (stub)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst input = $input.first().json;\nreturn [{\n  json: {\n    wa_id: input.wa_id,\n    texto: \"Hola, recibimos tu mensaje: \" + input.texto\n  }\n}];\n        "
+      },
+      "id": "code",
+      "name": "Code Stub",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code Stub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

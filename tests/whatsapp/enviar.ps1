@@ -3,16 +3,16 @@ param (
     [string]$BadSignature
 )
 
-$Obj = Get-Content $Fixture -Raw | ConvertFrom-Json
-$Payload = $Obj | ConvertTo-Json -Depth 10 -Compress
+# R8: No re-serializar JSON, leer bytes puros
+$PayloadBytes = [System.IO.File]::ReadAllBytes((Resolve-Path $Fixture).Path)
 $Secret = "secret_local_test_12345"
 
 if ($BadSignature -eq "--firma-mala") {
     $Signature = "sha256=firma_invalida_123"
 } else {
     $hmac = New-Object System.Security.Cryptography.HMACSHA256
-    $hmac.Key = [Text.Encoding]::UTF8.GetBytes($Secret)
-    $hash = $hmac.ComputeHash([Text.Encoding]::UTF8.GetBytes($Payload))
+    $hmac.Key = [System.Text.Encoding]::UTF8.GetBytes($Secret)
+    $hash = $hmac.ComputeHash($PayloadBytes)
     $hashString = [System.BitConverter]::ToString($hash).Replace("-", "").ToLower()
     $Signature = "sha256=$hashString"
 }
@@ -24,7 +24,8 @@ $Headers = @{
 }
 
 try {
-    $response = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:5690/webhook/whatsapp" -Headers $Headers -Body $Payload
+    # Send the raw bytes to avoid PowerShell 5.1 encoding issues with application/json
+    $response = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:5690/webhook/whatsapp" -Headers $Headers -Body $PayloadBytes
     $response | ConvertTo-Json
 } catch {
     Write-Host "Error: $($_.Exception.Message)"
