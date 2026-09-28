@@ -1,17 +1,19 @@
 {% assign selected_product = section.settings.main_product | default: product %}
 <div style="background: #F1F2F3; color: #111; padding: 60px 20px;">
   <div style="max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center;">
-    {% if selected_product.images[1] %}
-      <div style="text-align: center;">
-        <img src="{{ selected_product.images[1] | image_url: width: 600 }}" alt="Qué incluye" style="width: 100%; max-width: 400px; border-radius: 8px;">
+    {% if selected_product.images[0] %}
+      <div style="text-align: center; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+        <img src="{{ selected_product.images[0] | image_url: width: 600 }}" alt="Qué incluye" style="width: 100%; max-width: 400px; border-radius: 8px;">
       </div>
     {% endif %}
     <div>
-      <h2 style="font-family: var(--font-titulos); font-size: 32px; font-weight: 800; margin-bottom: 24px; text-align: center;">¿Qué incluye la caja?</h2>
+      <h2 style="font-family: var(--font-titulos); font-size: 32px; font-weight: 800; margin-bottom: 24px; text-align: left;">Todo lo que trae el maletín</h2>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 16px;">
         {% for item in selected_product.metafields.landing.incluye.value %}
           <div style="display: flex; align-items: flex-start; gap: 8px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--color-whatsapp, #25D366); flex-shrink: 0;"><path d="M20 6L9 17l-5-5"></path></svg>
+            <div style="background: var(--color-grafito, #1A1A1A); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-naranja, #F2661B)" stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg>
+            </div>
             <span>{{ item }}</span>
           </div>
         {% endfor %}

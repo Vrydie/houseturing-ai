@@ -1,69 +1,52 @@
 {% assign selected_product = section.settings.main_product | default: product %}
 <style>
-@keyframes latido { 0%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,211,102,.65)} 6%{transform:scale(1.05)} 12%{transform:scale(1);box-shadow:0 0 0 16px rgba(37,211,102,0)} 18%{transform:scale(1.05);box-shadow:0 0 0 0 rgba(37,211,102,.65)} 24%{transform:scale(1);box-shadow:0 0 0 16px rgba(37,211,102,0)} 100%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,211,102,0)} }
-  6% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(37,211,102,0.5); }
-  12% { transform: scale(1); box-shadow: 0 0 0 16px rgba(37,211,102,0); }
-  18% { transform: scale(1.05); box-shadow: 0 0 0 16px rgba(37,211,102,0); }
-  24% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37,211,102,0); }
-  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37,211,102,0); }
-}
-  6% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(37,211,102,0.5); }
-  12% { transform: scale(1); box-shadow: 0 0 0 16px rgba(37,211,102,0); }
-  18% { transform: scale(1.05); box-shadow: 0 0 0 16px rgba(37,211,102,0); }
-  24% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37,211,102,0); }
-  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37,211,102,0); }
-}
-@keyframes sello {
-  0% { transform: scale(1.2) rotate(-3deg); opacity: 0; }
-  100% { transform: scale(1) rotate(-3deg); opacity: 1; }
-}
-.btn-whatsapp {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  background: var(--color-whatsapp); color: var(--color-whatsapp-text, #ffffff);
-  font-family: var(--font-titulos); font-size: 20px; font-weight: 800;
-  text-decoration: none; padding: 16px 32px; border-radius: 8px;
-  width: 100%; max-width: 400px; margin: 16px auto; text-transform: none;
-  transition: transform 0.2s;
-}
+@keyframes latido { 0%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,211,102,.65)} 6%{transform:scale(1.05);box-shadow:0 0 0 8px rgba(37,211,102,0.5)} 12%{transform:scale(1);box-shadow:0 0 0 16px rgba(37,211,102,0)} 18%{transform:scale(1.05);box-shadow:0 0 0 16px rgba(37,211,102,0)} 24%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,211,102,0)} 100%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,211,102,0)} }
+.btn-whatsapp { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--color-whatsapp); color: var(--color-whatsapp-text, #ffffff); font-family: var(--font-titulos); font-size: 18px; font-weight: 800; text-decoration: none; padding: 16px 24px; border-radius: 50px; width: 100%; max-width: 400px; margin: 16px auto 0 auto; text-transform: none; transition: transform 0.2s; box-shadow: 0 4px 12px rgba(37,211,102,0.4); }
 @media (prefers-reduced-motion: no-preference) { .btn-whatsapp.is-visible-btn { animation: latido 6s infinite; } }
 .btn-whatsapp:hover, .btn-whatsapp:focus { animation-play-state: paused; }
-.anim-sello { display: inline-block; background: var(--color-naranja, #F2661B); color: white; padding: 8px 16px; border-radius: 4px; font-family: var(--font-titulos); font-size: 40px; font-weight: 900; }
-@media (prefers-reduced-motion: no-preference) { .anim-sello { animation: sello 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; } }
-.hero-container { max-width: 1200px; margin: 0 auto; text-align: center; }
-@media (min-width: 1024px) {
-  .hero-container { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; text-align: left; }
-  .hero-text { order: 1; } .hero-image { order: 2; }
-}
-.chip { display: inline-block; background: rgba(255,255,255,0.2); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 12px; }
-.figures { display: flex; justify-content: center; gap: 16px; margin: 24px 0; color: white; font-size: 14px; }
-@media (min-width: 1024px) { .figures { justify-content: flex-start; } }
-.figures div { text-align: center; }
-.figures strong { display: block; font-size: 24px; color: var(--color-naranja, #F2661B); font-family: var(--font-titulos); }
+.hero-container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; text-align: left; }
+.hero-image-wrapper { position: relative; width: 100%; font-size: 0; }
+.hero-image-wrapper img { width: 100%; height: auto; display: block; }
+.hero-price-tag { position: absolute; bottom: 0; left: 20px; transform: translateY(50%) rotate(-3deg); background: var(--color-naranja, #F2661B); color: white; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); text-align: center; }
+.hero-price-tag .price { font-family: var(--font-titulos); font-size: 32px; font-weight: 900; line-height: 1; }
+.hero-price-tag .shipping { font-family: var(--font-body); font-size: 14px; font-weight: bold; margin-top: 4px; }
+.chip { position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.7); color: white; padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; font-family: var(--font-body); }
+.hero-content { padding: 60px 20px 40px 20px; background: var(--color-grafito, #1A1A1A); color: white; }
+.figures { display: flex; justify-content: flex-start; gap: 24px; margin: 24px 0; color: white; font-size: 14px; }
+.figures div { text-align: left; }
+.figures strong { display: block; font-size: 24px; color: var(--color-naranja, #F2661B); font-family: var(--font-titulos); line-height: 1; }
 </style>
-<div style="background: var(--color-grafito, #1A1A1A); color: white; padding: 40px 20px;">
+<div style="background: var(--color-grafito, #1A1A1A);">
   <div class="hero-container">
-    <div class="hero-text">
-      <div class="chip"> Producto Estrella</div>
-      <h1 style="color: white; font-weight: 800; font-size: 40px; margin-bottom: 16px; text-transform: none; line-height: 1.1;">
-        {{ selected_product.metafields.landing.hook.value | default: "" }}
-      </h1>
-      <p style="font-size: 18px; margin-bottom: 24px;">{{ selected_product.metafields.landing.subtitulo.value | default: "" }}</p>
-      <div style="margin-bottom: 24px;">
-        <div class="anim-sello">{{ selected_product.price | money }}</div>
-      </div>
-      <a id="hero-btn" href="https://wa.me/{{ settings.whatsapp_number }}?text={{ selected_product.metafields.landing.whatsapp_texto.value | url_encode }} (web-{{ selected_product.sku }})" class="btn-whatsapp is-visible-btn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"></path><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"></path></svg> Pedir por WhatsApp
-      </a>
-      <div class="figures">
-        <div><strong>Kit</strong><span>Accesorios</span></div>
-        <div><strong>2</strong><span>Baterías</span></div>
-        <div><strong>30</strong><span>Días</span></div>
+    <div class="hero-image-wrapper">
+      {% if selected_product.images[1] %}
+        <img src="{{ selected_product.images[1] | image_url: width: 1000 }}" alt="Producto">
+      {% endif %}
+      <div class="chip">Kit completo con 2 baterías</div>
+      <div class="hero-price-tag">
+        <div class="price">{{ selected_product.price | money_without_trailing_zeros }}</div>
+        <div class="shipping">Envío gratis. Pagas al recibir.</div>
       </div>
     </div>
-    <div class="hero-image">
-      {% if selected_product.images[0] %}
-        <img src="{{ selected_product.images[0] | image_url: width: 800 }}" style="width: 100%; border-radius: 8px; object-fit: cover;" alt="Producto">
-      {% endif %}
+    <div class="hero-content">
+      <h1 style="color: white; font-weight: 800; font-size: 40px; margin-bottom: 16px; text-transform: none; line-height: 1.1;">
+        El taller completo en un solo maletín
+      </h1>
+      <p style="font-size: 18px; margin-bottom: 24px; color: #ccc;">{{ selected_product.metafields.landing.subtitulo.value | default: "" }}</p>
+      
+      <div class="figures">
+        <div><strong>2</strong><span>Baterías de litio</span></div>
+        <div><strong>3</strong><span>Modos de uso</span></div>
+        <div><strong>30</strong><span>Días de garantía</span></div>
+      </div>
+      
+      <div style="text-align: center; margin-top: 32px;">
+        <a id="hero-btn" href="https://wa.me/{{ settings.whatsapp_number }}?text={{ selected_product.metafields.landing.whatsapp_texto.value | url_encode }} (web-{{ selected_product.sku }})" class="btn-whatsapp is-visible-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"></path><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"></path></svg> 
+          PEDIR POR WHATSAPP (PAGO CONTRA ENTREGA)
+        </a>
+        <div style="font-size: 12px; color: #888; margin-top: 8px;">Pagas al recibir · Envío a todo Colombia</div>
+      </div>
     </div>
   </div>
 </div>
