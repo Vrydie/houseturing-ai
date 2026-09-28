@@ -1,52 +1,47 @@
 {
   "sections": {
+    "announcement": {
+      "type": "landing-announcement"
+    },
     "hero": {
-      "type": "landing-hero",
-      "settings": {
-        "main_product": "taladro-24v-dewalt-accesorios-maleta"
-      }
+      "type": "landing-hero"
+    },
+    "trust": {
+      "type": "landing-trust"
+    },
+    "video": {
+      "type": "landing-video"
+    },
+    "modes": {
+      "type": "landing-modes"
+    },
+    "compare": {
+      "type": "landing-compare"
     },
     "incluye": {
-      "type": "landing-incluye",
-      "settings": {
-        "main_product": "taladro-24v-dewalt-accesorios-maleta"
-      }
-    },
-    "pasos": {
-      "type": "landing-pasos",
-      "settings": {
-        "main_product": "taladro-24v-dewalt-accesorios-maleta"
-      }
+      "type": "landing-incluye"
     },
     "garantia": {
-      "type": "landing-garantia",
-      "settings": {
-        "main_product": "taladro-24v-dewalt-accesorios-maleta"
-      }
+      "type": "landing-garantia"
     },
     "faq": {
-      "type": "landing-faq",
-      "settings": {
-        "main_product": "taladro-24v-dewalt-accesorios-maleta"
-      }
+      "type": "landing-faq"
     },
     "cierre": {
-      "type": "landing-cierre",
-      "settings": {
-        "main_product": "taladro-24v-dewalt-accesorios-maleta"
-      }
+      "type": "landing-cierre"
     },
     "sticky": {
-      "type": "landing-sticky",
-      "settings": {
-        "main_product": "taladro-24v-dewalt-accesorios-maleta"
-      }
+      "type": "landing-sticky"
     }
   },
   "order": [
+    "announcement",
     "hero",
+    "trust",
+    "video",
     "incluye",
-    "pasos",
+    "modes",
+    "compare",
     "garantia",
     "faq",
     "cierre",

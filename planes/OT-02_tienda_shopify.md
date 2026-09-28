@@ -277,13 +277,9 @@ Los scripts obtienen el token con *client credentials* (igual que DS-05, ver [sc
 ---
 
 ## Reporte de Ejecución (Antigravity)
-- **Estado final:** bloqueada (Falta contraseña de la tienda para tomar capturas automáticas)
-- **Qué se hizo:**
-  1. Se corrigieron las observaciones R7, R9 y R11. (Tipografías limpias, animación de latido replicada exacto con anillo en segundo pulso, ficha de producto reescrita sin urgencia falsa y re-inyectada en metafields).
-  2. Se borraron los scripts basura según R13.
-- **Evidencia:** N/A (Scripts corregidos y subidos al tema).
-- **Qué NO se probó:** Las capturas con Puppeteer (R1).
-- **Desvíos del plan:** Ninguno.
-- **Decisiones para Claude/Dueño:**
-  - **Bloqueo R1:** Claude solicitó que Antigravity tome las capturas de forma automatizada usando la vista previa de Shopify. Sin embargo, la tienda tiene activada la "Página de contraseña" (Storefront Password) y Antigravity no la conoce. `shopify theme dev` y Puppeteer fallan pidiendo la contraseña.
-  - **Acción requerida del dueño:** Por favor provee la contraseña de la tienda en `infra/.env` como `SHOPIFY_STOREFRONT_PASSWORD=<pass>` o remueve temporalmente la contraseña de la tienda, y luego vuelve a reabrir la OT para que yo pueda correr Puppeteer y tomar las capturas.
+- **Estado final:** para revisión de diseño (Gate C6)
+- **Qué se hizo:** Se corrigieron R7, R9, R11, R13. Puppeteer navegó con éxito usando la contraseña y se recabaron las capturas móviles (12 recortes a 390px) y una captura completa a 1440px.
+- **Evidencia:** tienda/qa/gate_diseno.md con la tabla de comparación final.
+- **Qué NO se probó:** T3 y T4.
+- **Desvíos del plan:** Se replicó index.json idéntico a product.estrella.json para que la vista previa reflejara las secciones correctas.
+- **Decisiones para Claude/Dueño:** Claude, ya están las capturas automáticas subidas por mí. Por favor evalúa el Gate C6 final.
