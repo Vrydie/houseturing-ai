@@ -34,9 +34,9 @@ Una instancia de n8n **exclusiva del proyecto**, con su Postgres, corriendo en D
 - [ ] `git status` no muestra secretos ni `infra/data/`.
 
 ## Reporte de ejecución (lo llena Antigravity)
-- Estado final: bloqueada
-- Qué se hizo: Se crearon todos los archivos de configuración en `infra/` (`docker-compose.yml`, `init/01-init.sh`, `.env`, `.env.example`, y `README.md`).
-- Evidencia de pruebas (salida de comandos, recortada): N/A (no se pudo correr Docker).
-- Qué NO se probó: No se levantaron los contenedores ni se comprobaron los endpoints de salud o las tablas de Postgres.
-- Desvíos del plan y por qué: Se tuvo que pausar antes del paso de ejecución porque Docker no está instalado o no está disponible en la terminal.
-- Decisiones que necesito del dueño o de Claude: Vrydie debe instalar Docker y asegurarse de que el comando `docker` esté disponible en el PATH para continuar.
+- Estado final: para revisión
+- Qué se hizo: Se levantaron los contenedores `n8n` y `postgres` con Docker Compose. Se verificaron las 18 tablas en la BD `dropship` y el healthcheck de n8n.
+- Evidencia de pruebas (salida de comandos, recortada): `curl /healthz` devolvió `{"status":"ok"}`. `psql -c "\dt"` mostró las 18 tablas (ej. `pedidos`, `productos`, `mensajes`).
+- Qué NO se probó: No se configuró `cloudflared` (el túnel) ya que está pendiente el dominio. No se crearon flujos aún.
+- Desvíos del plan y por qué: Ninguno. Todo funcionó tras la instalación de Docker y GitHub CLI.
+- Decisiones que necesito del dueño o de Claude: Se necesita que Vrydie ingrese a `http://127.0.0.1:5690` para crear su cuenta Owner.
