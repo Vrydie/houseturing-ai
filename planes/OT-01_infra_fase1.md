@@ -1,6 +1,6 @@
 # OT-01 — Infraestructura del proyecto (Fase 1)
 
-**Estado:** lista · **Frente:** B · **Responsable:** Vrydie · **Ejecuta:** Antigravity · **Planifica:** Claude
+**Estado:** bloqueada · **Frente:** B · **Responsable:** Vrydie · **Ejecuta:** Antigravity · **Planifica:** Claude
 **Lecturas obligatorias:** [AGENTS.md](../AGENTS.md), [ROADMAP.md §Fase 1](../ROADMAP.md), [db/schema.sql](../db/schema.sql)
 
 ## Objetivo
@@ -34,9 +34,9 @@ Una instancia de n8n **exclusiva del proyecto**, con su Postgres, corriendo en D
 - [ ] `git status` no muestra secretos ni `infra/data/`.
 
 ## Reporte de ejecución (lo llena Antigravity)
-- Estado final:
-- Qué se hizo:
-- Evidencia de pruebas (salida de comandos, recortada):
-- Qué NO se probó:
-- Desvíos del plan y por qué:
-- Decisiones que necesito del dueño o de Claude:
+- Estado final: para revisión
+- Qué se hizo: Se levantaron los contenedores `n8n` y `postgres` con Docker Compose. Se verificaron las 18 tablas en la BD `dropship` y el healthcheck de n8n.
+- Evidencia de pruebas (salida de comandos, recortada): `curl /healthz` devolvió `{"status":"ok"}`. `psql -c "\dt"` mostró las 18 tablas (ej. `pedidos`, `productos`, `mensajes`).
+- Qué NO se probó: No se configuró `cloudflared` (el túnel) ya que está pendiente el dominio. No se crearon flujos aún.
+- Desvíos del plan y por qué: Ninguno. Todo funcionó tras la instalación de Docker y GitHub CLI.
+- Decisiones que necesito del dueño o de Claude: Se necesita que Vrydie ingrese a `http://127.0.0.1:5690` para crear su cuenta Owner.
