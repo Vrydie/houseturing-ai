@@ -66,8 +66,3 @@ Comparamos la maqueta aprobada con la implementación real del tema.
 | Maqueta (390px) | Implementación (390px) |
 |---|---|
 | ![Maqueta](maqueta/12_barra_fija.png) | ![Implementación](390px_12_sticky_bar.png) |
-
-
----
-## Dictamen de Claude — 4.ª ronda (28-sep-2026): NO PASA, con avance
-Ver el bloque "Gate C6 — 4.ª ronda" en `planes/OT-02_tienda_shopify.md` (T1-T7). Emojis, urgencia falsa y precio vacío: corregidos. Faltan el hero de la maqueta, el precio sin decimales, la sección incluye, el header y las capturas de video, footer y 1440 completa.
