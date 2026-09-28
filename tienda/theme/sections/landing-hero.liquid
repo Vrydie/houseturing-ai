@@ -43,11 +43,11 @@
 <div style="background: var(--color-grafito, #1A1A1A); color: white; padding: 40px 20px;">
   <div class="hero-container">
     <div class="hero-text">
-      <div class="chip">🚀 Producto Estrella</div>
+      <div class="chip"> Producto Estrella</div>
       <h1 style="color: white; font-weight: 800; font-size: 40px; margin-bottom: 16px; text-transform: none; line-height: 1.1;">
-        {{ selected_product.metafields.landing.hook.value | default: "Haz todo tú mismo sin llamar al técnico" }}
+        {{ selected_product.metafields.landing.hook.value | default: "" }}
       </h1>
-      <p style="font-size: 18px; margin-bottom: 24px;">{{ selected_product.metafields.landing.subtitulo.value | default: "El taladro percutor que revolucionará tu hogar." }}</p>
+      <p style="font-size: 18px; margin-bottom: 24px;">{{ selected_product.metafields.landing.subtitulo.value | default: "" }}</p>
       <div style="margin-bottom: 24px;">
         <div class="anim-sello">{{ selected_product.price | money }}</div>
       </div>

@@ -1,37 +1,70 @@
 {
   "sections": {
     "announcement": {
-      "type": "landing-announcement"
+      "type": "landing-announcement",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta"
+      }
     },
     "hero": {
-      "type": "landing-hero"
+      "type": "landing-hero",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta"
+      }
     },
     "trust": {
-      "type": "landing-trust"
+      "type": "landing-trust",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta"
+      }
     },
     "video": {
-      "type": "landing-video"
+      "type": "landing-video",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta"
+      }
     },
     "modes": {
-      "type": "landing-modes"
+      "type": "landing-modes",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta"
+      }
     },
     "compare": {
-      "type": "landing-compare"
+      "type": "landing-compare",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta"
+      }
     },
     "incluye": {
-      "type": "landing-incluye"
+      "type": "landing-incluye",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta"
+      }
     },
     "garantia": {
-      "type": "landing-garantia"
+      "type": "landing-garantia",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta"
+      }
     },
     "faq": {
-      "type": "landing-faq"
+      "type": "landing-faq",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta"
+      }
     },
     "cierre": {
-      "type": "landing-cierre"
+      "type": "landing-cierre",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta"
+      }
     },
     "sticky": {
-      "type": "landing-sticky"
+      "type": "landing-sticky",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta"
+      }
     }
   },
   "order": [

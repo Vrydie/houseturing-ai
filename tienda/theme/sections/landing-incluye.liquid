@@ -1,28 +1,24 @@
+{% assign selected_product = section.settings.main_product | default: product %}
 <div style="background: #F1F2F3; color: #111; padding: 60px 20px;">
-  <div style="max-width: 1000px; margin: 0 auto;">
-    <h2 style="font-family: var(--font-titulos); font-size: 32px; font-weight: 800; margin-bottom: 40px; text-align: center;">¿Qué incluye la caja?</h2>
-    <div style="display: grid; grid-template-columns: 1fr; gap: 16px; font-size: 16px;">
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
-        <ul style="list-style: none; padding: 0; margin: 0;">
-          <li style="margin-bottom: 12px;">✅ 1 Taladro Percutor Inalámbrico</li>
-          <li style="margin-bottom: 12px;">✅ 2 Baterías recargables</li>
-          <li style="margin-bottom: 12px;">✅ 1 Cargador de pared</li>
-          <li style="margin-bottom: 12px;">✅ 1 Maletín plástico de alto impacto</li>
-          <li style="margin-bottom: 12px;">✅ 3 Brocas para madera</li>
-          <li style="margin-bottom: 12px;">✅ 3 Brocas para metal/pared</li>
-        </ul>
-        <ul style="list-style: none; padding: 0; margin: 0;">
-          <li style="margin-bottom: 12px;">✅ 9 Copas hexagonales</li>
-          <li style="margin-bottom: 12px;">✅ 1 Adaptador para puntas</li>
-          <li style="margin-bottom: 12px;">✅ 1 Extensión flexible</li>
-          <li style="margin-bottom: 12px;">✅ 6 Puntas de destornillador</li>
-          <li style="margin-bottom: 12px;">✅ 1 Cinta métrica</li>
-          <li style="margin-bottom: 12px;">✅ Manual de usuario</li>
-        </ul>
+  <div style="max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center;">
+    {% if selected_product.images[1] %}
+      <div style="text-align: center;">
+        <img src="{{ selected_product.images[1] | image_url: width: 600 }}" alt="Qué incluye" style="width: 100%; max-width: 400px; border-radius: 8px;">
+      </div>
+    {% endif %}
+    <div>
+      <h2 style="font-family: var(--font-titulos); font-size: 32px; font-weight: 800; margin-bottom: 24px; text-align: center;">¿Qué incluye la caja?</h2>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 16px;">
+        {% for item in selected_product.metafields.landing.incluye.value %}
+          <div style="display: flex; align-items: flex-start; gap: 8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--color-whatsapp, #25D366); flex-shrink: 0;"><path d="M20 6L9 17l-5-5"></path></svg>
+            <span>{{ item }}</span>
+          </div>
+        {% endfor %}
       </div>
     </div>
   </div>
 </div>
 {% schema %}
-{ "name": "Landing Incluye", "presets": [{ "name": "Landing Incluye" }] }
+{ "name": "Landing Incluye", "settings": [{ "type": "product", "id": "main_product", "label": "Producto" }], "presets": [{ "name": "Landing Incluye" }] }
 {% endschema %}

@@ -25,7 +25,7 @@ Comparamos la maqueta aprobada con la implementación real del tema.
 ## 4. Video y Cómo Funciona
 | Maqueta (390px) | Implementación (390px) |
 |---|---|
-| ![Maqueta](maqueta/04_video.png) | ![Implementación](390px_04_video.png) |
+| ![Maqueta](maqueta/04_video.png) | (Oculto porque no hay video en galería) |
 
 ## 5. Qué Incluye
 | Maqueta (390px) | Implementación (390px) |
