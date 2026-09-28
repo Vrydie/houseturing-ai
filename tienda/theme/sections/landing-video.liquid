@@ -1,0 +1,17 @@
+{% assign selected_product = section.settings.main_product | default: product %}
+<div style="background: #F9F9F9; padding: 60px 20px; text-align: center;">
+  <div style="max-width: 800px; margin: 0 auto;">
+    <h2 style="font-family: var(--font-titulos); font-size: 32px; font-weight: 800; margin-bottom: 24px; color: #111;">Míralo funcionando</h2>
+    <div style="position: relative; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+      {% assign video = selected_product.media | where: "media_type", "video" | first %}
+      {% if video %}
+        {{ video | video_tag: autoplay: true, loop: true, muted: true, controls: true, style: "width: 100%; display: block;" }}
+      {% else %}
+        <div style="background: #ccc; padding: 100px 0; color: #666; font-weight: bold;">[Video del Producto Aquí]</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% schema %}
+{ "name": "Landing Video", "settings": [{ "type": "product", "id": "main_product", "label": "Producto" }], "presets": [{ "name": "Landing Video" }] }
+{% endschema %}

@@ -1,6 +1,6 @@
 # OT-02 — Tienda Shopify: landing del producto estrella
 
-**Frente:** A · **Responsable:** dueño · **Estado:** **reabierta — construir la plantilla con el producto de EJEMPLO (taladro)**. Ejecutar C1-C7; **prohibido publicar el tema o anunciar con este producto** · **Ejecuta:** Antigravity · **Planifica:** Claude
+**Frente:** A · **Responsable:** dueño · **Estado:** **reabierta (2.ª vez) — el gate C6 NO PASA, ver [tienda/qa/gate_diseno.md](../tienda/qa/gate_diseno.md)**. Ejecutar C1-C7; **prohibido publicar el tema o anunciar con este producto** · **Ejecuta:** Antigravity · **Planifica:** Claude
 **Lecturas obligatorias:** [AGENTS.md](../AGENTS.md), [ROADMAP.md](../ROADMAP.md) (decisiones D1-D13), [prompts/base_conocimiento_producto.md](../prompts/base_conocimiento_producto.md) (ficha del producto = fuente de los textos)
 
 ---
@@ -34,6 +34,25 @@ El taladro es un **producto de ejemplo** para construir y probar la plantilla. *
 - [ ] **C7. Borra el `DISENO.md` actual** y reemplázalo por uno que solo documente cómo se implementó la maqueta (secciones, metafields, tokens).
 
 **Criterio de aceptación de esta corrección:** a simple vista, la vista previa y la maqueta son la misma página, pero con las fotos reales.
+
+## ⛔ Gate C6 rechazado (revisión de Claude, 26-sep-2026)
+
+**Dictamen completo: [tienda/qa/gate_diseno.md](../tienda/qa/gate_diseno.md).** Resumen: la maqueta tiene 13 bloques y la plantilla implementa 7; ninguno reproduce la maqueta. El criterio de aceptación ("a simple vista, la vista previa y la maqueta son la misma página") no se cumple.
+
+Antes de volver a marcar `para revisión de diseño`, hay que cerrar esto:
+
+- [ ] **R1. Evidencia.** Capturas a **390 px y a 1440 px**, sección por sección, **con la maqueta al lado** (las celdas de la maqueta están vacías). `barrafija.png` es un recorte del header, no la barra fija: hay que capturar la barra fija de verdad y el footer legal.
+- [ ] **R2. Las 5 secciones que faltan:** barra de anuncio, franja de confianza (3 iconos), "Míralo funcionando" (video con botón de reproducir), "Un taladro, tres modos" (3 tarjetas) y "Por separado o en un solo maletín" (tabla comparativa). **Quitar "Cómo pedir"**, que no está en la maqueta.
+- [ ] **R3. Rehacer las 6 secciones existentes** contra la maqueta: hero con foto, chip, etiqueta de precio naranja rotada, titular **blanco en minúscula** y las 3 cifras · "incluye" con los 12 ítems en 2 columnas sobre `#F1F2F3` · garantía en tarjeta blanca a la izquierda con el enlace a condiciones · FAQ sobre blanco · cierre con etiqueta de precio y horario.
+- [ ] **R4. Quitar `text-transform: uppercase`** de las 6 secciones (AGENTS.md §9; es el motivo por el que ya se había reabierto la OT). El titular del hero deja de ser naranja.
+- [ ] **R5. Número de WhatsApp.** `wa.me/573000000000` está quemado en `landing-hero`, `landing-pasos`, `landing-cierre` y `landing-sticky`. Es un marcador que parece real: AGENTS.md §3 lo prohíbe. Sacarlo a un ajuste del tema alimentado desde `infra/.env`.
+- [ ] **R6. Ficha y precio.** `prompts/base_conocimiento_producto.md` sigue siendo la plantilla vacía, así que "48V", "30 días", "2 a 5 días hábiles" y "menos de 48 horas" están inventados. Llenar la ficha (la llena el dueño) y rehacer los textos desde ahí. Cuadrar el precio de la web con la variante y con `ofertas.x1` — hoy la web dice $260.000,00 y la maqueta $219.900.
+- [ ] **R7. Terminar C2 y C3.** Siguen la cuenta, el carrito y el selector de país/idioma (`show_country`, `show_language` en `sections/header-group.json`). `config/settings_data.json` sigue en Inter: poner Barlow y Barlow Condensed en los ajustes del tema, no solo con `!important` desde `theme.liquid`.
+- [ ] **R8. Datos, no Liquid.** `landing-incluye.liquid` usa el asset `video_taladro.mp4` en vez de la galería del producto, y `DISENO.md` afirma lo contrario.
+- [ ] **R9. Animaciones de la maqueta.** `latido` es **doble** (pulsos a 6 % y 18 %, anillo de 16 px), no de cinco pulsos. `sello` va de `scale(1.2) rotate(-3deg)` a `rotate(-3deg)`, sobre la etiqueta de precio.
+- [ ] **R10. Error latente.** `landing-hero.liquid` usa `stickyBtn.classList` sin comprobar que exista: sin la sección `landing-sticky`, el observer lanza una excepción y el hero se queda sin latido.
+
+**Bloqueado por el dueño:** R6 necesita la ficha del producto llena y el precio real. Si no está, marca la OT `bloqueada` en ese punto y sigue con el resto.
 
 ## Objetivo
 Una tienda Shopify **mínima, rápida y confiable**, centrada en un solo producto, con estas piezas:

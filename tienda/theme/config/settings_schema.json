@@ -2116,5 +2116,16 @@
         "default": "equal-width-buttons"
       }
     ]
+  },
+  {
+    "name": "WhatsApp",
+    "settings": [
+      {
+        "type": "text",
+        "id": "whatsapp_number",
+        "label": "Número de WhatsApp",
+        "default": "573000000000"
+      }
+    ]
   }
 ]

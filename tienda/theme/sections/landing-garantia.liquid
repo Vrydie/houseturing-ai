@@ -1,12 +1,14 @@
-
-{% assign selected_product = section.settings.main_product | default: product %}
-<div style="background: var(--color-gris-claro); color: var(--color-grafito); padding: 40px 20px;">
-  <div style="border: 2px solid var(--color-linea); padding: 32px 20px; border-radius: 8px; max-width: 600px; margin: 0 auto; text-align: center;">
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-    <h2 style="font-weight: 800; font-size: 28px; margin-bottom: 16px; text-transform: uppercase;">Garantía</h2>
-    <p style="font-size: 18px; line-height: 1.5;">{{ selected_product.metafields.landing.garantia.value }}</p>
+<div style="background: #F1F2F3; padding: 60px 20px;">
+  <div style="max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px;">
+    <div style="background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: left;">
+      <h2 style="font-family: var(--font-titulos); font-size: 32px; font-weight: 800; margin-bottom: 24px; color: #111;">Garantía de Satisfacción</h2>
+      <p style="font-size: 18px; line-height: 1.6; margin-bottom: 24px;">
+        Tu compra está protegida. Tienes 30 días de garantía directa por defectos de fábrica (el motor no enciende o baterías no cargan). Compras hoy y pagas al recibir.
+      </p>
+      <a href="/pages/garantia-y-devoluciones" style="color: var(--color-naranja, #F2661B); font-weight: bold; text-decoration: underline;">Ver condiciones completas</a>
+    </div>
   </div>
 </div>
 {% schema %}
-{ "name": "Landing Garantia", "settings": [{ "type": "product", "id": "main_product", "label": "Producto Estrella" }], "presets": [{ "name": "Landing Garantia" }] }
+{ "name": "Landing Garantia", "presets": [{ "name": "Landing Garantia" }] }
 {% endschema %}

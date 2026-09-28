@@ -1,38 +1,47 @@
 {
   "sections": {
+    "announcement": {
+      "type": "landing-announcement"
+    },
     "hero": {
-      "type": "landing-hero",
-      "settings": {}
+      "type": "landing-hero"
+    },
+    "trust": {
+      "type": "landing-trust"
+    },
+    "video": {
+      "type": "landing-video"
+    },
+    "modes": {
+      "type": "landing-modes"
+    },
+    "compare": {
+      "type": "landing-compare"
     },
     "incluye": {
-      "type": "landing-incluye",
-      "settings": {}
-    },
-    "pasos": {
-      "type": "landing-pasos",
-      "settings": {}
+      "type": "landing-incluye"
     },
     "garantia": {
-      "type": "landing-garantia",
-      "settings": {}
+      "type": "landing-garantia"
     },
     "faq": {
-      "type": "landing-faq",
-      "settings": {}
+      "type": "landing-faq"
     },
     "cierre": {
-      "type": "landing-cierre",
-      "settings": {}
+      "type": "landing-cierre"
     },
     "sticky": {
-      "type": "landing-sticky",
-      "settings": {}
+      "type": "landing-sticky"
     }
   },
   "order": [
+    "announcement",
     "hero",
+    "trust",
+    "video",
+    "modes",
+    "compare",
     "incluye",
-    "pasos",
     "garantia",
     "faq",
     "cierre",

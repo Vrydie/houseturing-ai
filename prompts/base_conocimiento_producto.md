@@ -7,88 +7,90 @@
 ---
 
 ## 1. El producto
-- **Nombre comercial:** <Producto Estrella>
-- **Qué es, en una frase:** <Un … que te permite … sin …>
-- **Para quién es:** <perfil del cliente ideal>
-- **Problema que resuelve:** <el dolor principal, en palabras del cliente>
-- **Para quién NO es:** <casos en que no sirve; genera confianza y evita devoluciones>
+- **Nombre comercial:** Combo Taladro Percutor Inalámbrico con Maletín Completo
+- **Qué es, en una frase:** Un kit de herramientas portátil y potente que te permite taladrar, atornillar y reparar en casa sin depender de cables.
+- **Para quién es:** Personas que hacen arreglos en el hogar, proyectos de bricolaje (DIY) y necesitan una herramienta versátil lista para usar.
+- **Problema que resuelve:** Evita tener que llamar a un técnico para arreglos menores y soluciona la falta de herramientas organizadas en casa.
+- **Para quién NO es:** No es para uso industrial pesado ni trabajo continuo en construcción profesional.
 
 ## 2. Beneficios principales (3-5, del más al menos importante)
-1. <Beneficio> — <prueba o dato concreto>
-2. <Beneficio> — <prueba>
-3. <Beneficio> — <prueba>
+1. Inalámbrico y portátil — Trae 2 baterías recargables para que trabajes sin buscar enchufes.
+2. Todo en uno — Incluye un maletín de alto impacto con 30 accesorios (brocas, copas, destornilladores).
+3. Tres modos de uso — Funciona como taladro, percutor (para pared) y atornillador.
+4. Luz LED integrada — Permite trabajar en espacios oscuros o debajo de muebles.
 
 ## 3. Especificaciones
-- Medidas / peso: <…>
-- Material: <…>
-- Colores / variantes disponibles: <…>
-- Qué incluye la caja: <…>
-- Requisitos (batería, carga, compatibilidad): <…>
+- Medidas / peso: Maletín fácil de transportar, peso aproximado 2 kg.
+- Material: Plástico de alto impacto y metal.
+- Colores / variantes disponibles: Negro con detalles amarillos.
+- Qué incluye la caja: Taladro, 2 baterías de 24v, cargador, maletín con 30 accesorios (brocas, copas, cinta métrica, bisturí, segueta, alicate).
+- Requisitos (batería, carga, compatibilidad): Se conecta a corriente estándar de 110V para cargar.
 
 ## 4. Cómo se usa
-1. <paso>
-2. <paso>
-3. <paso>
+1. Carga una de las baterías al 100% antes de usarlo.
+2. Inserta la batería en la base del taladro y selecciona la broca o punta que necesites.
+3. Ajusta el torque y el modo (taladro, percutor o atornillador) según el material.
 
 ## 5. Ofertas y precios
 | oferta_id | Qué incluye | Precio total | Mensaje clave |
 |---|---|---|---|
-| x1 | 1 unidad | $<…> | <…> |
-| x2 | 2 unidades | $<…> | <"la más elegida", ahorro de $…> |
-| x3 | 3 unidades | $<…> | <…> |
+| x1 | 1 Combo Completo | $219.900 | El kit ideal para tener en casa. |
+| x2 | 2 Combos Completos | $399.900 | Aprovecha el descuento llevando dos. |
 
-- Oferta que el agente debe **recomendar por defecto:** <x2>
-- ¿El envío está incluido? <sí / no, cuesta $…>
-- Descuentos adicionales permitidos: **ninguno** <o describe exactamente cuáles y cuándo>
+- Oferta que el agente debe **recomendar por defecto:** x1
+- ¿El envío está incluido? Envío gratis a todo el país.
+- Descuentos adicionales permitidos: **ninguno**
 
 ## 6. Envío y entrega
-- Cobertura: <todo Colombia con Dropi, salvo …>
-- Tiempos: ciudades principales <…> días hábiles; resto del país <…> días hábiles.
-- Transportadoras: <…>
-- Horario de entrega: <…>
-- Si el cliente no está al momento de la entrega: <la transportadora reintenta / deja aviso / llama>
-- ¿Se puede abrir el paquete antes de pagar? <sí / no — confírmalo con Dropi y la transportadora>
+- Cobertura: Todo Colombia, salvo zonas rojas de difícil acceso.
+- Tiempos: ciudades principales 2 a 5 días hábiles; resto del país 3 a 7 días hábiles.
+- Transportadoras: Servientrega, Inter Rapidísimo o Envía.
+- Horario de entrega: Lunes a sábado, 8 AM a 6 PM.
+- Si el cliente no está al momento de la entrega: La transportadora hace hasta 2 reintentos.
+- ¿Se puede abrir el paquete antes de pagar? No, por políticas de las transportadoras se debe pagar primero.
 
 ## 7. Formas de pago
-- **Contra entrega:** paga en efectivo al mensajero al recibir <¿aceptan transferencia al mensajero?>.
-- **Pago en línea (link):** <tarjeta, PSE, Nequi… según la pasarela>.
+- **Contra entrega:** Paga en efectivo al mensajero al recibir el producto.
+- **Pago en línea (link):** Transferencia PSE o Nequi vía link de pago.
 
 ## 8. Garantía, cambios y devoluciones
-- Garantía: <… días por defectos de fábrica>
-- Cómo se reclama: <el agente escala a humano>
-- Cambios / retracto: <condiciones>
-- Qué NO cubre: <…>
+- Garantía: 30 días por defectos de fábrica (el motor no enciende o baterías no cargan).
+- Cómo se reclama: Contactando a soporte técnico; el agente escala a humano.
+- Cambios / retracto: Hasta 5 días hábiles después de recibirlo, asumiendo fletes si es por retracto.
+- Qué NO cubre: Daños por mal uso, caídas, humedad o sobrecarga del motor.
 
 ## 9. Objeciones frecuentes (mínimo 15)
 Formato: **Objeción** → respuesta (validar → responder → preguntar).
 
-1. **"Está muy caro"** → <…>
-2. **"¿Es original / de buena calidad?"** → <…>
-3. **"¿Y si no me funciona?"** → <…>
-4. **"¿Es confiable? ¿No es estafa?"** → <pagas al recibir, no pagas nada por adelantado…>
-5. **"Lo vi más barato en otra parte"** → <…>
-6. **"Lo voy a pensar"** → <…>
-7. **"¿Cuánto se demora?"** → <…>
-8. **"¿Tienen tienda física?"** → <…>
-9. **"Tengo que consultarlo con mi pareja/familia"** → <…>
-10. **"¿Sirve para <caso específico>?"** → <…>
-11. **"¿Hacen envío a <ciudad pequeña>?"** → usar `consultar_cobertura`.
-12. **"¿Puedo pagar con tarjeta?"** → <…>
-13. **"¿Qué pasa si llega dañado?"** → <…>
-14. **"Ahora no tengo el dinero"** → <…>
-15. **"¿Por qué debo darles mis datos?"** → <solo para el envío…>
+1. **"Está muy caro"** → Entiendo que cuides tu presupuesto. Ten en cuenta que te estás llevando 30 accesorios y dos baterías, lo que por separado te costaría casi el doble. ¿Te gustaría pedir el tuyo?
+2. **"¿Es original / de buena calidad?"** → Sí, es una herramienta genérica importada de excelente calidad para uso en el hogar. ¿Te lo envío a tu casa?
+3. **"¿Y si no me funciona?"** → Estás protegido. Tienes 30 días de garantía directa por defectos de fábrica. ¿A qué ciudad sería el envío?
+4. **"¿Es confiable? ¿No es estafa?"** → Comprendo tu desconfianza. Por eso pagas SOLO cuando recibas la caja en tus manos. No pides nada por adelantado. ¿Me regalas tus datos para el envío?
+5. **"Lo vi más barato en otra parte"** → Es posible encontrar productos parecidos, pero nosotros te aseguramos el maletín completo con 30 accesorios y garantía de 30 días. ¿Te animas con nosotros?
+6. **"Lo voy a pensar"** → Claro que sí, tómate tu tiempo. Solo recuerda que la oferta de envío gratis es por tiempo limitado. ¿Tienes alguna duda en la que pueda ayudarte?
+7. **"¿Cuánto se demora?"** → Suele tardar de 2 a 5 días hábiles en ciudades principales. ¿En qué ciudad te encuentras para confirmarte?
+8. **"¿Tienen tienda física?"** → Somos una tienda 100% online, lo que nos permite darte el envío gratis hasta la puerta de tu casa. ¿Quieres que te envíe uno?
+9. **"Tengo que consultarlo con mi pareja/familia"** → Perfecto, es una excelente decisión para el hogar. Consúltalo y me avisas.
+10. **"¿Sirve para concreto o pared?"** → Sí, cuenta con la función de percutor, ideal para taladrar mampostería y pared de ladrillo. ¿Qué proyecto tienes en mente?
+11. **"¿Hacen envío a <ciudad pequeña>?"** → Déjame consultar la cobertura. (usar `consultar_cobertura`).
+12. **"¿Puedo pagar con tarjeta?"** → Claro, te puedo generar un enlace de pago seguro para Nequi o PSE. ¿Prefieres ese método o pago en efectivo al recibir?
+13. **"¿Qué pasa si llega dañado?"** → Tienes garantía total si el producto llega con defectos de fábrica o dañado en el transporte. ¿Te tomo el pedido?
+14. **"Ahora no tengo el dinero"** → Entiendo. Recuerda que no pagas hoy, sino el día que te lo entreguen (en unos 3 a 5 días). ¿Te serviría así?
+15. **"¿Por qué debo darles mis datos?"** → Solo los necesitamos para que la transportadora sepa a dónde llevar tu paquete y contactarte cuando estén cerca. Son totalmente confidenciales.
 
 ## 10. Preguntas frecuentes
-- <Pregunta> → <respuesta>
-- <Pregunta> → <respuesta>
+- ¿Qué voltaje tienen las baterías? → Son de 24V (aunque el diseño diga 48V, la capacidad real de uso continuo equivale a 24V).
+- ¿Trae brocas para madera? → Sí, el maletín incluye brocas estándar para madera y pared.
+- ¿Cuánto dura la batería? → Depende del uso, pero para trabajos caseros dura lo suficiente para varias horas. ¡Y trae 2 baterías!
 
 ## 11. Lo que el agente NUNCA debe decir
-- <Afirmaciones médicas, de salud o de resultados garantizados que no puedes demostrar>
-- <Comparaciones con marcas registradas de la competencia>
-- <Promesas de fechas exactas>
+- No afirmar que es marca "DeWALT" ni "Bosch" original (son genéricos).
+- No prometer uso industrial o trabajo continuo de 8 horas diarias.
+- No prometer fechas u horas exactas de entrega.
+- NUNCA decir que el taladro es de 48V reales (el voltaje real es 24V).
 
 ## 12. Datos de la empresa
-- Marca: <…>
-- Instagram / TikTok: <…>
-- Horario de atención humana: <lun-sáb 8:00-18:00>
-- Política de privacidad: <URL>
+- Marca: Tu Tienda Hogar
+- Instagram / TikTok: @TuTiendaHogar
+- Horario de atención humana: Lunes a Sábado de 8:00 AM a 6:00 PM.
+- Política de privacidad: https://tutienda.com/privacidad
