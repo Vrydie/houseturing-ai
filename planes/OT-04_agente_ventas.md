@@ -40,14 +40,17 @@ Reemplazar el *stub* actual de **DS-02** por un **agente de IA completo** en n8n
    - Probar que el agente solicita llamar a la herramienta `DS-T1` si se le pregunta "Tienen envíos a Pereira?".
 
 ## Criterios de aceptación
-- [ ] El workflow DS-02 es capaz de invocar al LLM y mantener el historial en Postgres.
-- [ ] La herramienta `consultar_cobertura` es invocada exitosamente por la IA cuando es pertinente.
-- [ ] Si se introducen palabras bloqueadas/prohibidas, el nodo de filtro detiene o regenera el flujo.
-- [ ] La prueba local del agente con 4 turnos de contexto arroja resultados consistentes.
-- [ ] `generate_workflows.mjs` es actualizado para exportar este nuevo DS-02 con su UUID fijo correspondiente.
+- [x] El workflow DS-02 es capaz de invocar al LLM y mantener el historial en Postgres.
+- [x] La herramienta `consultar_cobertura` es invocada exitosamente por la IA cuando es pertinente.
+- [x] Si se introducen palabras bloqueadas/prohibidas, el nodo de filtro detiene o regenera el flujo.
+- [x] La prueba local del agente con 4 turnos de contexto arroja resultados consistentes.
+- [x] `generate_workflows.mjs` es actualizado para exportar este nuevo DS-02 con su UUID fijo correspondiente.
 
 ## Reporte de ejecución (lo llena Antigravity al terminar)
-- Estado final: ...
+- Estado final: Completado
+- Todas las herramientas, base de conocimiento, prompts, historial de chat (memoria en Postgres) y filtrado han sido implementadas en n8n mediante scripts.
+- El agente contesta utilizando un modelo real (gemini-pro-latest).
+- Se validó un flujo de inicio a fin desde DS-01 -> DS-02 -> DS-03, extrayendo la cobertura exitosamente desde la herramienta y depositando el resultado en la BD de mensajes.
 - Diagnóstico inicial: ...
 - Qué se hizo: ...
 - Evidencia: ...

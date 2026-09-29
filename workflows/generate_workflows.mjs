@@ -154,6 +154,20 @@ return [{ json: { wa_id } }];
     },
     {
       parameters: {
+        jsCode: `
+const wa_id = $('Execute Workflow Trigger').first().json.wa_id;
+const texto = $('Execute Workflow Trigger').first().json.texto;
+return [{ json: { sessionId: wa_id, chatInput: texto } }];
+        `
+      },
+      id: "code_format",
+      name: "Format Agent Input",
+      type: "n8n-nodes-base.code",
+      typeVersion: 2,
+      position: [600, 100]
+    },
+    {
+      parameters: {
         promptType: "define",
         text: "={{ $('Execute Workflow Trigger').first().json.texto }}",
         options: {
@@ -164,35 +178,38 @@ return [{ json: { wa_id } }];
       name: "AI Agent",
       type: "@n8n/n8n-nodes-langchain.agent",
       typeVersion: 1.6,
-      position: [700, 100]
+      position: [800, 100],
+      retryOnFail: true,
+      maxTries: 5,
+      waitBetweenTries: 5000
     },
     {
       parameters: {
-        model: "gpt-4o-mini",
+        modelName: "models/gemini-3.8-flash",
         options: {}
       },
       id: "llm",
-      name: "OpenAI Chat Model",
-      type: "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      name: "Google Gemini Chat Model",
+      type: "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       typeVersion: 1,
-      position: [700, 300],
+      position: [800, 300],
       credentials: {
-        openAiApi: {
-          id: "1", 
-          name: "OpenAi account"
+        googlePalmApi: {
+          id: "VFVMXHhgUKNRkFnE",
+          name: "Google Gemini(PaLM) Api account"
         }
       }
     },
     {
       parameters: {
-        sessionKey: "={{ $('Execute Workflow Trigger').first().json.wa_id }}",
-        windowSize: 20
+        windowSize: 20,
+        sessionKey: "={{ $('Execute Workflow Trigger').first().json.wa_id }}"
       },
       id: "memory",
       name: "Postgres Chat Memory",
       type: "@n8n/n8n-nodes-langchain.memoryPostgresChat",
       typeVersion: 1.2,
-      position: [850, 300],
+      position: [950, 300],
       credentials: {
         postgres: {
           id: "b1b2JJ18qDVF2dWp",
@@ -241,11 +258,12 @@ return [{
     "IF > 60 Turnos": {
       main: [
         [ { node: "Escalar a Humano", type: "main", index: 0 } ],
-        [ { node: "AI Agent", type: "main", index: 0 } ]
+        [ { node: "Format Agent Input", type: "main", index: 0 } ]
       ]
     },
+    "Format Agent Input": { main: [ [ { node: "AI Agent", type: "main", index: 0 } ] ] },
     "AI Agent": { main: [ [ { node: "Filtro de Estilo", type: "main", index: 0 } ] ] },
-    "OpenAI Chat Model": { ai_languageModel: [ [ { node: "AI Agent", type: "ai_languageModel", index: 0 } ] ] },
+    "Google Gemini Chat Model": { ai_languageModel: [ [ { node: "AI Agent", type: "ai_languageModel", index: 0 } ] ] },
     "Postgres Chat Memory": { ai_memory: [ [ { node: "AI Agent", type: "ai_memory", index: 0 } ] ] },
     "Call Workflow Tool": { ai_tool: [ [ { node: "AI Agent", type: "ai_tool", index: 0 } ] ] }
   }
