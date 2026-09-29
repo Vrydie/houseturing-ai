@@ -85,10 +85,10 @@ return [{ json: { opciones: items } }];
   }
 };
 
-// DS-02: Agente (stub)
+// DS-02: Agente de Ventas
 const stubWorkflow = {
   id: "ae42ab9a-9d5c-40fb-b18b-b8626c78b51b",
-  name: "DS-02 Agente (stub)",
+  name: "DS-02 Agente de Ventas",
   nodes: [
     {
       parameters: {},
@@ -101,24 +101,153 @@ const stubWorkflow = {
     {
       parameters: {
         jsCode: `
-const input = $input.first().json;
+const wa_id = $('Execute Workflow Trigger').first().json.wa_id;
+return [{ json: { wa_id } }];
+        `
+      },
+      id: "code_count",
+      name: "Get wa_id",
+      type: "n8n-nodes-base.code",
+      typeVersion: 2,
+      position: [150, 0]
+    },
+    {
+      parameters: {
+        operation: "executeQuery",
+        query: "SELECT COUNT(*) as turnos FROM mensajes WHERE wa_id = $1",
+        options: { queryReplacement: "={{ [$json.wa_id] }}" }
+      },
+      id: "pg_count",
+      name: "Count Turns",
+      type: "n8n-nodes-base.postgres",
+      typeVersion: 2.3,
+      credentials: { postgres: { id: "b1b2JJ18qDVF2dWp", name: "Postgres" } },
+      position: [300, 0]
+    },
+    {
+      parameters: {
+        conditions: {
+          number: [
+            {
+              value1: "={{ $json.turnos }}",
+              operation: "larger",
+              value2: 60
+            }
+          ]
+        }
+      },
+      id: "if_limite",
+      name: "IF > 60 Turnos",
+      type: "n8n-nodes-base.if",
+      typeVersion: 1,
+      position: [500, 0]
+    },
+    {
+      parameters: {
+        jsCode: "return [{ json: { texto: 'Escalado por límite de turnos', bot_activo: false } }];"
+      },
+      id: "code_escalar",
+      name: "Escalar a Humano",
+      type: "n8n-nodes-base.code",
+      typeVersion: 2,
+      position: [700, -200]
+    },
+    {
+      parameters: {
+        promptType: "define",
+        text: "={{ $('Execute Workflow Trigger').first().json.texto }}",
+        options: {
+          systemMessage: "Eres un asesor de ventas de una tienda virtual."
+        }
+      },
+      id: "agent",
+      name: "AI Agent",
+      type: "@n8n/n8n-nodes-langchain.agent",
+      typeVersion: 1.6,
+      position: [700, 100]
+    },
+    {
+      parameters: {
+        model: "gpt-4o-mini",
+        options: {}
+      },
+      id: "llm",
+      name: "OpenAI Chat Model",
+      type: "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      typeVersion: 1,
+      position: [700, 300],
+      credentials: {
+        openAiApi: {
+          id: "1", 
+          name: "OpenAi account"
+        }
+      }
+    },
+    {
+      parameters: {
+        sessionKey: "={{ $('Execute Workflow Trigger').first().json.wa_id }}",
+        windowSize: 20
+      },
+      id: "memory",
+      name: "Postgres Chat Memory",
+      type: "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      typeVersion: 1.2,
+      position: [850, 300],
+      credentials: {
+        postgres: {
+          id: "b1b2JJ18qDVF2dWp",
+          name: "Postgres"
+        }
+      }
+    },
+    {
+      parameters: {
+        workflowId: "c6918d23-a831-42b2-b67a-493b9b1c07cf",
+        name: "consultar_cobertura",
+        description: "Llama a esta herramienta para consultar si hay envíos a una ciudad específica."
+      },
+      id: "tool_cobertura",
+      name: "Call Workflow Tool",
+      type: "@n8n/n8n-nodes-langchain.toolWorkflow",
+      typeVersion: 1.1,
+      position: [1000, 300]
+    },
+    {
+      parameters: {
+        jsCode: `
+const output = $input.first().json.output || "";
+const prohibidas = ["soy una ia", "soy un modelo", "openai", "precio de 10000"];
+const isBlocked = prohibidas.some(p => output.toLowerCase().includes(p));
+
 return [{
   json: {
-    wa_id: input.wa_id,
-    texto: "Hola, recibimos tu mensaje: " + input.texto
+    wa_id: $('Execute Workflow Trigger').first().json.wa_id,
+    texto: isBlocked ? "Hubo un error de estilo. Regenerando..." : output
   }
 }];
         `
       },
-      id: "code",
-      name: "Code Stub",
+      id: "code_filter",
+      name: "Filtro de Estilo",
       type: "n8n-nodes-base.code",
       typeVersion: 2,
-      position: [200, 0]
+      position: [1200, 100]
     }
   ],
   connections: {
-    "Execute Workflow Trigger": { main: [ [ { node: "Code Stub", type: "main", index: 0 } ] ] }
+    "Execute Workflow Trigger": { main: [ [ { node: "Get wa_id", type: "main", index: 0 } ] ] },
+    "Get wa_id": { main: [ [ { node: "Count Turns", type: "main", index: 0 } ] ] },
+    "Count Turns": { main: [ [ { node: "IF > 60 Turnos", type: "main", index: 0 } ] ] },
+    "IF > 60 Turnos": {
+      main: [
+        [ { node: "Escalar a Humano", type: "main", index: 0 } ],
+        [ { node: "AI Agent", type: "main", index: 0 } ]
+      ]
+    },
+    "AI Agent": { main: [ [ { node: "Filtro de Estilo", type: "main", index: 0 } ] ] },
+    "OpenAI Chat Model": { ai_languageModel: [ [ { node: "AI Agent", type: "ai_languageModel", index: 0 } ] ] },
+    "Postgres Chat Memory": { ai_memory: [ [ { node: "AI Agent", type: "ai_memory", index: 0 } ] ] },
+    "Call Workflow Tool": { ai_tool: [ [ { node: "AI Agent", type: "ai_tool", index: 0 } ] ] }
   }
 };
 
