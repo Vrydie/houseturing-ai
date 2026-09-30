@@ -231,6 +231,54 @@ return [{ json: { sessionId: wa_id, chatInput: texto } }];
     },
     {
       parameters: {
+        workflowId: "d8c21a4f-9a1c-4f77-9b2f-1a2b3c4d5e6f",
+        name: "consultar_estado_pedido",
+        description: "Devuelve los pedidos del cliente actual (estado, transportadora, guía)."
+      },
+      id: "tool_estado",
+      name: "Call Tool Estado",
+      type: "@n8n/n8n-nodes-langchain.toolWorkflow",
+      typeVersion: 1.1,
+      position: [1000, 450]
+    },
+    {
+      parameters: {
+        workflowId: "e9d32b5g-1b2d-5f88-8c3g-2b3c4d5e6f7g",
+        name: "escalar_a_humano",
+        description: "Pausa el bot en esta conversación y avisa al operador. Llama si el cliente está molesto, pide humano, u otras razones de la ficha."
+      },
+      id: "tool_escalar",
+      name: "Call Tool Escalar",
+      type: "@n8n/n8n-nodes-langchain.toolWorkflow",
+      typeVersion: 1.1,
+      position: [1000, 600]
+    },
+    {
+      parameters: {
+        workflowId: "f1a2b3c4-d5e6-7f8g-9h0i-1j2k3l4m5n6o",
+        name: "crear_pedido_contraentrega",
+        description: "Crea el pedido con pago contra entrega. SOLO después de que el cliente respondió 'sí' al resumen completo."
+      },
+      id: "tool_pedido",
+      name: "Call Tool Pedido",
+      type: "@n8n/n8n-nodes-langchain.toolWorkflow",
+      typeVersion: 1.1,
+      position: [1000, 750]
+    },
+    {
+      parameters: {
+        workflowId: "a1b2c3d4-e5f6-7g8h-9i0j-1k2l3m4n5o6p",
+        name: "generar_link_pago",
+        description: "Genera un enlace de pago en línea para quien prefiere pagar por adelantado."
+      },
+      id: "tool_link",
+      name: "Call Tool Link",
+      type: "@n8n/n8n-nodes-langchain.toolWorkflow",
+      typeVersion: 1.1,
+      position: [1000, 900]
+    },
+    {
+      parameters: {
         jsCode: `
 const output = $input.first().json.output || "";
 const prohibidas = ["soy una ia", "soy un modelo", "openai", "precio de 10000"];
@@ -265,7 +313,13 @@ return [{
     "AI Agent": { main: [ [ { node: "Filtro de Estilo", type: "main", index: 0 } ] ] },
     "Google Gemini Chat Model": { ai_languageModel: [ [ { node: "AI Agent", type: "ai_languageModel", index: 0 } ] ] },
     "Postgres Chat Memory": { ai_memory: [ [ { node: "AI Agent", type: "ai_memory", index: 0 } ] ] },
-    "Call Workflow Tool": { ai_tool: [ [ { node: "AI Agent", type: "ai_tool", index: 0 } ] ] }
+    
+    "Call Workflow Tool": { ai_tool: [ [ { node: "AI Agent", type: "ai_tool", index: 0 } ] ] },
+    "Call Tool Estado": { ai_tool: [ [ { node: "AI Agent", type: "ai_tool", index: 0 } ] ] },
+    
+    "Call Tool Escalar": { ai_tool: [ [ { node: "AI Agent", type: "ai_tool", index: 0 } ] ] },
+    "Call Tool Pedido": { ai_tool: [ [ { node: "AI Agent", type: "ai_tool", index: 0 } ] ] },
+    "Call Tool Link": { ai_tool: [ [ { node: "AI Agent", type: "ai_tool", index: 0 } ] ] }
   }
 };
 
@@ -399,6 +453,232 @@ return [{ json: { ...$json, waitTime } }];
     "Split Burbujas": { main: [ [ { node: "Calc Timing", type: "main", index: 0 } ] ] },
     "Calc Timing": { main: [ [ { node: "Wait Typing", type: "main", index: 0 } ] ] },
     "Wait Typing": { main: [ [ { node: "Insert Real", type: "main", index: 0 } ] ] }
+  }
+};
+
+
+
+// DS-T2: Crear Pedido Contraentrega
+const crearPedidoWorkflow = {
+  id: "f1a2b3c4-d5e6-7f8g-9h0i-1j2k3l4m5n6o",
+  name: "DS-T2 crear_pedido_contraentrega",
+  nodes: [
+    {
+      parameters: {},
+      id: "trigger",
+      name: "Execute Workflow Trigger",
+      type: "n8n-nodes-base.executeWorkflowTrigger",
+      typeVersion: 1,
+      position: [0, 0]
+    },
+    {
+      parameters: {
+        operation: "executeQuery",
+        query: "SELECT precio_total, cantidad FROM ofertas WHERE id = $1",
+        options: {
+          queryReplacement: "={{ $input.first().json.oferta_id }}"
+        }
+      },
+      id: "pg_oferta",
+      name: "Get Price",
+      type: "n8n-nodes-base.postgres",
+      typeVersion: 2.3,
+      credentials: { postgres: { id: "b1b2JJ18qDVF2dWp", name: "Postgres" } },
+      position: [200, 0]
+    },
+    {
+      parameters: {
+        jsCode: `
+// Aquí armamos el cuerpo de la mutación GraphQL usando los datos del cliente
+const inputData = $('Execute Workflow Trigger').first().json;
+const priceData = $input.first().json;
+const sessionId = inputData.sessionId;
+const envio = inputData.datos_envio;
+
+// Se asume que el token y dominio se sacan de config, aquí se deja preparado.
+return [{
+  json: {
+    query: "mutation CrearPedidoContraentrega($order: OrderCreateOrderInput!) { orderCreate(order: $order) { order { id name } userErrors { message } } }",
+    variables: {
+      order: {
+        currency: "COP",
+        financialStatus: "PENDING",
+        phone: "+57" + envio.celular,
+        shippingAddress: {
+          firstName: envio.nombre,
+          lastName: envio.apellido,
+          address1: envio.direccion,
+          city: envio.ciudad,
+          phone: "+57" + envio.celular
+        },
+        tags: ["canal:whatsapp", "wa:" + sessionId]
+      }
+    }
+  }
+}];
+        `
+      },
+      id: "code_format_gql",
+      name: "Build GraphQL",
+      type: "n8n-nodes-base.code",
+      typeVersion: 2,
+      position: [400, 0]
+    },
+    {
+      parameters: {
+        method: "POST",
+        url: "https://{{$json.shopify_domain}}/admin/api/2026-07/graphql.json",
+        sendHeaders: true,
+        headerParameters: {
+          parameters: [
+            { name: "X-Shopify-Access-Token", value: "AQUÍ_VA_TU_TOKEN" },
+            { name: "Content-Type", value: "application/json" }
+          ]
+        },
+        sendBody: true,
+        bodyParameters: {
+          parameters: [
+            { name: "query", value: "={{ $json.query }}" },
+            { name: "variables", value: "={{ JSON.stringify($json.variables) }}" }
+          ]
+        }
+      },
+      id: "http_shopify",
+      name: "Shopify API (Mock)",
+      type: "n8n-nodes-base.httpRequest",
+      typeVersion: 4.1,
+      position: [600, 0]
+    }
+  ],
+  connections: {
+    "Execute Workflow Trigger": { main: [ [ { node: "Get Price", type: "main", index: 0 } ] ] },
+    "Get Price": { main: [ [ { node: "Build GraphQL", type: "main", index: 0 } ] ] },
+    "Build GraphQL": { main: [ [ { node: "Shopify API (Mock)", type: "main", index: 0 } ] ] }
+  }
+};
+
+// DS-T3: Generar Link de Pago
+const generarLinkWorkflow = {
+  id: "a1b2c3d4-e5f6-7g8h-9i0j-1k2l3m4n5o6p",
+  name: "DS-T3 generar_link_pago",
+  nodes: [
+    {
+      parameters: {},
+      id: "trigger",
+      name: "Execute Workflow Trigger",
+      type: "n8n-nodes-base.executeWorkflowTrigger",
+      typeVersion: 1,
+      position: [0, 0]
+    },
+    {
+      parameters: {
+        jsCode: "return [{ json: { url: 'https://tu-tienda.com/checkout/test' } }];"
+      },
+      id: "code_link",
+      name: "Mock Link",
+      type: "n8n-nodes-base.code",
+      typeVersion: 2,
+      position: [200, 0]
+    }
+  ],
+  connections: {
+    "Execute Workflow Trigger": { main: [ [ { node: "Mock Link", type: "main", index: 0 } ] ] }
+  }
+};
+
+// DS-T4: Consultar Estado Pedido
+const consultarEstadoWorkflow = {
+  id: "d8c21a4f-9a1c-4f77-9b2f-1a2b3c4d5e6f",
+  name: "DS-T4 consultar_estado_pedido",
+  nodes: [
+    {
+      parameters: {},
+      id: "trigger",
+      name: "Execute Workflow Trigger",
+      type: "n8n-nodes-base.executeWorkflowTrigger",
+      typeVersion: 1,
+      position: [0, 0]
+    },
+    {
+      parameters: {
+        operation: "executeQuery",
+        query: "SELECT estado, transportadora, guia, url_rastreo FROM pedidos WHERE wa_id = $1 ORDER BY creado_en DESC LIMIT 1",
+        options: {
+          queryReplacement: "={{ $input.first().json.sessionId }}"
+        }
+      },
+      id: "pg_estado",
+      name: "Postgres Estado",
+      type: "n8n-nodes-base.postgres",
+      typeVersion: 2.3,
+      credentials: { postgres: { id: "b1b2JJ18qDVF2dWp", name: "Postgres" } },
+      position: [200, 0]
+    },
+    {
+      parameters: {
+        jsCode: `
+const items = $input.all().map(i => i.json);
+if (items.length === 0) return [{ json: { error: "No se encontró ningún pedido reciente." } }];
+return [{ json: items[0] }];
+        `
+      },
+      id: "code_format",
+      name: "Format Output",
+      type: "n8n-nodes-base.code",
+      typeVersion: 2,
+      position: [400, 0]
+    }
+  ],
+  connections: {
+    "Execute Workflow Trigger": { main: [ [ { node: "Postgres Estado", type: "main", index: 0 } ] ] },
+    "Postgres Estado": { main: [ [ { node: "Format Output", type: "main", index: 0 } ] ] }
+  }
+};
+
+// DS-T5: Escalar a Humano
+const escalarHumanoWorkflow = {
+  id: "e9d32b5g-1b2d-5f88-8c3g-2b3c4d5e6f7g",
+  name: "DS-T5 escalar_a_humano",
+  nodes: [
+    {
+      parameters: {},
+      id: "trigger",
+      name: "Execute Workflow Trigger",
+      type: "n8n-nodes-base.executeWorkflowTrigger",
+      typeVersion: 1,
+      position: [0, 0]
+    },
+    {
+      parameters: {
+        operation: "executeQuery",
+        query: "UPDATE conversaciones SET bot_activo = false WHERE wa_id = $1",
+        options: {
+          queryReplacement: "={{ $input.first().json.sessionId }}"
+        }
+      },
+      id: "pg_escalar",
+      name: "Disable Bot",
+      type: "n8n-nodes-base.postgres",
+      typeVersion: 2.3,
+      credentials: { postgres: { id: "b1b2JJ18qDVF2dWp", name: "Postgres" } },
+      position: [200, 0]
+    },
+    {
+      parameters: {
+        jsCode: `
+return [{ json: { status: "Escalado correctamente. Bot pausado para este wa_id." } }];
+        `
+      },
+      id: "code_resp",
+      name: "Format Output",
+      type: "n8n-nodes-base.code",
+      typeVersion: 2,
+      position: [400, 0]
+    }
+  ],
+  connections: {
+    "Execute Workflow Trigger": { main: [ [ { node: "Disable Bot", type: "main", index: 0 } ] ] },
+    "Disable Bot": { main: [ [ { node: "Format Output", type: "main", index: 0 } ] ] }
   }
 };
 
@@ -667,5 +947,11 @@ if (callSendNode) callSendNode.parameters.workflowId = enviarWhatsappWorkflow.id
 fs.writeFileSync('DS-02_stub.json', JSON.stringify(stubWorkflow, null, 2));
 fs.writeFileSync('DS-T1_consultar_cobertura.json', JSON.stringify(consultarCoberturaWorkflow, null, 2));
 fs.writeFileSync('DS-03_Enviar_WhatsApp.json', JSON.stringify(enviarWhatsappWorkflow, null, 2));
+
+
+fs.writeFileSync('DS-T2_crear_pedido.json', JSON.stringify(crearPedidoWorkflow, null, 2));
+fs.writeFileSync('DS-T3_generar_link_pago.json', JSON.stringify(generarLinkWorkflow, null, 2));
+fs.writeFileSync('DS-T4_consultar_estado.json', JSON.stringify(consultarEstadoWorkflow, null, 2));
+fs.writeFileSync('DS-T5_escalar_a_humano.json', JSON.stringify(escalarHumanoWorkflow, null, 2));
 fs.writeFileSync('DS-01_Entrada_WhatsApp.json', JSON.stringify(entradaWhatsappWorkflow, null, 2));
 console.log('Workflows generated.');

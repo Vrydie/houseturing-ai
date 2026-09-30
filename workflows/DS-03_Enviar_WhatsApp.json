@@ -1,4 +1,5 @@
 {
+  "id": "a0c7abce-0081-4c80-aa6a-72f4200ec489",
   "name": "DS-03 Enviar WhatsApp",
   "nodes": [
     {
@@ -17,8 +18,8 @@
         "operation": "executeQuery",
         "query": "SELECT valor FROM config WHERE clave = 'whatsapp_modo_simulado'"
       },
-      "id": "check_simulado",
-      "name": "Postgres Check Modo",
+      "id": "pg_simulado",
+      "name": "Check Simulado",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.3,
       "credentials": {
@@ -34,12 +35,19 @@
     },
     {
       "parameters": {
-        "jsCode": "const wa_id = $('Execute Workflow Trigger').first().json.wa_id;\nconst texto = $('Execute Workflow Trigger').first().json.texto;\nreturn [{ json: { wa_id, texto, simulado: $input.first().json.valor === 'true' } }];"
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.valor === 'true' }}",
+              "value2": true
+            }
+          ]
+        }
       },
-      "id": "code",
-      "name": "Code",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
+      "id": "if_simulado",
+      "name": "IF Simulado",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
       "position": [
         400,
         0
@@ -48,10 +56,13 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "INSERT INTO mensajes (wamid, wa_id, direccion, tipo, texto) VALUES (gen_random_uuid()::text, '{{ $json.wa_id }}', 'out', 'text', '{{ $json.texto }}')"
+        "query": "INSERT INTO mensajes (wamid, wa_id, direccion, tipo, texto) VALUES (gen_random_uuid()::text, $1, 'out', 'text', $2)",
+        "options": {
+          "queryReplacement": "{{ $('Execute Workflow Trigger').first().json.wa_id }},{{ $('Execute Workflow Trigger').first().json.texto }}"
+        }
       },
-      "id": "pg_insert",
-      "name": "Postgres Insert",
+      "id": "pg_insert_simulado",
+      "name": "Insert Simulado",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.3,
       "credentials": {
@@ -62,7 +73,71 @@
       },
       "position": [
         600,
-        0
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst wa_id = $('Execute Workflow Trigger').first().json.wa_id;\nconst texto = $('Execute Workflow Trigger').first().json.texto;\nconst wamid_resp = $('Execute Workflow Trigger').first().json.responder_a_wamid;\nconst partes = texto.split('\\n\\n').filter(p => p.trim() !== '').slice(0,3);\nreturn partes.map(p => ({ json: { wa_id, texto: p, wamid_resp } }));\n        "
+      },
+      "id": "code_split",
+      "name": "Split Burbujas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Mock for typing / sleep in n8n code node using a loop or we use Wait node\n// Wait node is better for non-blocking sleep.\nconst waitTime = Math.min(7, Math.max(1.5, 0.5 + ($json.texto.length * 0.035)));\nreturn [{ json: { ...$json, waitTime } }];\n        "
+      },
+      "id": "code_timing",
+      "name": "Calc Timing",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.waitTime }}",
+        "unit": "seconds"
+      },
+      "id": "wait",
+      "name": "Wait Typing",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "webhookId": "wait-webhook",
+      "position": [
+        1000,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO mensajes (wamid, wa_id, direccion, tipo, texto) VALUES (gen_random_uuid()::text, $1, 'out', 'text', $2)",
+        "options": {
+          "queryReplacement": "{{ $json.wa_id }},{{ $json.texto }}"
+        }
+      },
+      "id": "pg_insert_real",
+      "name": "Insert Real",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "credentials": {
+        "postgres": {
+          "id": "b1b2JJ18qDVF2dWp",
+          "name": "Postgres"
+        }
+      },
+      "position": [
+        1200,
+        100
       ]
     }
   ],
@@ -71,35 +146,74 @@
       "main": [
         [
           {
-            "node": "Postgres Check Modo",
+            "node": "Check Simulado",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Postgres Check Modo": {
+    "Check Simulado": {
       "main": [
         [
           {
-            "node": "Code",
+            "node": "IF Simulado",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Code": {
+    "IF Simulado": {
       "main": [
         [
           {
-            "node": "Postgres Insert",
+            "node": "Insert Simulado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Split Burbujas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Burbujas": {
+      "main": [
+        [
+          {
+            "node": "Calc Timing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calc Timing": {
+      "main": [
+        [
+          {
+            "node": "Wait Typing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Typing": {
+      "main": [
+        [
+          {
+            "node": "Insert Real",
             "type": "main",
             "index": 0
           }
         ]
       ]
     }
-  },
-  "id": "0c54dca5-e075-4c6d-9408-15b4fbe1b60a"
+  }
 }

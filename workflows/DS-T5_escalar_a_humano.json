@@ -1,0 +1,77 @@
+{
+  "id": "e9d32b5g-1b2d-5f88-8c3g-2b3c4d5e6f7g",
+  "name": "DS-T5 escalar_a_humano",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE conversaciones SET bot_activo = false WHERE wa_id = $1",
+        "options": {
+          "queryReplacement": "={{ $input.first().json.sessionId }}"
+        }
+      },
+      "id": "pg_escalar",
+      "name": "Disable Bot",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "credentials": {
+        "postgres": {
+          "id": "b1b2JJ18qDVF2dWp",
+          "name": "Postgres"
+        }
+      },
+      "position": [
+        200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nreturn [{ json: { status: \"Escalado correctamente. Bot pausado para este wa_id.\" } }];\n        "
+      },
+      "id": "code_resp",
+      "name": "Format Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Disable Bot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Disable Bot": {
+      "main": [
+        [
+          {
+            "node": "Format Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
