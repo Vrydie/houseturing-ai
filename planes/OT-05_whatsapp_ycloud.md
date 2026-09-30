@@ -170,12 +170,12 @@ temporal sirve para esta etapa.
   - C7: Validación de firma con `crypto.timingSafeEqual` funcionando correctamente en el n8n recreado. (Pruebas de firma vieja/mala pasan).
   - C8: Tiempos con aleatorio pasan.
   - C9: Evidencia recolectada y consolidada en `planes/evidencia/OT-05/`.
-  - C10: Dedupe resuelto y verificado por HTTP (`cobertura_n8n.mjs`).
+  - C10: Corrección de DS-T1 (ciudad inexistente devuelve cubierto:false) verificado por HTTP (`cobertura_n8n.mjs`). El dedupe se verificó en la prueba 01 de `integracion.mjs`.
   - Pruebas `transporte_n8n.mjs`: en la corrida inicial fallaron debido a que el mock local se perdió cuando el dueño recreó el contenedor de n8n. Tras volver a copiar e iniciar `mock_ycloud.mjs` dentro del contenedor, las 3 pruebas (`texto`, `plantilla`, `solo-leer`) pasaron exitosamente.
-  - Prueba de Webhook Público (`publico.mjs`): Pasa correctamente a través de Cloudflare.
-- Evidencia: Siete pruebas unitarias pasan; pruebas transaccionales de BD pasan; schema desde cero pasa; cuatro casos de cobertura pasan; tres modalidades de transporte pasan; matriz HTTP completa (9 pruebas) pasan; webhook público pasa.
+  - Prueba de Webhook Público (`publico.mjs`): Valida el webhook a través del túnel de Cloudflare. YCloud no participó en esta prueba.
+- Evidencia: Siete pruebas unitarias pasan; pruebas transaccionales de BD pasan; schema desde cero pasa; cuatro casos de cobertura pasan; tres modalidades de transporte pasan; matriz HTTP completa (9 pruebas) pasan; webhook público pasa vía Cloudflare sin YCloud.
 - Qué NO se probó: Por prohibición expresa del dueño, **no se probó la Parte 3**: no se llamó a YCloud real, no se registraron webhooks, no se configuró número ni API key, y no hubo conversación real desde el celular.
 - Desvíos y decisiones:
-  - Los workflows locales de prueba se eliminaron de la carpeta `workflows/` y del n8n del dueño.
+  - Los workflows locales de prueba fueron borrados por el dueño desde el editor, y se confirmó su ausencia en `workflows/`.
   - Los archivos en la carpeta de evidencia muestran llamadas acumuladas en `transporte-n8n-*.json` ya que el servidor mock no se reinicia entre corridas; esto se aclaró en el `README.md` de evidencias.
 - Decisiones para Claude/Dueño: La OT queda lista para su revisión formal (PR #3 / PR #X) considerando cumplida toda la lógica de backend sin contactar a la API productiva.
