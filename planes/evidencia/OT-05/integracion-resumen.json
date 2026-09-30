@@ -1,0 +1,41 @@
+{
+  "run": "1790736445688",
+  "casos": [
+    {
+      "caso": "01-ctwa-C1-C2-C3",
+      "resultado": "PASS"
+    },
+    {
+      "caso": "02-rafaga-C5",
+      "resultado": "PASS"
+    },
+    {
+      "caso": "03-firma-mala",
+      "resultado": "PASS"
+    },
+    {
+      "caso": "04-firma-vieja",
+      "resultado": "PASS"
+    },
+    {
+      "caso": "05-audio-C6",
+      "resultado": "PASS"
+    },
+    {
+      "caso": "06-estados-sin-respuesta",
+      "resultado": "PASS"
+    },
+    {
+      "caso": "07-eco-pausa",
+      "resultado": "PASS"
+    },
+    {
+      "caso": "08-get-sin-handshake",
+      "resultado": "PASS"
+    },
+    {
+      "caso": "09-tipos-C6",
+      "resultado": "PASS"
+    }
+  ]
+}

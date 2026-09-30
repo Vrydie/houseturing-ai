@@ -1,0 +1,13 @@
+{
+  "caso": "08-get-sin-handshake",
+  "comando": "OT05_ENV_FILE=<infra/.env principal> node tests/whatsapp/integracion.mjs",
+  "http": [
+    {
+      "comando": "GET /webhook/whatsapp?hub.mode=subscribe&hub.challenge=OT05",
+      "status": 404,
+      "body": "{\"code\":404,\"message\":\"This webhook is not registered for GET requests. Did you mean to make a POST request?\"}"
+    }
+  ],
+  "sql": [],
+  "resultado": "PASS"
+}

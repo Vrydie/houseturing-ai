@@ -1,0 +1,59 @@
+{
+  "caso": "06-estados-sin-respuesta",
+  "comando": "OT05_ENV_FILE=<infra/.env principal> node tests/whatsapp/integracion.mjs",
+  "http": [
+    {
+      "comando": "POST http://127.0.0.1:5690/webhook/whatsapp con firma válida",
+      "status": 200,
+      "ms": 315,
+      "body": "{\"message\":\"Workflow was started\"}",
+      "fixture": {
+        "id": "evt_eEVCy8eNqD9EvcFI",
+        "type": "whatsapp.message.updated",
+        "apiVersion": "v2",
+        "createTime": "2023-02-22T12:00:00.000Z",
+        "whatsappMessage": {
+          "id": "sim-17-0",
+          "wamid": "ycloud:sim-17-0",
+          "recipientUserId": "US.13491208655302741918",
+          "parentRecipientUserId": "US.11815799212886844830",
+          "customerProfile": {
+            "name": "Pablo M.",
+            "username": "@pablomorales"
+          },
+          "status": "delivered",
+          "pricingCategory": "marketing",
+          "totalPrice": 0,
+          "currency": "USD",
+          "createTime": "2022-03-01T12:00:00.000Z",
+          "sendTime": "2022-03-01T12:00:01.000Z",
+          "bizType": "whatsapp",
+          "type": "text",
+          "text": {
+            "body": "Hi there! How can we help?"
+          },
+          "externalId": "EXTERNAL-ID"
+        }
+      }
+    }
+  ],
+  "sql": [
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793644568801' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790736445688-1\",\"wa_id\":\"5793644568801\",\"conversacion_id\":5,\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790736445688-1\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"texto\": \"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\", \"tipos\": [\"text\"], \"wa_id\": \"5793644568801\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790736445688-1\"], \"recibido_en\": \"2026-09-30T02:47:25.752Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 5},\"creado_en\":\"2026-09-30T02:47:26.540676+00:00\"}, \n {\"wamid\":\"ycloud:sim-17-0\",\"wa_id\":\"5793644568801\",\"conversacion_id\":5,\"direccion\":\"out\",\"tipo\":\"text\",\"texto\":\"Hola, recibimos tu mensaje: Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":\"simulado\",\"autor\":\"bot\",\"proveedor_id\":\"sim-17-0\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"to\": \"+5793644568801\", \"from\": \"\", \"text\": {\"body\": \"Hola, recibimos tu mensaje: Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\"}, \"type\": \"text\", \"context\": {\"message_id\": \"wamid.ot05-1790736445688-1\"}},\"creado_en\":\"2026-09-30T02:47:39.697805+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793644568801' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790736445688-1\",\"wa_id\":\"5793644568801\",\"conversacion_id\":5,\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790736445688-1\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"texto\": \"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\", \"tipos\": [\"text\"], \"wa_id\": \"5793644568801\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790736445688-1\"], \"recibido_en\": \"2026-09-30T02:47:25.752Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 5},\"creado_en\":\"2026-09-30T02:47:26.540676+00:00\"}, \n {\"wamid\":\"ycloud:sim-17-0\",\"wa_id\":\"5793644568801\",\"conversacion_id\":5,\"direccion\":\"out\",\"tipo\":\"text\",\"texto\":\"Hola, recibimos tu mensaje: Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":\"simulado\",\"autor\":\"bot\",\"proveedor_id\":\"sim-17-0\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"to\": \"+5793644568801\", \"from\": \"\", \"text\": {\"body\": \"Hola, recibimos tu mensaje: Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\"}, \"type\": \"text\", \"context\": {\"message_id\": \"wamid.ot05-1790736445688-1\"}},\"creado_en\":\"2026-09-30T02:47:39.697805+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793644568801' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790736445688-1\",\"wa_id\":\"5793644568801\",\"conversacion_id\":5,\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790736445688-1\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"texto\": \"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\", \"tipos\": [\"text\"], \"wa_id\": \"5793644568801\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790736445688-1\"], \"recibido_en\": \"2026-09-30T02:47:25.752Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 5},\"creado_en\":\"2026-09-30T02:47:26.540676+00:00\"}, \n {\"wamid\":\"ycloud:sim-17-0\",\"wa_id\":\"5793644568801\",\"conversacion_id\":5,\"direccion\":\"out\",\"tipo\":\"text\",\"texto\":\"Hola, recibimos tu mensaje: Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":\"delivered\",\"autor\":\"bot\",\"proveedor_id\":\"sim-17-0\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"to\": \"+5793644568801\", \"from\": \"\", \"text\": {\"body\": \"Hola, recibimos tu mensaje: Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\"}, \"type\": \"text\", \"context\": {\"message_id\": \"wamid.ot05-1790736445688-1\"}},\"creado_en\":\"2026-09-30T02:47:39.697805+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793644568801' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790736445688-1\",\"wa_id\":\"5793644568801\",\"conversacion_id\":5,\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790736445688-1\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"texto\": \"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\", \"tipos\": [\"text\"], \"wa_id\": \"5793644568801\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790736445688-1\"], \"recibido_en\": \"2026-09-30T02:47:25.752Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 5},\"creado_en\":\"2026-09-30T02:47:26.540676+00:00\"}, \n {\"wamid\":\"ycloud:sim-17-0\",\"wa_id\":\"5793644568801\",\"conversacion_id\":5,\"direccion\":\"out\",\"tipo\":\"text\",\"texto\":\"Hola, recibimos tu mensaje: Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":\"delivered\",\"autor\":\"bot\",\"proveedor_id\":\"sim-17-0\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"to\": \"+5793644568801\", \"from\": \"\", \"text\": {\"body\": \"Hola, recibimos tu mensaje: Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\"}, \"type\": \"text\", \"context\": {\"message_id\": \"wamid.ot05-1790736445688-1\"}},\"creado_en\":\"2026-09-30T02:47:39.697805+00:00\"}]"
+    }
+  ],
+  "resultado": "PASS"
+}

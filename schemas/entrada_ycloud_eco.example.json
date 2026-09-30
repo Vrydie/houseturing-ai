@@ -1,0 +1,29 @@
+{
+  "id": "evt_eEVCy8eNqD9EvcFI",
+  "type": "whatsapp.smb.message.echoes",
+  "apiVersion": "v2",
+  "createTime": "2023-02-22T12:00:00.000Z",
+  "whatsappMessage": {
+    "id": "63f5d602367ea403f8175a6c",
+    "wamid": "wamid.BgNODYxN...",
+    "status": "sent",
+    "from": "BUSINESS-PHONE-NUMBER",
+    "to": "CUSTOMER-PHONE-NUMBER",
+    "toUserId": "US.13491208655302741918",
+    "toParentUserId": "US.1181579921288684483",
+    "customerProfile": {
+      "username": "@joee"
+    },
+    "wabaId": "WABA-ID",
+    "createTime": "2022-03-01T12:00:00.000Z",
+    "sendTime": "2022-03-01T12:00:01.000Z",
+    "bizType": "whatsapp",
+    "type": "image",
+    "image": {
+      "link": "https://api.ycloud.com/v2/whatsapp/media/download/5926236...",
+      "id": "592623615738103",
+      "sha256": "LeRpQJq/h4HTjm...",
+      "mime_type": "image/jpeg"
+    }
+  }
+}
