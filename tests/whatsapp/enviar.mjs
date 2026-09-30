@@ -1,43 +1,16 @@
-import fs from 'fs';
-import crypto from 'crypto';
-
-const fixturePath = process.argv[2];
-const badSignature = process.argv[3] === '--firma-mala';
-
-if (!fixturePath) {
-  console.error("Uso: node enviar.mjs <fixture.json> [--firma-mala]");
-  process.exit(1);
-}
-
-const rawObj = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
-// Stringify exactly as n8n will inside the workflow
-const payload = JSON.stringify(rawObj);
-
-const secret = "secret_local_test_12345";
-let signature;
-
-if (badSignature) {
-  signature = "sha256=firma_invalida_123";
-} else {
-  const hmac = crypto.createHmac('sha256', secret);
-  hmac.update(payload);
-  signature = "sha256=" + hmac.digest('hex');
-}
-
-console.log(`Enviando ${fixturePath} a http://127.0.0.1:5690/webhook/whatsapp`);
-
-fetch("http://127.0.0.1:5690/webhook/whatsapp", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "X-Hub-Signature-256": signature
-  },
-  body: payload
-})
-.then(res => res.text().then(text => ({ status: res.status, text })))
-.then(({ status, text }) => {
-  console.log(`Respuesta HTTP ${status}: ${text}`);
-})
-.catch(err => {
-  console.error("Error en la petición:", err.message);
-});
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+const args=process.argv.slice(2);
+if(!args[0]) throw new Error('Uso: node tests/whatsapp/enviar.mjs fixture.json [--firma-mala|--firma-vieja]');
+const envPath=process.env.OT05_ENV_FILE;
+if(!envPath) throw new Error('Definir OT05_ENV_FILE con la ruta al infra/.env principal');
+const line=fs.readFileSync(envPath,'utf8').split(/\r?\n/).find(s=>s.startsWith('YCLOUD_WEBHOOK_SECRET='));
+const secret=line?.slice(line.indexOf('=')+1).trim().replace(/^(['"])(.*)\1$/,'$2');
+if(!secret) throw new Error('Falta el secreto local; no se envió ningún payload');
+const raw=fs.readFileSync(args[0]);
+const t=Math.floor(Date.now()/1000)-(args.includes('--firma-vieja')?301:0);
+const sig=args.includes('--firma-mala')?'0'.repeat(64):crypto.createHmac('sha256',secret).update(t+'.').update(raw).digest('hex');
+const start=Date.now();
+const res=await fetch('http://127.0.0.1:5690/webhook/whatsapp',{method:'POST',headers:{'Content-Type':'application/json','YCloud-Signature':`t=${t},s=${sig}`},body:raw});
+console.log(JSON.stringify({fixture:args[0],status:res.status,ms:Date.now()-start,body:await res.text()}));
+if(res.status!==200) process.exitCode=1;

@@ -1,0 +1,53 @@
+Comando: psql dentro de houseturing_postgres, dropship; BEGIN + esquema de prueba + db/schema.sql + ROLLBACK
+BEGIN
+CREATE SCHEMA
+SET
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+INSERT 0 30
+INSERT 0 9
+INSERT 0 4
+CREATE FUNCTION
+CREATE FUNCTION
+   column_name   |        data_type         
+-----------------+--------------------------
+ wamid           | text
+ wa_id           | text
+ conversacion_id | bigint
+ direccion       | text
+ tipo            | text
+ proveedor_id    | text
+ waba_id         | text
+ autor           | text
+ normalizado     | jsonb
+ texto           | text
+ estado          | text
+ procesado       | boolean
+ creado_en       | timestamp with time zone
+(13 rows)
+
+ROLLBACK

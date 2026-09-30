@@ -53,7 +53,8 @@ El agente sabe en qué frente está por `git config user.name` (ver [AGENTS.md �
 |---|---|---|
 | OT-01 | Nada (se generan secretos locales) | Ya |
 | OT-03 parte 1 | Nada (pruebas con payloads de ejemplo) | Ya |
-| OT-03 parte 2 | Dominio para el túnel y token de Cloudflare; rol de **Desarrollador** en la app de Meta (o que el dueño cambie la URL del webhook); token y App Secret de WhatsApp | Al terminar la parte 1 |
+| ~~OT-03 parte 2~~ | Anulada: la reemplaza OT-05 (D1 revisada el 28-sep-2026) | — |
+| OT-05 | Cuenta de YCloud con la WABA en el **BM del dueño**, saldo cargado, `YCLOUD_API_KEY`, `YCLOUD_WEBHOOK_SECRET`, número de la empresa y WABA ID. El túnel ya no necesita dominio: Antigravity entrega una URL temporal y el dueño la pega en el panel de YCloud | Ya |
 | OT-04 en adelante | Client ID y Secret de la app de Shopify; API key del LLM; bot de Telegram; acceso a la API de Dropi | Según la orden |
 
 ## 8. Revisión y cierre de órdenes de trabajo

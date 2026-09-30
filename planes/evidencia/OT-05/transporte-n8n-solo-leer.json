@@ -1,0 +1,175 @@
+{
+  "comando": "node tests/whatsapp/transporte_n8n.mjs solo-leer",
+  "nota": "HTTP Request real de n8n contra mock local; API YCloud no llamada; config global simulada; autenticación real pendiente de parte 3",
+  "execution": {
+    "status": "success",
+    "nodos": [
+      {
+        "name": "Inicio",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Entrada",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Configuración",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Preparar envío",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Sin respuesta",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Leído simulado",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "HTTP marcar leído",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Liberar turno",
+        "status": [
+          "success"
+        ]
+      }
+    ]
+  },
+  "log": [
+    {
+      "sql": "SELECT valor FROM config WHERE clave='whatsapp_modo_simulado';",
+      "salida": "true"
+    },
+    {
+      "sql": "SELECT ycloud_ingresar('{\"accion\":\"mensaje\",\"wa_id\":\"5770737897579\",\"nombre_perfil\":\"Joe\",\"wamid\":\"wamid.mock-1790737897579\",\"proveedor_id\":\"mock-1790737897579\",\"waba_id\":\"WABA-ID\",\"autor\":\"cliente\",\"tipo\":\"text\",\"texto\":\"OK\",\"estado\":null,\"recibido_en\":\"2026-09-30T03:11:37.579Z\",\"origen\":{\"tipo\":\"ctwa\",\"ctwa_clid\":\"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\",\"ad_id\":\"MEDIA-ID\",\"ad_headline\":\"Chat with us\"}}'::jsonb);",
+      "salida": "{\"wa_id\": \"5770737897579\", \"wamid\": \"wamid.mock-1790737897579\", \"accion\": \"entrada\", \"debounce\": 8, \"proveedor_id\": \"mock-1790737897579\", \"conversacion_id\": 30}"
+    },
+    {
+      "sql": "SELECT ycloud_reclamar(30,'wamid.mock-1790737897579');",
+      "salida": "{\"lease\": \"2026-09-30T03:12:37.953873+00:00\", \"accion\": \"responder\", \"waba_id\": \"WABA-ID\", \"normalizado\": {\"texto\": \"OK\", \"tipos\": [\"text\"], \"wa_id\": \"5770737897579\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.mock-1790737897579\"], \"recibido_en\": \"2026-09-30T03:11:37.579Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 30}, \"proveedor_id\": \"mock-1790737897579\"}"
+    },
+    {
+      "sql": "UPDATE conversaciones SET agente_ocupado_hasta='2026-09-30T03:14:38.034Z'::timestamptz WHERE id=30;",
+      "salida": "UPDATE 1"
+    },
+    {
+      "sql": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,tipo,texto,estado,proveedor_id,autor,normalizado,creado_en FROM mensajes WHERE conversacion_id=30 ORDER BY creado_en) m;",
+      "salida": "[{\"wamid\":\"wamid.mock-1790737897579\",\"wa_id\":\"5770737897579\",\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"OK\",\"estado\":null,\"proveedor_id\":\"mock-1790737897579\",\"autor\":\"cliente\",\"normalizado\":{\"texto\": \"OK\", \"tipos\": [\"text\"], \"wa_id\": \"5770737897579\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.mock-1790737897579\"], \"recibido_en\": \"2026-09-30T03:11:37.579Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 30},\"creado_en\":\"2026-09-30T03:11:37.64205+00:00\"}]"
+    }
+  ],
+  "calls": [
+    {
+      "method": "POST",
+      "path": "/v2/whatsapp/inboundMessages/mock-1790737871060/typingIndicator",
+      "body": null,
+      "time": 1790737879830
+    },
+    {
+      "method": "POST",
+      "path": "/v2/whatsapp/messages",
+      "body": {
+        "from": "+573000050999",
+        "to": "+5770737871060",
+        "type": "text",
+        "text": {
+          "body": "Primera, \"comillas\""
+        },
+        "context": {
+          "message_id": "wamid.mock-1790737871060"
+        }
+      },
+      "time": 1790737881373
+    },
+    {
+      "method": "POST",
+      "path": "/v2/whatsapp/inboundMessages/mock-1790737871060/typingIndicator",
+      "body": null,
+      "time": 1790737881480
+    },
+    {
+      "method": "POST",
+      "path": "/v2/whatsapp/messages",
+      "body": {
+        "from": "+573000050999",
+        "to": "+5770737871060",
+        "type": "text",
+        "text": {
+          "body": "Segunda"
+        },
+        "context": {
+          "message_id": "wamid.mock-1790737871060"
+        }
+      },
+      "time": 1790737883011
+    },
+    {
+      "method": "POST",
+      "path": "/v2/whatsapp/inboundMessages/mock-1790737871060/typingIndicator",
+      "body": null,
+      "time": 1790737883159
+    },
+    {
+      "method": "POST",
+      "path": "/v2/whatsapp/messages",
+      "body": {
+        "from": "+573000050999",
+        "to": "+5770737871060",
+        "type": "text",
+        "text": {
+          "body": "Tercera"
+        },
+        "context": {
+          "message_id": "wamid.mock-1790737871060"
+        }
+      },
+      "time": 1790737884672
+    },
+    {
+      "method": "POST",
+      "path": "/v2/whatsapp/inboundMessages/mock-1790737885467/typingIndicator",
+      "body": null,
+      "time": 1790737894636
+    },
+    {
+      "method": "POST",
+      "path": "/v2/whatsapp/messages",
+      "body": {
+        "from": "+573000050999",
+        "to": "+5770737885467",
+        "type": "template",
+        "template": {
+          "name": "prueba_local",
+          "language": {
+            "code": "es"
+          }
+        }
+      },
+      "time": 1790737896173
+    },
+    {
+      "method": "POST",
+      "path": "/v2/whatsapp/inboundMessages/mock-1790737897579/markAsRead",
+      "body": null,
+      "time": 1790737906250
+    }
+  ]
+}

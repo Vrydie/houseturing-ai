@@ -1,0 +1,52 @@
+{
+  "caso": "04-firma-vieja",
+  "comando": "OT05_ENV_FILE=<infra/.env principal> node tests/whatsapp/integracion.mjs",
+  "http": [
+    {
+      "comando": "POST http://127.0.0.1:5690/webhook/whatsapp con firma vieja",
+      "status": 200,
+      "ms": 223,
+      "body": "{\"message\":\"Workflow was started\"}",
+      "fixture": {
+        "id": "evt_eEkn26qar3nOB8md",
+        "type": "whatsapp.inbound_message.received",
+        "apiVersion": "v2",
+        "createTime": "2023-02-22T12:00:00.000Z",
+        "whatsappInboundMessage": {
+          "id": "ot05-1790737273612-6",
+          "wamid": "wamid.ot05-1790737273612-6",
+          "wabaId": "WABA-ID",
+          "from": "5793727361204",
+          "fromUserId": "US.13491208655302741918",
+          "fromParentUserId": "US.11815799212886844830",
+          "customerProfile": {
+            "name": "Joe",
+            "username": "@JoeJoe"
+          },
+          "to": "BUSINESS-PHONE-NUMBER",
+          "sendTime": "2026-09-30T03:01:48.581Z",
+          "type": "text",
+          "text": {
+            "body": "Hola"
+          },
+          "referral": {
+            "source_url": "https://fb.me/xxx",
+            "source_type": "ad",
+            "source_id": "MEDIA-ID",
+            "headline": "Chat with us",
+            "media_type": "image",
+            "image_url": "https://scontent.xx.fbcdn.net/v/t45.1600-4/xxx.jpg",
+            "ctwa_clid": "feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd"
+          }
+        }
+      }
+    }
+  ],
+  "sql": [
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361204' ORDER BY creado_en,wamid) x;",
+      "salida": "[]"
+    }
+  ],
+  "resultado": "PASS"
+}

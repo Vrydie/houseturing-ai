@@ -1,0 +1,23 @@
+$ docker exec houseturing_n8n n8n publish:workflow --id=c6918d23-a831-42b2-b67a-493b9b1c07cf
+Error tracking disabled because this release is older than 6 weeks.
+Publishing workflow with ID: c6918d23-a831-42b2-b67a-493b9b1c07cf (current version)
+Note: Changes will not take effect if n8n is running.
+Please restart n8n for changes to take effect if n8n is currently running.
+
+$ docker exec houseturing_n8n n8n publish:workflow --id=ae42ab9a-9d5c-40fb-b18b-b8626c78b51b
+Error tracking disabled because this release is older than 6 weeks.
+Publishing workflow with ID: ae42ab9a-9d5c-40fb-b18b-b8626c78b51b (current version)
+Note: Changes will not take effect if n8n is running.
+Please restart n8n for changes to take effect if n8n is currently running.
+
+$ docker exec houseturing_n8n n8n publish:workflow --id=a0c7abce-0081-4c80-aa6a-72f4200ec489
+Error tracking disabled because this release is older than 6 weeks.
+Publishing workflow with ID: a0c7abce-0081-4c80-aa6a-72f4200ec489 (current version)
+Note: Changes will not take effect if n8n is running.
+Please restart n8n for changes to take effect if n8n is currently running.
+
+$ docker exec houseturing_n8n n8n publish:workflow --id=8c5216d4-f62a-47c8-8658-96164bebdf4b
+Error tracking disabled because this release is older than 6 weeks.
+Publishing workflow with ID: 8c5216d4-f62a-47c8-8658-96164bebdf4b (current version)
+Note: Changes will not take effect if n8n is running.
+Please restart n8n for changes to take effect if n8n is currently running.
