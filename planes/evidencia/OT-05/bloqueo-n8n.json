@@ -1,0 +1,7 @@
+{
+  "comando": "OT05_ENV_FILE=<infra/.env principal> node tests/whatsapp/bloqueo_n8n.mjs",
+  "sql": [],
+  "http": [],
+  "resultado": "FAIL",
+  "error": "ENOENT: no such file or directory, open '../../../infra/.env'"
+}

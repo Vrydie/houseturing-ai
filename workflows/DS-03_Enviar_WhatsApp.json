@@ -1,99 +1,1453 @@
 {
+  "id": "a0c7abce-0081-4c80-aa6a-72f4200ec489",
   "name": "DS-03 Enviar WhatsApp",
+  "active": false,
   "nodes": [
     {
-      "parameters": {},
-      "id": "trigger",
-      "name": "Execute Workflow Trigger",
+      "id": "Entrada",
+      "name": "Entrada",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1,
       "position": [
         0,
         0
-      ]
+      ],
+      "parameters": {}
     },
     {
+      "id": "Configuración",
+      "name": "Configuración",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        240,
+        0
+      ],
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT valor FROM config WHERE clave = 'whatsapp_modo_simulado'"
+        "query": "SELECT COALESCE((SELECT valor FROM config WHERE clave='whatsapp_modo_simulado'),'true')='true' AS simulado,\n COALESCE((SELECT valor FROM config WHERE clave='ycloud_numero_empresa'),'') AS empresa",
+        "options": {}
       },
-      "id": "check_simulado",
-      "name": "Postgres Check Modo",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.3,
       "credentials": {
         "postgres": {
-          "id": "b1b2JJ18qDVF2dWp",
-          "name": "Postgres"
+          "id": "ot05-postgres",
+          "name": "Postgres dropship"
         }
-      },
-      "position": [
-        200,
-        0
-      ]
+      }
     },
     {
-      "parameters": {
-        "jsCode": "const wa_id = $('Execute Workflow Trigger').first().json.wa_id;\nconst texto = $('Execute Workflow Trigger').first().json.texto;\nreturn [{ json: { wa_id, texto, simulado: $input.first().json.valor === 'true' } }];"
-      },
-      "id": "code",
-      "name": "Code",
+      "id": "Preparar envío",
+      "name": "Preparar envío",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        400,
+        480,
         0
-      ]
+      ],
+      "parameters": {
+        "jsCode": "function bubbles(input, empresa, random = Math.random) {\n  const partes = input.plantilla ? [null] : String(input.texto ?? '').split(/\\n\\s*\\n/).filter(s=>s.trim());\n  // Máximo tres burbujas, sin perder párrafos adicionales.\n  if (partes.length > 3) partes.splice(2, partes.length-2, partes.slice(2).join('\\n\\n'));\n  return partes.map(texto=>({\n    texto,waitTime:Math.min(7,Math.max(1.5,0.035*(texto?.length ?? 0)+0.5+random())),\n    body:{from:empresa,to:'+'+input.wa_id,type:input.plantilla?'template':'text',\n      ...(input.plantilla?{template:input.plantilla}:{text:{body:texto},...(input.responder_a_wamid?{context:{message_id:input.responder_a_wamid}}:{})})}\n  }));\n}\nconst p=$('Entrada').first().json;\nif(!$json.simulado && !/^\\+?\\d{8,15}$/.test($json.empresa)) throw new Error('Configurar el número de empresa antes de modo real');\nreturn [{json:{...p,simulado:$json.simulado,burbujas:bubbles(p,$json.empresa)}}];"
+      }
     },
     {
+      "id": "Sin respuesta",
+      "name": "Sin respuesta",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        720,
+        0
+      ],
       "parameters": {
-        "operation": "executeQuery",
-        "query": "INSERT INTO mensajes (wamid, wa_id, direccion, tipo, texto) VALUES (gen_random_uuid()::text, '{{ $json.wa_id }}', 'out', 'text', '{{ $json.texto }}')"
-      },
-      "id": "pg_insert",
-      "name": "Postgres Insert",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.3,
-      "credentials": {
-        "postgres": {
-          "id": "b1b2JJ18qDVF2dWp",
-          "name": "Postgres"
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.no_responder === true || $json.burbujas.length === 0 }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Leído simulado",
+      "name": "Leído simulado",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        960,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.simulado }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "HTTP marcar leído",
+      "name": "HTTP marcar leído",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.ycloud.com/v2/whatsapp/inboundMessages/'+encodeURIComponent($('Preparar envío').first().json.proveedor_id)+'/markAsRead' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 15000
         }
       },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ot05-ycloud",
+          "name": "YCloud API (parte 3)"
+        }
+      }
+    },
+    {
+      "id": "Leído sin red",
+      "name": "Leído sin red",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
-        600,
+        1440,
         0
-      ]
+      ],
+      "parameters": {
+        "jsCode": "return [{json:{simulado:true,accion:'markAsRead',proveedor_id:$json.proveedor_id}}];"
+      }
+    },
+    {
+      "id": "Liberar turno",
+      "name": "Liberar turno",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        240
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE conversaciones SET agente_ocupado_hasta=NULL WHERE id=$1 AND agente_ocupado_hasta=$2::timestamptz RETURNING id",
+        "options": {
+          "queryReplacement": "={{ [$('Entrada').first().json.conversacion_id,$('Entrada').first().json.lease ?? null] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "ot05-postgres",
+          "name": "Postgres dropship"
+        }
+      }
+    },
+    {
+      "id": "Revisar turno 0",
+      "name": "Revisar turno 0",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        240,
+        240
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT (c.bot_activo AND c.agente_ocupado_hasta=$2::timestamptz AND c.agente_ocupado_hasta>now()\n    AND NOT EXISTS(SELECT 1 FROM mensajes WHERE conversacion_id=c.id AND direccion='in' AND NOT (wamid=ANY($3::text[])) AND NOT procesado)) AS permitido\n    FROM conversaciones c WHERE c.id=$1",
+        "options": {
+          "queryReplacement": "={{ [$('Entrada').first().json.conversacion_id,$('Entrada').first().json.lease,$('Entrada').first().json.wamids] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "ot05-postgres",
+          "name": "Postgres dropship"
+        }
+      }
+    },
+    {
+      "id": "Burbuja 0",
+      "name": "Burbuja 0",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        240
+      ],
+      "parameters": {
+        "jsCode": "const p=$('Preparar envío').first().json;return [{json:{...p,...p.burbujas[0],permitido:$json.permitido && p.burbujas.length>0}}];"
+      }
+    },
+    {
+      "id": "Enviar burbuja 0",
+      "name": "Enviar burbuja 0",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        720,
+        240
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.permitido }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Simulado 0",
+      "name": "Simulado 0",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        960,
+        240
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.simulado }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "HTTP escribiendo 0",
+      "name": "HTTP escribiendo 0",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        240
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.ycloud.com/v2/whatsapp/inboundMessages/'+encodeURIComponent($('Burbuja 0').first().json.proveedor_id)+'/typingIndicator' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ot05-ycloud",
+          "name": "YCloud API (parte 3)"
+        }
+      }
+    },
+    {
+      "id": "Ritmo 0",
+      "name": "Ritmo 0",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1440,
+        240
+      ],
+      "parameters": {
+        "amount": "={{ $('Burbuja 0').first().json.waitTime }}",
+        "unit": "seconds"
+      },
+      "webhookId": "ot05-Ritmo-0"
+    },
+    {
+      "id": "Revisar después de espera 0",
+      "name": "Revisar después de espera 0",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        480
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT (c.bot_activo AND c.agente_ocupado_hasta=$2::timestamptz AND c.agente_ocupado_hasta>now()\n    AND NOT EXISTS(SELECT 1 FROM mensajes WHERE conversacion_id=c.id AND direccion='in' AND NOT (wamid=ANY($3::text[])) AND NOT procesado)) AS permitido\n    FROM conversaciones c WHERE c.id=$1",
+        "options": {
+          "queryReplacement": "={{ [$('Entrada').first().json.conversacion_id,$('Entrada').first().json.lease,$('Entrada').first().json.wamids] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "ot05-postgres",
+          "name": "Postgres dropship"
+        }
+      }
+    },
+    {
+      "id": "Vigente 0",
+      "name": "Vigente 0",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        240,
+        480
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.permitido }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Transporte 0",
+      "name": "Transporte 0",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        480,
+        480
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $('Burbuja 0').first().json.simulado }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Respuesta simulada 0",
+      "name": "Respuesta simulada 0",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        480
+      ],
+      "parameters": {
+        "jsCode": "return [{json:{id:'sim-'+$execution.id+'-0',status:'simulado'}}];"
+      }
+    },
+    {
+      "id": "HTTP enviar 0",
+      "name": "HTTP enviar 0",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        480
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.ycloud.com/v2/whatsapp/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Burbuja 0').first().json.body }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ot05-ycloud",
+          "name": "YCloud API (parte 3)"
+        }
+      }
+    },
+    {
+      "id": "Guardar salida 0",
+      "name": "Guardar salida 0",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1200,
+        480
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH saved AS (\n   INSERT INTO mensajes(wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,proveedor_id,waba_id,autor,procesado,normalizado)\n   VALUES(COALESCE($1,'ycloud:'||$2),$3,$4,'out',$5,$6,$7,$2,$8,'bot',true,$9::jsonb)\n   ON CONFLICT(wamid) DO NOTHING RETURNING wamid)\n   UPDATE mensajes SET procesado=true WHERE direccion='in' AND conversacion_id=$4 AND wamid=ANY($10::text[])\n   AND EXISTS(SELECT 1 FROM saved) RETURNING wamid",
+        "options": {
+          "queryReplacement": "={{ [$json.wamid ?? null,$json.id,$('Burbuja 0').first().json.wa_id,$('Burbuja 0').first().json.conversacion_id,$('Burbuja 0').first().json.body.type,$('Burbuja 0').first().json.texto ?? null,$json.status,$('Burbuja 0').first().json.waba_id,JSON.stringify($('Burbuja 0').first().json.body),$('Entrada').first().json.wamids] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "ot05-postgres",
+          "name": "Postgres dropship"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "Revisar turno 1",
+      "name": "Revisar turno 1",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1440,
+        480
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT (c.bot_activo AND c.agente_ocupado_hasta=$2::timestamptz AND c.agente_ocupado_hasta>now()\n    AND NOT EXISTS(SELECT 1 FROM mensajes WHERE conversacion_id=c.id AND direccion='in' AND NOT (wamid=ANY($3::text[])) AND NOT procesado)) AS permitido\n    FROM conversaciones c WHERE c.id=$1",
+        "options": {
+          "queryReplacement": "={{ [$('Entrada').first().json.conversacion_id,$('Entrada').first().json.lease,$('Entrada').first().json.wamids] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "ot05-postgres",
+          "name": "Postgres dropship"
+        }
+      }
+    },
+    {
+      "id": "Burbuja 1",
+      "name": "Burbuja 1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        720
+      ],
+      "parameters": {
+        "jsCode": "const p=$('Preparar envío').first().json;return [{json:{...p,...p.burbujas[1],permitido:$json.permitido && p.burbujas.length>1}}];"
+      }
+    },
+    {
+      "id": "Enviar burbuja 1",
+      "name": "Enviar burbuja 1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        240,
+        720
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.permitido }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Simulado 1",
+      "name": "Simulado 1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        480,
+        720
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.simulado }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "HTTP escribiendo 1",
+      "name": "HTTP escribiendo 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        720
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.ycloud.com/v2/whatsapp/inboundMessages/'+encodeURIComponent($('Burbuja 1').first().json.proveedor_id)+'/typingIndicator' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ot05-ycloud",
+          "name": "YCloud API (parte 3)"
+        }
+      }
+    },
+    {
+      "id": "Ritmo 1",
+      "name": "Ritmo 1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        720
+      ],
+      "parameters": {
+        "amount": "={{ $('Burbuja 1').first().json.waitTime }}",
+        "unit": "seconds"
+      },
+      "webhookId": "ot05-Ritmo-1"
+    },
+    {
+      "id": "Revisar después de espera 1",
+      "name": "Revisar después de espera 1",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1200,
+        720
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT (c.bot_activo AND c.agente_ocupado_hasta=$2::timestamptz AND c.agente_ocupado_hasta>now()\n    AND NOT EXISTS(SELECT 1 FROM mensajes WHERE conversacion_id=c.id AND direccion='in' AND NOT (wamid=ANY($3::text[])) AND NOT procesado)) AS permitido\n    FROM conversaciones c WHERE c.id=$1",
+        "options": {
+          "queryReplacement": "={{ [$('Entrada').first().json.conversacion_id,$('Entrada').first().json.lease,$('Entrada').first().json.wamids] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "ot05-postgres",
+          "name": "Postgres dropship"
+        }
+      }
+    },
+    {
+      "id": "Vigente 1",
+      "name": "Vigente 1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        720
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.permitido }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Transporte 1",
+      "name": "Transporte 1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        0,
+        960
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $('Burbuja 1').first().json.simulado }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Respuesta simulada 1",
+      "name": "Respuesta simulada 1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        960
+      ],
+      "parameters": {
+        "jsCode": "return [{json:{id:'sim-'+$execution.id+'-1',status:'simulado'}}];"
+      }
+    },
+    {
+      "id": "HTTP enviar 1",
+      "name": "HTTP enviar 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        960
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.ycloud.com/v2/whatsapp/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Burbuja 1').first().json.body }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ot05-ycloud",
+          "name": "YCloud API (parte 3)"
+        }
+      }
+    },
+    {
+      "id": "Guardar salida 1",
+      "name": "Guardar salida 1",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        720,
+        960
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH saved AS (\n   INSERT INTO mensajes(wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,proveedor_id,waba_id,autor,procesado,normalizado)\n   VALUES(COALESCE($1,'ycloud:'||$2),$3,$4,'out',$5,$6,$7,$2,$8,'bot',true,$9::jsonb)\n   ON CONFLICT(wamid) DO NOTHING RETURNING wamid)\n   UPDATE mensajes SET procesado=true WHERE direccion='in' AND conversacion_id=$4 AND wamid=ANY($10::text[])\n   AND EXISTS(SELECT 1 FROM saved) RETURNING wamid",
+        "options": {
+          "queryReplacement": "={{ [$json.wamid ?? null,$json.id,$('Burbuja 1').first().json.wa_id,$('Burbuja 1').first().json.conversacion_id,$('Burbuja 1').first().json.body.type,$('Burbuja 1').first().json.texto ?? null,$json.status,$('Burbuja 1').first().json.waba_id,JSON.stringify($('Burbuja 1').first().json.body),$('Entrada').first().json.wamids] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "ot05-postgres",
+          "name": "Postgres dropship"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "Revisar turno 2",
+      "name": "Revisar turno 2",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        960,
+        960
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT (c.bot_activo AND c.agente_ocupado_hasta=$2::timestamptz AND c.agente_ocupado_hasta>now()\n    AND NOT EXISTS(SELECT 1 FROM mensajes WHERE conversacion_id=c.id AND direccion='in' AND NOT (wamid=ANY($3::text[])) AND NOT procesado)) AS permitido\n    FROM conversaciones c WHERE c.id=$1",
+        "options": {
+          "queryReplacement": "={{ [$('Entrada').first().json.conversacion_id,$('Entrada').first().json.lease,$('Entrada').first().json.wamids] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "ot05-postgres",
+          "name": "Postgres dropship"
+        }
+      }
+    },
+    {
+      "id": "Burbuja 2",
+      "name": "Burbuja 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        960
+      ],
+      "parameters": {
+        "jsCode": "const p=$('Preparar envío').first().json;return [{json:{...p,...p.burbujas[2],permitido:$json.permitido && p.burbujas.length>2}}];"
+      }
+    },
+    {
+      "id": "Enviar burbuja 2",
+      "name": "Enviar burbuja 2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        960
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.permitido }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Simulado 2",
+      "name": "Simulado 2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        0,
+        1200
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.simulado }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "HTTP escribiendo 2",
+      "name": "HTTP escribiendo 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        1200
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.ycloud.com/v2/whatsapp/inboundMessages/'+encodeURIComponent($('Burbuja 2').first().json.proveedor_id)+'/typingIndicator' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ot05-ycloud",
+          "name": "YCloud API (parte 3)"
+        }
+      }
+    },
+    {
+      "id": "Ritmo 2",
+      "name": "Ritmo 2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        1200
+      ],
+      "parameters": {
+        "amount": "={{ $('Burbuja 2').first().json.waitTime }}",
+        "unit": "seconds"
+      },
+      "webhookId": "ot05-Ritmo-2"
+    },
+    {
+      "id": "Revisar después de espera 2",
+      "name": "Revisar después de espera 2",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        720,
+        1200
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT (c.bot_activo AND c.agente_ocupado_hasta=$2::timestamptz AND c.agente_ocupado_hasta>now()\n    AND NOT EXISTS(SELECT 1 FROM mensajes WHERE conversacion_id=c.id AND direccion='in' AND NOT (wamid=ANY($3::text[])) AND NOT procesado)) AS permitido\n    FROM conversaciones c WHERE c.id=$1",
+        "options": {
+          "queryReplacement": "={{ [$('Entrada').first().json.conversacion_id,$('Entrada').first().json.lease,$('Entrada').first().json.wamids] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "ot05-postgres",
+          "name": "Postgres dropship"
+        }
+      }
+    },
+    {
+      "id": "Vigente 2",
+      "name": "Vigente 2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        960,
+        1200
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.permitido }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Transporte 2",
+      "name": "Transporte 2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        1200
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $('Burbuja 2').first().json.simulado }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Respuesta simulada 2",
+      "name": "Respuesta simulada 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        1200
+      ],
+      "parameters": {
+        "jsCode": "return [{json:{id:'sim-'+$execution.id+'-2',status:'simulado'}}];"
+      }
+    },
+    {
+      "id": "HTTP enviar 2",
+      "name": "HTTP enviar 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        1440
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.ycloud.com/v2/whatsapp/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Burbuja 2').first().json.body }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ot05-ycloud",
+          "name": "YCloud API (parte 3)"
+        }
+      }
+    },
+    {
+      "id": "Guardar salida 2",
+      "name": "Guardar salida 2",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        240,
+        1440
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH saved AS (\n   INSERT INTO mensajes(wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,proveedor_id,waba_id,autor,procesado,normalizado)\n   VALUES(COALESCE($1,'ycloud:'||$2),$3,$4,'out',$5,$6,$7,$2,$8,'bot',true,$9::jsonb)\n   ON CONFLICT(wamid) DO NOTHING RETURNING wamid)\n   UPDATE mensajes SET procesado=true WHERE direccion='in' AND conversacion_id=$4 AND wamid=ANY($10::text[])\n   AND EXISTS(SELECT 1 FROM saved) RETURNING wamid",
+        "options": {
+          "queryReplacement": "={{ [$json.wamid ?? null,$json.id,$('Burbuja 2').first().json.wa_id,$('Burbuja 2').first().json.conversacion_id,$('Burbuja 2').first().json.body.type,$('Burbuja 2').first().json.texto ?? null,$json.status,$('Burbuja 2').first().json.waba_id,JSON.stringify($('Burbuja 2').first().json.body),$('Entrada').first().json.wamids] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "ot05-postgres",
+          "name": "Postgres dropship"
+        }
+      },
+      "alwaysOutputData": true
     }
   ],
   "connections": {
-    "Execute Workflow Trigger": {
+    "Entrada": {
       "main": [
         [
           {
-            "node": "Postgres Check Modo",
+            "node": "Configuración",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Postgres Check Modo": {
+    "Configuración": {
       "main": [
         [
           {
-            "node": "Code",
+            "node": "Preparar envío",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Code": {
+    "Preparar envío": {
       "main": [
         [
           {
-            "node": "Postgres Insert",
+            "node": "Sin respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sin respuesta": {
+      "main": [
+        [
+          {
+            "node": "Leído simulado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Revisar turno 0",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leído simulado": {
+      "main": [
+        [
+          {
+            "node": "Leído sin red",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP marcar leído",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leído sin red": {
+      "main": [
+        [
+          {
+            "node": "Liberar turno",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP marcar leído": {
+      "main": [
+        [
+          {
+            "node": "Liberar turno",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revisar turno 0": {
+      "main": [
+        [
+          {
+            "node": "Burbuja 0",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Burbuja 0": {
+      "main": [
+        [
+          {
+            "node": "Enviar burbuja 0",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar burbuja 0": {
+      "main": [
+        [
+          {
+            "node": "Simulado 0",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Liberar turno",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simulado 0": {
+      "main": [
+        [
+          {
+            "node": "Ritmo 0",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP escribiendo 0",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP escribiendo 0": {
+      "main": [
+        [
+          {
+            "node": "Ritmo 0",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ritmo 0": {
+      "main": [
+        [
+          {
+            "node": "Revisar después de espera 0",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revisar después de espera 0": {
+      "main": [
+        [
+          {
+            "node": "Vigente 0",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vigente 0": {
+      "main": [
+        [
+          {
+            "node": "Transporte 0",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Liberar turno",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transporte 0": {
+      "main": [
+        [
+          {
+            "node": "Respuesta simulada 0",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP enviar 0",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respuesta simulada 0": {
+      "main": [
+        [
+          {
+            "node": "Guardar salida 0",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP enviar 0": {
+      "main": [
+        [
+          {
+            "node": "Guardar salida 0",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar salida 0": {
+      "main": [
+        [
+          {
+            "node": "Revisar turno 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revisar turno 1": {
+      "main": [
+        [
+          {
+            "node": "Burbuja 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Burbuja 1": {
+      "main": [
+        [
+          {
+            "node": "Enviar burbuja 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar burbuja 1": {
+      "main": [
+        [
+          {
+            "node": "Simulado 1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Liberar turno",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simulado 1": {
+      "main": [
+        [
+          {
+            "node": "Ritmo 1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP escribiendo 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP escribiendo 1": {
+      "main": [
+        [
+          {
+            "node": "Ritmo 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ritmo 1": {
+      "main": [
+        [
+          {
+            "node": "Revisar después de espera 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revisar después de espera 1": {
+      "main": [
+        [
+          {
+            "node": "Vigente 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vigente 1": {
+      "main": [
+        [
+          {
+            "node": "Transporte 1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Liberar turno",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transporte 1": {
+      "main": [
+        [
+          {
+            "node": "Respuesta simulada 1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP enviar 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respuesta simulada 1": {
+      "main": [
+        [
+          {
+            "node": "Guardar salida 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP enviar 1": {
+      "main": [
+        [
+          {
+            "node": "Guardar salida 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar salida 1": {
+      "main": [
+        [
+          {
+            "node": "Revisar turno 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revisar turno 2": {
+      "main": [
+        [
+          {
+            "node": "Burbuja 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Burbuja 2": {
+      "main": [
+        [
+          {
+            "node": "Enviar burbuja 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar burbuja 2": {
+      "main": [
+        [
+          {
+            "node": "Simulado 2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Liberar turno",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simulado 2": {
+      "main": [
+        [
+          {
+            "node": "Ritmo 2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP escribiendo 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP escribiendo 2": {
+      "main": [
+        [
+          {
+            "node": "Ritmo 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ritmo 2": {
+      "main": [
+        [
+          {
+            "node": "Revisar después de espera 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revisar después de espera 2": {
+      "main": [
+        [
+          {
+            "node": "Vigente 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vigente 2": {
+      "main": [
+        [
+          {
+            "node": "Transporte 2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Liberar turno",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transporte 2": {
+      "main": [
+        [
+          {
+            "node": "Respuesta simulada 2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP enviar 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respuesta simulada 2": {
+      "main": [
+        [
+          {
+            "node": "Guardar salida 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP enviar 2": {
+      "main": [
+        [
+          {
+            "node": "Guardar salida 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar salida 2": {
+      "main": [
+        [
+          {
+            "node": "Liberar turno",
             "type": "main",
             "index": 0
           }
@@ -101,5 +1455,11 @@
       ]
     }
   },
-  "id": "0c54dca5-e075-4c6d-9408-15b4fbe1b60a"
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false
+  }
 }

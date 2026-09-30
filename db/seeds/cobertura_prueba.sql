@@ -17,6 +17,5 @@ SET acepta_contraentrega = EXCLUDED.acepta_contraentrega;
 
 -- Update config for simulated WhatsApp
 INSERT INTO config (clave, valor) VALUES 
-('whatsapp_modo_simulado', 'true'),
-('whatsapp_app_secret_prueba', 'secret_local_test_12345')
+('whatsapp_modo_simulado', 'true')
 ON CONFLICT (clave) DO UPDATE SET valor = EXCLUDED.valor;

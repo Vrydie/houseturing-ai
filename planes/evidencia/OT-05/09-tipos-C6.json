@@ -1,0 +1,339 @@
+{
+  "caso": "09-tipos-C6",
+  "comando": "OT05_ENV_FILE=<infra/.env principal> node tests/whatsapp/integracion.mjs",
+  "http": [
+    {
+      "comando": "POST http://127.0.0.1:5690/webhook/whatsapp con firma válida",
+      "status": 200,
+      "ms": 154,
+      "body": "{\"message\":\"Workflow was started\"}",
+      "fixture": {
+        "id": "evt_eEkn26qar3nOB8md",
+        "type": "whatsapp.inbound_message.received",
+        "apiVersion": "v2",
+        "createTime": "2023-02-22T12:00:00.000Z",
+        "whatsappInboundMessage": {
+          "id": "ot05-1790737273612-9",
+          "wamid": "wamid.ot05-1790737273612-9",
+          "wabaId": "WABA-ID",
+          "from": "5793727361210",
+          "fromUserId": "US.13491208655302741918",
+          "fromParentUserId": "US.11815799212886844830",
+          "customerProfile": {
+            "name": "Joe",
+            "username": "@JoeJoe"
+          },
+          "to": "BUSINESS-PHONE-NUMBER",
+          "sendTime": "2026-09-30T03:02:17.370Z",
+          "type": "image",
+          "text": {
+            "body": "OK"
+          },
+          "referral": {
+            "source_url": "https://fb.me/xxx",
+            "source_type": "ad",
+            "source_id": "MEDIA-ID",
+            "headline": "Chat with us",
+            "media_type": "image",
+            "image_url": "https://scontent.xx.fbcdn.net/v/t45.1600-4/xxx.jpg",
+            "ctwa_clid": "feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd"
+          },
+          "image": {
+            "caption": "Imagen de prueba"
+          }
+        }
+      }
+    },
+    {
+      "comando": "POST http://127.0.0.1:5690/webhook/whatsapp con firma válida",
+      "status": 200,
+      "ms": 241,
+      "body": "{\"message\":\"Workflow was started\"}",
+      "fixture": {
+        "id": "evt_eEkn26qar3nOB8md",
+        "type": "whatsapp.inbound_message.received",
+        "apiVersion": "v2",
+        "createTime": "2023-02-22T12:00:00.000Z",
+        "whatsappInboundMessage": {
+          "id": "ot05-1790737273612-10",
+          "wamid": "wamid.ot05-1790737273612-10",
+          "wabaId": "WABA-ID",
+          "from": "5793727361211",
+          "fromUserId": "US.13491208655302741918",
+          "fromParentUserId": "US.11815799212886844830",
+          "customerProfile": {
+            "name": "Joe",
+            "username": "@JoeJoe"
+          },
+          "to": "BUSINESS-PHONE-NUMBER",
+          "sendTime": "2026-09-30T03:02:17.524Z",
+          "type": "button",
+          "text": {
+            "body": "OK"
+          },
+          "referral": {
+            "source_url": "https://fb.me/xxx",
+            "source_type": "ad",
+            "source_id": "MEDIA-ID",
+            "headline": "Chat with us",
+            "media_type": "image",
+            "image_url": "https://scontent.xx.fbcdn.net/v/t45.1600-4/xxx.jpg",
+            "ctwa_clid": "feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd"
+          },
+          "button": {
+            "text": "Sí, quiero"
+          }
+        }
+      }
+    },
+    {
+      "comando": "POST http://127.0.0.1:5690/webhook/whatsapp con firma válida",
+      "status": 200,
+      "ms": 216,
+      "body": "{\"message\":\"Workflow was started\"}",
+      "fixture": {
+        "id": "evt_eEkn26qar3nOB8md",
+        "type": "whatsapp.inbound_message.received",
+        "apiVersion": "v2",
+        "createTime": "2023-02-22T12:00:00.000Z",
+        "whatsappInboundMessage": {
+          "id": "ot05-1790737273612-11",
+          "wamid": "wamid.ot05-1790737273612-11",
+          "wabaId": "WABA-ID",
+          "from": "5793727361212",
+          "fromUserId": "US.13491208655302741918",
+          "fromParentUserId": "US.11815799212886844830",
+          "customerProfile": {
+            "name": "Joe",
+            "username": "@JoeJoe"
+          },
+          "to": "BUSINESS-PHONE-NUMBER",
+          "sendTime": "2026-09-30T03:02:17.765Z",
+          "type": "interactive",
+          "text": {
+            "body": "OK"
+          },
+          "referral": {
+            "source_url": "https://fb.me/xxx",
+            "source_type": "ad",
+            "source_id": "MEDIA-ID",
+            "headline": "Chat with us",
+            "media_type": "image",
+            "image_url": "https://scontent.xx.fbcdn.net/v/t45.1600-4/xxx.jpg",
+            "ctwa_clid": "feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd"
+          },
+          "interactive": {
+            "type": "button_reply",
+            "button_reply": {
+              "id": "comprar",
+              "title": "Comprar"
+            }
+          }
+        }
+      }
+    },
+    {
+      "comando": "POST http://127.0.0.1:5690/webhook/whatsapp con firma válida",
+      "status": 200,
+      "ms": 225,
+      "body": "{\"message\":\"Workflow was started\"}",
+      "fixture": {
+        "id": "evt_eEkn26qar3nOB8md",
+        "type": "whatsapp.inbound_message.received",
+        "apiVersion": "v2",
+        "createTime": "2023-02-22T12:00:00.000Z",
+        "whatsappInboundMessage": {
+          "id": "ot05-1790737273612-12",
+          "wamid": "wamid.ot05-1790737273612-12",
+          "wabaId": "WABA-ID",
+          "from": "5793727361213",
+          "fromUserId": "US.13491208655302741918",
+          "fromParentUserId": "US.11815799212886844830",
+          "customerProfile": {
+            "name": "Joe",
+            "username": "@JoeJoe"
+          },
+          "to": "BUSINESS-PHONE-NUMBER",
+          "sendTime": "2026-09-30T03:02:17.981Z",
+          "type": "location",
+          "text": {
+            "body": "OK"
+          },
+          "referral": {
+            "source_url": "https://fb.me/xxx",
+            "source_type": "ad",
+            "source_id": "MEDIA-ID",
+            "headline": "Chat with us",
+            "media_type": "image",
+            "image_url": "https://scontent.xx.fbcdn.net/v/t45.1600-4/xxx.jpg",
+            "ctwa_clid": "feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd"
+          },
+          "location": {
+            "latitude": 4.7,
+            "longitude": -74,
+            "address": "Dirección, prueba"
+          }
+        }
+      }
+    },
+    {
+      "comando": "POST http://127.0.0.1:5690/webhook/whatsapp con firma válida",
+      "status": 200,
+      "ms": 225,
+      "body": "{\"message\":\"Workflow was started\"}",
+      "fixture": {
+        "id": "evt_eEkn26qar3nOB8md",
+        "type": "whatsapp.inbound_message.received",
+        "apiVersion": "v2",
+        "createTime": "2023-02-22T12:00:00.000Z",
+        "whatsappInboundMessage": {
+          "id": "ot05-1790737273612-13",
+          "wamid": "wamid.ot05-1790737273612-13",
+          "wabaId": "WABA-ID",
+          "from": "5793727361214",
+          "fromUserId": "US.13491208655302741918",
+          "fromParentUserId": "US.11815799212886844830",
+          "customerProfile": {
+            "name": "Joe",
+            "username": "@JoeJoe"
+          },
+          "to": "BUSINESS-PHONE-NUMBER",
+          "sendTime": "2026-09-30T03:02:18.206Z",
+          "type": "sticker",
+          "text": {
+            "body": "OK"
+          },
+          "referral": {
+            "source_url": "https://fb.me/xxx",
+            "source_type": "ad",
+            "source_id": "MEDIA-ID",
+            "headline": "Chat with us",
+            "media_type": "image",
+            "image_url": "https://scontent.xx.fbcdn.net/v/t45.1600-4/xxx.jpg",
+            "ctwa_clid": "feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd"
+          },
+          "sticker": {}
+        }
+      }
+    },
+    {
+      "comando": "POST http://127.0.0.1:5690/webhook/whatsapp con firma válida",
+      "status": 200,
+      "ms": 199,
+      "body": "{\"message\":\"Workflow was started\"}",
+      "fixture": {
+        "id": "evt_eEkn26qar3nOB8md",
+        "type": "whatsapp.inbound_message.received",
+        "apiVersion": "v2",
+        "createTime": "2023-02-22T12:00:00.000Z",
+        "whatsappInboundMessage": {
+          "id": "ot05-1790737273612-14",
+          "wamid": "wamid.ot05-1790737273612-14",
+          "wabaId": "WABA-ID",
+          "from": "5793727361215",
+          "fromUserId": "US.13491208655302741918",
+          "fromParentUserId": "US.11815799212886844830",
+          "customerProfile": {
+            "name": "Joe",
+            "username": "@JoeJoe"
+          },
+          "to": "BUSINESS-PHONE-NUMBER",
+          "sendTime": "2026-09-30T03:02:18.431Z",
+          "type": "document",
+          "text": {
+            "body": "OK"
+          },
+          "referral": {
+            "source_url": "https://fb.me/xxx",
+            "source_type": "ad",
+            "source_id": "MEDIA-ID",
+            "headline": "Chat with us",
+            "media_type": "image",
+            "image_url": "https://scontent.xx.fbcdn.net/v/t45.1600-4/xxx.jpg",
+            "ctwa_clid": "feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd"
+          },
+          "document": {}
+        }
+      }
+    }
+  ],
+  "sql": [
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361210' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-9\",\"wa_id\":\"5793727361210\",\"conversacion_id\":21,\"direccion\":\"in\",\"tipo\":\"image\",\"texto\":\"[imagen] Imagen de prueba\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-9\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"[imagen] Imagen de prueba\", \"tipos\": [\"image\"], \"wa_id\": \"5793727361210\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-9\"], \"recibido_en\": \"2026-09-30T03:02:17.370Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 21},\"creado_en\":\"2026-09-30T03:02:17.544272+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361210' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-9\",\"wa_id\":\"5793727361210\",\"conversacion_id\":21,\"direccion\":\"in\",\"tipo\":\"image\",\"texto\":\"[imagen] Imagen de prueba\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-9\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"[imagen] Imagen de prueba\", \"tipos\": [\"image\"], \"wa_id\": \"5793727361210\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-9\"], \"recibido_en\": \"2026-09-30T03:02:17.370Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 21},\"creado_en\":\"2026-09-30T03:02:17.544272+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361210' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-9\",\"wa_id\":\"5793727361210\",\"conversacion_id\":21,\"direccion\":\"in\",\"tipo\":\"image\",\"texto\":\"[imagen] Imagen de prueba\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-9\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"[imagen] Imagen de prueba\", \"tipos\": [\"image\"], \"wa_id\": \"5793727361210\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-9\"], \"recibido_en\": \"2026-09-30T03:02:17.370Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 21},\"creado_en\":\"2026-09-30T03:02:17.544272+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361210' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-9\",\"wa_id\":\"5793727361210\",\"conversacion_id\":21,\"direccion\":\"in\",\"tipo\":\"image\",\"texto\":\"[imagen] Imagen de prueba\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-9\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"[imagen] Imagen de prueba\", \"tipos\": [\"image\"], \"wa_id\": \"5793727361210\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-9\"], \"recibido_en\": \"2026-09-30T03:02:17.370Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 21},\"creado_en\":\"2026-09-30T03:02:17.544272+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361210' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-9\",\"wa_id\":\"5793727361210\",\"conversacion_id\":21,\"direccion\":\"in\",\"tipo\":\"image\",\"texto\":\"[imagen] Imagen de prueba\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-9\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"[imagen] Imagen de prueba\", \"tipos\": [\"image\"], \"wa_id\": \"5793727361210\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-9\"], \"recibido_en\": \"2026-09-30T03:02:17.370Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 21},\"creado_en\":\"2026-09-30T03:02:17.544272+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361210' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-9\",\"wa_id\":\"5793727361210\",\"conversacion_id\":21,\"direccion\":\"in\",\"tipo\":\"image\",\"texto\":\"[imagen] Imagen de prueba\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-9\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"[imagen] Imagen de prueba\", \"tipos\": [\"image\"], \"wa_id\": \"5793727361210\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-9\"], \"recibido_en\": \"2026-09-30T03:02:17.370Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 21},\"creado_en\":\"2026-09-30T03:02:17.544272+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361210' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-9\",\"wa_id\":\"5793727361210\",\"conversacion_id\":21,\"direccion\":\"in\",\"tipo\":\"image\",\"texto\":\"[imagen] Imagen de prueba\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-9\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"[imagen] Imagen de prueba\", \"tipos\": [\"image\"], \"wa_id\": \"5793727361210\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-9\"], \"recibido_en\": \"2026-09-30T03:02:17.370Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 21},\"creado_en\":\"2026-09-30T03:02:17.544272+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361210' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-9\",\"wa_id\":\"5793727361210\",\"conversacion_id\":21,\"direccion\":\"in\",\"tipo\":\"image\",\"texto\":\"[imagen] Imagen de prueba\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-9\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"[imagen] Imagen de prueba\", \"tipos\": [\"image\"], \"wa_id\": \"5793727361210\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-9\"], \"recibido_en\": \"2026-09-30T03:02:17.370Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 21},\"creado_en\":\"2026-09-30T03:02:17.544272+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361210' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-9\",\"wa_id\":\"5793727361210\",\"conversacion_id\":21,\"direccion\":\"in\",\"tipo\":\"image\",\"texto\":\"[imagen] Imagen de prueba\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-9\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"[imagen] Imagen de prueba\", \"tipos\": [\"image\"], \"wa_id\": \"5793727361210\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-9\"], \"recibido_en\": \"2026-09-30T03:02:17.370Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 21},\"creado_en\":\"2026-09-30T03:02:17.544272+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361210' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-9\",\"wa_id\":\"5793727361210\",\"conversacion_id\":21,\"direccion\":\"in\",\"tipo\":\"image\",\"texto\":\"[imagen] Imagen de prueba\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-9\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"[imagen] Imagen de prueba\", \"tipos\": [\"image\"], \"wa_id\": \"5793727361210\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-9\"], \"recibido_en\": \"2026-09-30T03:02:17.370Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 21},\"creado_en\":\"2026-09-30T03:02:17.544272+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361210' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-9\",\"wa_id\":\"5793727361210\",\"conversacion_id\":21,\"direccion\":\"in\",\"tipo\":\"image\",\"texto\":\"[imagen] Imagen de prueba\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-9\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"[imagen] Imagen de prueba\", \"tipos\": [\"image\"], \"wa_id\": \"5793727361210\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-9\"], \"recibido_en\": \"2026-09-30T03:02:17.370Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 21},\"creado_en\":\"2026-09-30T03:02:17.544272+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361210' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-9\",\"wa_id\":\"5793727361210\",\"conversacion_id\":21,\"direccion\":\"in\",\"tipo\":\"image\",\"texto\":\"[imagen] Imagen de prueba\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-9\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"texto\": \"[imagen] Imagen de prueba\", \"tipos\": [\"image\"], \"wa_id\": \"5793727361210\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-9\"], \"recibido_en\": \"2026-09-30T03:02:17.370Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 21},\"creado_en\":\"2026-09-30T03:02:17.544272+00:00\"}, \n {\"wamid\":\"ycloud:sim-88-0\",\"wa_id\":\"5793727361210\",\"conversacion_id\":21,\"direccion\":\"out\",\"tipo\":\"text\",\"texto\":\"Hola, recibimos tu mensaje: [imagen] Imagen de prueba\",\"estado\":\"simulado\",\"autor\":\"bot\",\"proveedor_id\":\"sim-88-0\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"to\": \"+5793727361210\", \"from\": \"\", \"text\": {\"body\": \"Hola, recibimos tu mensaje: [imagen] Imagen de prueba\"}, \"type\": \"text\", \"context\": {\"message_id\": \"wamid.ot05-1790737273612-9\"}},\"creado_en\":\"2026-09-30T03:02:29.492567+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361211' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-10\",\"wa_id\":\"5793727361211\",\"conversacion_id\":22,\"direccion\":\"in\",\"tipo\":\"button\",\"texto\":\"Sí, quiero\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-10\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"texto\": \"Sí, quiero\", \"tipos\": [\"button\"], \"wa_id\": \"5793727361211\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-10\"], \"recibido_en\": \"2026-09-30T03:02:17.524Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 22},\"creado_en\":\"2026-09-30T03:02:17.783574+00:00\"}, \n {\"wamid\":\"ycloud:sim-90-0\",\"wa_id\":\"5793727361211\",\"conversacion_id\":22,\"direccion\":\"out\",\"tipo\":\"text\",\"texto\":\"Hola, recibimos tu mensaje: Sí, quiero\",\"estado\":\"simulado\",\"autor\":\"bot\",\"proveedor_id\":\"sim-90-0\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"to\": \"+5793727361211\", \"from\": \"\", \"text\": {\"body\": \"Hola, recibimos tu mensaje: Sí, quiero\"}, \"type\": \"text\", \"context\": {\"message_id\": \"wamid.ot05-1790737273612-10\"}},\"creado_en\":\"2026-09-30T03:02:29.879839+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361212' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-11\",\"wa_id\":\"5793727361212\",\"conversacion_id\":23,\"direccion\":\"in\",\"tipo\":\"interactive\",\"texto\":\"Comprar\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-11\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"Comprar\", \"tipos\": [\"interactive\"], \"wa_id\": \"5793727361212\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-11\"], \"recibido_en\": \"2026-09-30T03:02:17.765Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 23},\"creado_en\":\"2026-09-30T03:02:17.999928+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361212' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-11\",\"wa_id\":\"5793727361212\",\"conversacion_id\":23,\"direccion\":\"in\",\"tipo\":\"interactive\",\"texto\":\"Comprar\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-11\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"texto\": \"Comprar\", \"tipos\": [\"interactive\"], \"wa_id\": \"5793727361212\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-11\"], \"recibido_en\": \"2026-09-30T03:02:17.765Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 23},\"creado_en\":\"2026-09-30T03:02:17.999928+00:00\"}, \n {\"wamid\":\"ycloud:sim-94-0\",\"wa_id\":\"5793727361212\",\"conversacion_id\":23,\"direccion\":\"out\",\"tipo\":\"text\",\"texto\":\"Hola, recibimos tu mensaje: Comprar\",\"estado\":\"simulado\",\"autor\":\"bot\",\"proveedor_id\":\"sim-94-0\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"to\": \"+5793727361212\", \"from\": \"\", \"text\": {\"body\": \"Hola, recibimos tu mensaje: Comprar\"}, \"type\": \"text\", \"context\": {\"message_id\": \"wamid.ot05-1790737273612-11\"}},\"creado_en\":\"2026-09-30T03:02:31.188465+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361213' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-12\",\"wa_id\":\"5793727361213\",\"conversacion_id\":24,\"direccion\":\"in\",\"tipo\":\"location\",\"texto\":\"[ubicación] 4.7, -74 Dirección, prueba\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-12\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"[ubicación] 4.7, -74 Dirección, prueba\", \"tipos\": [\"location\"], \"wa_id\": \"5793727361213\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-12\"], \"ubicacion\": {\"latitud\": 4.7, \"longitud\": -74, \"direccion\": \"Dirección, prueba\"}, \"recibido_en\": \"2026-09-30T03:02:17.981Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 24},\"creado_en\":\"2026-09-30T03:02:18.223768+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361213' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-12\",\"wa_id\":\"5793727361213\",\"conversacion_id\":24,\"direccion\":\"in\",\"tipo\":\"location\",\"texto\":\"[ubicación] 4.7, -74 Dirección, prueba\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-12\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"texto\": \"[ubicación] 4.7, -74 Dirección, prueba\", \"tipos\": [\"location\"], \"wa_id\": \"5793727361213\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-12\"], \"ubicacion\": {\"latitud\": 4.7, \"longitud\": -74, \"direccion\": \"Dirección, prueba\"}, \"recibido_en\": \"2026-09-30T03:02:17.981Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 24},\"creado_en\":\"2026-09-30T03:02:18.223768+00:00\"}, \n {\"wamid\":\"ycloud:sim-95-0\",\"wa_id\":\"5793727361213\",\"conversacion_id\":24,\"direccion\":\"out\",\"tipo\":\"text\",\"texto\":\"Hola, recibimos tu mensaje: [ubicación] 4.7, -74 Dirección, prueba\",\"estado\":\"simulado\",\"autor\":\"bot\",\"proveedor_id\":\"sim-95-0\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"to\": \"+5793727361213\", \"from\": \"\", \"text\": {\"body\": \"Hola, recibimos tu mensaje: [ubicación] 4.7, -74 Dirección, prueba\"}, \"type\": \"text\", \"context\": {\"message_id\": \"wamid.ot05-1790737273612-12\"}},\"creado_en\":\"2026-09-30T03:02:31.899019+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361214' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-13\",\"wa_id\":\"5793727361214\",\"conversacion_id\":25,\"direccion\":\"in\",\"tipo\":\"sticker\",\"texto\":\"[sticker]\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-13\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"texto\": \"[sticker]\", \"tipos\": [\"sticker\"], \"wa_id\": \"5793727361214\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-13\"], \"recibido_en\": \"2026-09-30T03:02:18.206Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 25},\"creado_en\":\"2026-09-30T03:02:18.452372+00:00\"}, \n {\"wamid\":\"ycloud:sim-96-0\",\"wa_id\":\"5793727361214\",\"conversacion_id\":25,\"direccion\":\"out\",\"tipo\":\"text\",\"texto\":\"Hola, recibimos tu mensaje: [sticker]\",\"estado\":\"simulado\",\"autor\":\"bot\",\"proveedor_id\":\"sim-96-0\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"to\": \"+5793727361214\", \"from\": \"\", \"text\": {\"body\": \"Hola, recibimos tu mensaje: [sticker]\"}, \"type\": \"text\", \"context\": {\"message_id\": \"wamid.ot05-1790737273612-13\"}},\"creado_en\":\"2026-09-30T03:02:31.135664+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361215' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-14\",\"wa_id\":\"5793727361215\",\"conversacion_id\":26,\"direccion\":\"in\",\"tipo\":\"other\",\"texto\":\"[mensaje no compatible]\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-14\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"texto\": \"[mensaje no compatible]\", \"tipos\": [\"other\"], \"wa_id\": \"5793727361215\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-14\"], \"recibido_en\": \"2026-09-30T03:02:18.431Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 26},\"creado_en\":\"2026-09-30T03:02:18.654258+00:00\"}, \n {\"wamid\":\"ycloud:sim-97-0\",\"wa_id\":\"5793727361215\",\"conversacion_id\":26,\"direccion\":\"out\",\"tipo\":\"text\",\"texto\":\"Hola, recibimos tu mensaje: [mensaje no compatible]\",\"estado\":\"simulado\",\"autor\":\"bot\",\"proveedor_id\":\"sim-97-0\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"to\": \"+5793727361215\", \"from\": \"\", \"text\": {\"body\": \"Hola, recibimos tu mensaje: [mensaje no compatible]\"}, \"type\": \"text\", \"context\": {\"message_id\": \"wamid.ot05-1790737273612-14\"}},\"creado_en\":\"2026-09-30T03:02:31.476411+00:00\"}]"
+    }
+  ],
+  "resultado": "PASS"
+}

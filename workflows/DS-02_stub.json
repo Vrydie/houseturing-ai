@@ -1,46 +1,39 @@
 {
+  "id": "ae42ab9a-9d5c-40fb-b18b-b8626c78b51b",
   "name": "DS-02 Agente (stub)",
+  "active": false,
   "nodes": [
     {
-      "parameters": {},
-      "id": "trigger",
-      "name": "Execute Workflow Trigger",
+      "id": "Entrada",
+      "name": "Entrada",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1,
       "position": [
         0,
         0
-      ]
+      ],
+      "parameters": {}
     },
     {
-      "parameters": {
-        "keepOnlySet": true,
-        "values": {
-          "string": [
-            {
-              "name": "texto_respuesta",
-              "value": "Hola, recibimos tu mensaje: {{$json.texto}}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "set",
-      "name": "Set Response",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
+      "id": "Respuesta stub",
+      "name": "Respuesta stub",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
-        220,
+        240,
         0
-      ]
+      ],
+      "parameters": {
+        "jsCode": "const p=$input.first().json; return [{json:{...p,texto:'Hola, recibimos tu mensaje: '+p.texto}}];"
+      }
     }
   ],
   "connections": {
-    "Execute Workflow Trigger": {
+    "Entrada": {
       "main": [
         [
           {
-            "node": "Set Response",
+            "node": "Respuesta stub",
             "type": "main",
             "index": 0
           }
@@ -48,5 +41,11 @@
       ]
     }
   },
-  "id": "47415668-dea8-4059-aafb-d20d3f8f3213"
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false
+  }
 }

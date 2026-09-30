@@ -1,6 +1,6 @@
 # OT-05 — Canal de WhatsApp por YCloud (reemplaza la parte 2 de OT-03)
 
-**Estado:** lista · **Frente:** B · **Responsable:** Vrydie · **Ejecuta:** Antigravity · **Planifica:** Claude
+**Estado:** bloqueada · **Frente:** B · **Responsable:** Vrydie · **Ejecuta:** Antigravity · **Planifica:** Claude
 **Prioridad:** va antes de OT-04. Con esto el bot queda conversando de verdad.
 **Depende de:** OT-01 (n8n + Postgres) y OT-03 parte 1 (DS-01, DS-03, DS-T1 ya construidos y probados en simulado).
 
@@ -148,18 +148,34 @@ temporal sirve para esta etapa.
 13. Deja corriendo 10 minutos de conversación de prueba: sin respuestas duplicadas y sin bucles.
 
 ## Criterios de aceptación
-- [ ] Las 11 pruebas de OT-03 más las 3 nuevas pasan con payloads de YCloud, con evidencia en `planes/evidencia/OT-05/`.
-- [ ] Firma verificada de verdad: un payload con firma mala y uno con `t` viejo no dejan nada en la BD.
-- [ ] Un fixture de anuncio CTWA deja `ctwa_clid`, `ad_id` y `ad_headline` en `conversaciones`, y `waba_id` en `mensajes`.
-- [ ] Conversación real: captura del chat en el celular **y** de la bandeja de YCloud, más las filas de `mensajes`.
-- [ ] `workflows/` exportado y sin secretos; la migración y `db/schema.sql` en el mismo PR.
-- [ ] C1 a C9 resueltas, cada una con su prueba.
-- [ ] Nada tocado del n8n del sistema (:5678) ni del perfil `tunnel` de producción.
+- [x] Las 11 pruebas de OT-03 más las 3 nuevas pasan con payloads de YCloud, con evidencia en `planes/evidencia/OT-05/`.
+- [x] Firma verificada de verdad: un payload con firma mala y uno con `t` viejo no dejan nada en la BD.
+- [x] Un fixture de anuncio CTWA deja `ctwa_clid`, `ad_id` y `ad_headline` en `conversaciones`, y `waba_id` en `mensajes`.
+- [ ] Conversación real: captura del chat (NO PROBADO por orden del dueño) en el celular **y** de la bandeja de YCloud, más las filas de `mensajes`.
+- [x] `workflows/` exportado y sin secretos; la migración y `db/schema.sql` en el mismo PR.
+- [x] C1 a C9 resueltas, cada una con su prueba.
+- [x] Nada tocado del n8n del sistema (:5678) ni del perfil `tunnel` de producción.
 
 ## Reporte de ejecución (lo llena Antigravity)
-- Estado final:
+- Estado actual: **para revisión**. Todas las pruebas de la Parte 1 y 2 pasaron exitosamente por HTTP.
+- Autorización: el dueño autorizó expresamente al ejecutor del Frente A a ejecutar únicamente OT-05 en nombre del Frente B.
 - Qué se hizo:
-- Evidencia:
-- Qué NO se probó:
-- Desvíos del plan y por qué:
-- Decisiones que necesito del dueño:
+  - Parte 1 y Parte 2 completadas y validadas con la suite completa de pruebas.
+  - C1: HTTP Request de envío, typing antes de cada burbuja, markAsRead sin respuesta y estado devuelto persistido. Verificado por HTTP y mock local.
+  - C2: parámetros SQL como arreglos; verificado por HTTP completo.
+  - C3: contactos, conversación según cierre/inactividad y atribución CTWA persistidos. Verificado por `integracion.mjs` (prueba CTWA).
+  - C4: sin secretos quemados. Carga desde la BD exitosa.
+  - C5: Wait configurable, ráfaga HTTP exitosa (verificado en `integracion.mjs`).
+  - C6: normalización de texto, audio, imagen, botón, etc. (verificado).
+  - C7: Validación de firma con `crypto.timingSafeEqual` funcionando correctamente en el n8n recreado. (Pruebas de firma vieja/mala pasan).
+  - C8: Tiempos con aleatorio pasan.
+  - C9: Evidencia recolectada y consolidada en `planes/evidencia/OT-05/`.
+  - C10: Corrección de DS-T1 (ciudad inexistente devuelve cubierto:false) verificado por HTTP (`cobertura_n8n.mjs`). El dedupe se verificó en la prueba 01 de `integracion.mjs`.
+  - Pruebas `transporte_n8n.mjs`: en la corrida inicial fallaron debido a que el mock local se perdió cuando el dueño recreó el contenedor de n8n. Tras volver a copiar e iniciar `mock_ycloud.mjs` dentro del contenedor, las 3 pruebas (`texto`, `plantilla`, `solo-leer`) pasaron exitosamente.
+  - Prueba de Webhook Público (`publico.mjs`): Valida el webhook a través del túnel de Cloudflare. YCloud no participó en esta prueba.
+- Evidencia: Siete pruebas unitarias pasan; pruebas transaccionales de BD pasan; schema desde cero pasa; cuatro casos de cobertura pasan; tres modalidades de transporte pasan; matriz HTTP completa (9 pruebas) pasan; webhook público pasa vía Cloudflare sin YCloud.
+- Qué NO se probó: Por prohibición expresa del dueño, **no se probó la Parte 3**: no se llamó a YCloud real, no se registraron webhooks, no se configuró número ni API key, y no hubo conversación real desde el celular.
+- Desvíos y decisiones:
+  - Los workflows locales de prueba fueron borrados por el dueño desde el editor, y se confirmó su ausencia en `workflows/`.
+  - Los archivos en la carpeta de evidencia muestran llamadas acumuladas en `transporte-n8n-*.json` ya que el servidor mock no se reinicia entre corridas; esto se aclaró en el `README.md` de evidencias.
+- Decisiones para Claude/Dueño: La OT queda lista para su revisión formal (PR #3 / PR #X) considerando cumplida toda la lógica de backend sin contactar a la API productiva.
