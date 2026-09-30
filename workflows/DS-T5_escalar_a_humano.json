@@ -18,7 +18,7 @@
         "operation": "executeQuery",
         "query": "UPDATE conversaciones SET bot_activo = false WHERE wa_id = $1",
         "options": {
-          "queryReplacement": "={{ $input.first().json.sessionId }}"
+          "queryReplacement": "={{ [$input.first().json.sessionId] }}"
         }
       },
       "id": "pg_escalar",

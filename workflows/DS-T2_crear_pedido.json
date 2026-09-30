@@ -18,7 +18,7 @@
         "operation": "executeQuery",
         "query": "SELECT precio_total, cantidad FROM ofertas WHERE id = $1",
         "options": {
-          "queryReplacement": "={{ $input.first().json.oferta_id }}"
+          "queryReplacement": "={{ [$input.first().json.oferta_id] }}"
         }
       },
       "id": "pg_oferta",
