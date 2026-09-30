@@ -14,7 +14,7 @@ El modo simulado global permanece en `true`. No hubo llamadas a YCloud.
 | `transporte-n8n-plantilla.json` | `node tests/whatsapp/transporte_n8n.mjs plantilla` | Plantilla como objeto, estado y filas |
 | `transporte-n8n-solo-leer.json` | `node tests/whatsapp/transporte_n8n.mjs solo-leer` | markAsRead, cero respuestas |
 | `integracion-resumen.json` | `node tests/whatsapp/integracion.mjs` | Matriz HTTP completa; 9 pruebas. Todas pasan |
-| `webhook-publico.json` | `node tests/whatsapp/publico.mjs <URL>` | Endpoint público YCloud: PASS |
+| `webhook-publico.json` | `node tests/whatsapp/publico.mjs <URL>` | Endpoint público vía túnel de Cloudflare (sin YCloud): PASS |
 
 **Nota sobre `transporte-n8n-*.json`:**
 La lista de llamadas (`calls`) en estos archivos es acumulada porque el servidor mock no se reinicia entre modos. Las llamadas propias de cada modo corresponden a aquellas cuyo payload de request tiene el id de su corrida. El archivo `transporte-n8n.json` con fecha antigua (21:34) pertenece a la corrida anterior de Codex.
