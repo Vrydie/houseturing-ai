@@ -1,5 +1,5 @@
 {
-  "comando": "OT05_ENV_FILE=<infra/.env principal> node tests/whatsapp/publico.mjs https://more-employer-corners-convertible.trycloudflare.com",
+  "comando": "OT05_ENV_FILE=<infra/.env principal> node tests/whatsapp/publico.mjs https://more-employer-corners-convertible.trycloudflare.com/",
   "url": "https://more-employer-corners-convertible.trycloudflare.com/webhook/whatsapp",
   "fixture": {
     "id": "evt_eEkn26qar3nOB8md",
@@ -7,10 +7,10 @@
     "apiVersion": "v2",
     "createTime": "2023-02-22T12:00:00.000Z",
     "whatsappInboundMessage": {
-      "id": "publico-1790736642141",
-      "wamid": "wamid.publico-1790736642141",
+      "id": "publico-1790737353002",
+      "wamid": "wamid.publico-1790737353002",
       "wabaId": "WABA-ID",
-      "from": "5750736642141",
+      "from": "5750737353002",
       "fromUserId": "US.13491208655302741918",
       "fromParentUserId": "US.11815799212886844830",
       "customerProfile": {
@@ -18,7 +18,7 @@
         "username": "@JoeJoe"
       },
       "to": "573000050999",
-      "sendTime": "2026-09-30T02:50:42.149Z",
+      "sendTime": "2026-09-30T03:02:33.002Z",
       "type": "text",
       "text": {
         "body": "Prueba pública OT-05, modo simulado"
@@ -31,57 +31,57 @@
   },
   "sql": [
     {
-      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750736642141' ORDER BY creado_en) m;",
-      "salida": "[{\"wamid\":\"wamid.publico-1790736642141\",\"wa_id\":\"5750736642141\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790736642141\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T02:50:43.048985+00:00\"}]"
+      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750737353002' ORDER BY creado_en) m;",
+      "salida": "[{\"wamid\":\"wamid.publico-1790737353002\",\"wa_id\":\"5750737353002\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790737353002\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T03:02:34.66804+00:00\"}]"
     },
     {
-      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750736642141' ORDER BY creado_en) m;",
-      "salida": "[{\"wamid\":\"wamid.publico-1790736642141\",\"wa_id\":\"5750736642141\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790736642141\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T02:50:43.048985+00:00\"}]"
+      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750737353002' ORDER BY creado_en) m;",
+      "salida": "[{\"wamid\":\"wamid.publico-1790737353002\",\"wa_id\":\"5750737353002\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790737353002\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T03:02:34.66804+00:00\"}]"
     },
     {
-      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750736642141' ORDER BY creado_en) m;",
-      "salida": "[{\"wamid\":\"wamid.publico-1790736642141\",\"wa_id\":\"5750736642141\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790736642141\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T02:50:43.048985+00:00\"}]"
+      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750737353002' ORDER BY creado_en) m;",
+      "salida": "[{\"wamid\":\"wamid.publico-1790737353002\",\"wa_id\":\"5750737353002\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790737353002\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T03:02:34.66804+00:00\"}]"
     },
     {
-      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750736642141' ORDER BY creado_en) m;",
-      "salida": "[{\"wamid\":\"wamid.publico-1790736642141\",\"wa_id\":\"5750736642141\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790736642141\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T02:50:43.048985+00:00\"}]"
+      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750737353002' ORDER BY creado_en) m;",
+      "salida": "[{\"wamid\":\"wamid.publico-1790737353002\",\"wa_id\":\"5750737353002\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790737353002\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T03:02:34.66804+00:00\"}]"
     },
     {
-      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750736642141' ORDER BY creado_en) m;",
-      "salida": "[{\"wamid\":\"wamid.publico-1790736642141\",\"wa_id\":\"5750736642141\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790736642141\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T02:50:43.048985+00:00\"}]"
+      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750737353002' ORDER BY creado_en) m;",
+      "salida": "[{\"wamid\":\"wamid.publico-1790737353002\",\"wa_id\":\"5750737353002\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790737353002\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T03:02:34.66804+00:00\"}]"
     },
     {
-      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750736642141' ORDER BY creado_en) m;",
-      "salida": "[{\"wamid\":\"wamid.publico-1790736642141\",\"wa_id\":\"5750736642141\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790736642141\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T02:50:43.048985+00:00\"}]"
+      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750737353002' ORDER BY creado_en) m;",
+      "salida": "[{\"wamid\":\"wamid.publico-1790737353002\",\"wa_id\":\"5750737353002\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790737353002\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T03:02:34.66804+00:00\"}]"
     },
     {
-      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750736642141' ORDER BY creado_en) m;",
-      "salida": "[{\"wamid\":\"wamid.publico-1790736642141\",\"wa_id\":\"5750736642141\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790736642141\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T02:50:43.048985+00:00\"}]"
+      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750737353002' ORDER BY creado_en) m;",
+      "salida": "[{\"wamid\":\"wamid.publico-1790737353002\",\"wa_id\":\"5750737353002\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790737353002\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T03:02:34.66804+00:00\"}]"
     },
     {
-      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750736642141' ORDER BY creado_en) m;",
-      "salida": "[{\"wamid\":\"wamid.publico-1790736642141\",\"wa_id\":\"5750736642141\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790736642141\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T02:50:43.048985+00:00\"}]"
+      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750737353002' ORDER BY creado_en) m;",
+      "salida": "[{\"wamid\":\"wamid.publico-1790737353002\",\"wa_id\":\"5750737353002\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790737353002\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T03:02:34.66804+00:00\"}]"
     },
     {
-      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750736642141' ORDER BY creado_en) m;",
-      "salida": "[{\"wamid\":\"wamid.publico-1790736642141\",\"wa_id\":\"5750736642141\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790736642141\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T02:50:43.048985+00:00\"}]"
+      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750737353002' ORDER BY creado_en) m;",
+      "salida": "[{\"wamid\":\"wamid.publico-1790737353002\",\"wa_id\":\"5750737353002\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790737353002\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T03:02:34.66804+00:00\"}]"
     },
     {
-      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750736642141' ORDER BY creado_en) m;",
-      "salida": "[{\"wamid\":\"wamid.publico-1790736642141\",\"wa_id\":\"5750736642141\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790736642141\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T02:50:43.048985+00:00\"}]"
+      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750737353002' ORDER BY creado_en) m;",
+      "salida": "[{\"wamid\":\"wamid.publico-1790737353002\",\"wa_id\":\"5750737353002\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790737353002\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T03:02:34.66804+00:00\"}]"
     },
     {
-      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750736642141' ORDER BY creado_en) m;",
-      "salida": "[{\"wamid\":\"wamid.publico-1790736642141\",\"wa_id\":\"5750736642141\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790736642141\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T02:50:43.048985+00:00\"}]"
+      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750737353002' ORDER BY creado_en) m;",
+      "salida": "[{\"wamid\":\"wamid.publico-1790737353002\",\"wa_id\":\"5750737353002\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790737353002\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T03:02:34.66804+00:00\"}]"
     },
     {
-      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750736642141' ORDER BY creado_en) m;",
-      "salida": "[{\"wamid\":\"wamid.publico-1790736642141\",\"wa_id\":\"5750736642141\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790736642141\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T02:50:43.048985+00:00\"}, \n {\"wamid\":\"ycloud:sim-56-0\",\"wa_id\":\"5750736642141\",\"direccion\":\"out\",\"texto\":\"Hola, recibimos tu mensaje: Prueba pública OT-05, modo simulado\",\"estado\":\"simulado\",\"autor\":\"bot\",\"proveedor_id\":\"sim-56-0\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T02:50:54.828823+00:00\"}]"
+      "comando": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,texto,estado,autor,proveedor_id,waba_id,creado_en FROM mensajes WHERE wa_id='5750737353002' ORDER BY creado_en) m;",
+      "salida": "[{\"wamid\":\"wamid.publico-1790737353002\",\"wa_id\":\"5750737353002\",\"direccion\":\"in\",\"texto\":\"Prueba pública OT-05, modo simulado\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"publico-1790737353002\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T03:02:34.66804+00:00\"}, \n {\"wamid\":\"ycloud:sim-100-0\",\"wa_id\":\"5750737353002\",\"direccion\":\"out\",\"texto\":\"Hola, recibimos tu mensaje: Prueba pública OT-05, modo simulado\",\"estado\":\"simulado\",\"autor\":\"bot\",\"proveedor_id\":\"sim-100-0\",\"waba_id\":\"WABA-ID\",\"creado_en\":\"2026-09-30T03:02:46.436197+00:00\"}]"
     }
   ],
   "http": {
     "status": 200,
-    "ms": 848,
+    "ms": 2090,
     "body": "{\"message\":\"Workflow was started\"}"
   },
   "resultado": "PASS"
