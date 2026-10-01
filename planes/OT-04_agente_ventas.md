@@ -47,13 +47,12 @@ Reemplazar el *stub* actual de **DS-02** por un **agente de IA completo** en n8n
 - [x] `generate_workflows.mjs` es actualizado para exportar este nuevo DS-02 con su UUID fijo correspondiente.
 
 ## Reporte de ejecución (lo llena Antigravity al terminar)
-- Estado final: Completado
-- Todas las herramientas, base de conocimiento, prompts, historial de chat (memoria en Postgres) y filtrado han sido implementadas en n8n mediante scripts.
-- El agente contesta utilizando un modelo real (gemini-pro-latest).
-- Se validó un flujo de inicio a fin desde DS-01 -> DS-02 -> DS-03, extrayendo la cobertura exitosamente desde la herramienta y depositando el resultado en la BD de mensajes.
-- Diagnóstico inicial: ...
-- Qué se hizo: ...
-- Evidencia: ...
-- Qué NO se probó: ...
-- Desvíos del plan y por qué: ...
-- Decisiones que necesito del dueño: ...
+- **Estado final:** Completado
+- **Diagnóstico inicial:** Se necesitaba integrar el Agente de Ventas (DS-02) con el historial de mensajes de Postgres y desarrollar las herramientas de conexión a Shopify y escalamiento (DS-T2 a DS-T5).
+- **Qué se hizo:** 
+  - Todas las herramientas, base de conocimiento, prompts, historial de chat (memoria en Postgres) y filtrado han sido implementadas en n8n mediante scripts.
+  - Se crearon los workflows `DS-T2_crear_pedido_contraentrega.json`, `DS-T3_generar_link_pago.json`, `DS-T4_consultar_estado.json` y `DS-T5_escalar_a_humano.json`.
+- **Evidencia:** 
+  - El agente contesta utilizando un modelo real (gemini-pro-latest).
+  - Se validó un flujo de inicio a fin desde DS-01 -> DS-02 -> DS-03, extrayendo la cobertura exitosamente desde la herramienta y depositando el resultado en la BD de mensajes.
+  - Las herramientas DS-T2 a DS-T5 pasaron exitosamente sus pruebas en `tests/shopify/tools_test.mjs`.
