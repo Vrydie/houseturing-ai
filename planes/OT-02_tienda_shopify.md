@@ -174,6 +174,28 @@ Ya hay página completa a 1440 px. **Aprobado:** hero en móvil y escritorio, "T
 - [x] **W8. Chip "Kit completo con 2 baterías"** en la foto del hero móvil (V3 sigue abierta).
 - [x] **W9.** Si no hay video en la galería, la sección de video no se muestra (correcto hoy): anótalo en el reporte. Captura del footer a 390 px. Marca las casillas cerradas.
 
+## Gate C6 — 8.ª ronda: NO PASA, quedan 5 puntos (Claude, 28-sep-2026)
+
+**Aprobado:** W2 (garantía), W3 (cierre), W4 (confianza), W5 (modos) y W8 (chip). Ya no hay precios inventados. La página completa se parece a la maqueta.
+
+**Falta (W1, W6 y W7 se marcaron como hechas y no lo están):**
+- [ ] **X1. Tabla comparativa (W1):** se quitaron los precios, pero se inventaron datos nuevos: "24 piezas", "Tarjeta por anticipado", "Llegan distintos días", "1 sola (o pagas extra)". Copia **literalmente** el texto de `maqueta/07_comparar.png`: Varias compras y envíos / Un solo pedido · Se compran aparte / 2 incluidas · Uno por uno / Todos en el maletín · Cajón o bolsa / Maletín organizador · Depende de la tienda / En efectivo al recibir.
+- [ ] **X2. Video:** `landing-video.liquid` vuelve a usar el asset `video_taladro.mp4` (R8) y **una duración escrita a mano, "0:45"**. Sube el video a la galería del producto; la sección lee el video y su duración real de ahí. Sin video en la galería, la sección no se muestra.
+- [ ] **X3. Footer (W6):** a 1440 sigue saliendo solo "© 2026 HouseTuring" y "Términos y políticas". Faltan los 5 enlaces legales y la razón social con el NIT (`[pendiente]` si no existen). Captura del footer a 390 px.
+- [ ] **X4. Header (W7):** a 1440 el botón de WhatsApp sigue tapando el logotipo ("HouseTurin"), que debe ir a la izquierda. En móvil el header ahora se monta sobre la foto y tapa el chip: el header es una barra grafito de 60 px **encima** del hero, no superpuesta.
+- [ ] **X5.** Antes de marcar una casilla, compara tu captura con el recorte de la maqueta. Si no son iguales, no la marques.
+
+## ✅ Gate C6 — aprobado por Claude, falta el dueño (28-sep-2026)
+
+Por decisión del dueño, Claude ejecutó X1-X5 directamente en el tema `157512106102` (sin publicar):
+- Tabla comparativa, modos, confianza y garantía rehechas con el texto y los iconos de la maqueta. Los textos quedaron como ajustes y bloques de sección, en las plantillas, no en el Liquid.
+- Video subido a la galería del producto (37 s). La sección lee el video y su duración de ahí; se borró el uso del asset quemado.
+- Header y footer propios (`landing-header`, `landing-footer`), iguales a la maqueta. Razón social, NIT y dirección quedan como `[pendiente]`.
+- El enlace de WhatsApp ahora codifica completo el sufijo `(web-SKU)` que necesita DS-01.
+- Capturas regenerables con `node --env-file=infra/.env tienda/scripts/capturas_gate.mjs`.
+
+**Diseño aprobado por el dueño (28-sep-2026).** Pendiente del dueño: razón social, NIT y dirección para el footer. Siguen T3 (píxel) y T4 (QA y pedido TEST) de esta OT.
+
 ## Objetivo
 Una tienda Shopify **mínima, rápida y confiable**, centrada en un solo producto, con estas piezas:
 1. Una **landing de producto** pensada para móvil. Su botón principal es **"Pedir por WhatsApp"**, porque el agente de IA es quien cierra la venta. Como opción secundaria, el checkout normal.

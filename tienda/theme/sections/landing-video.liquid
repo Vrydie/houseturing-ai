@@ -1,55 +1,36 @@
 {% assign selected_product = section.settings.main_product | default: product %}
-{% assign video = selected_product.media | where: "media_type", "video" | first %}
-
-{% assign preview_url = "" %}
-{% assign video_duration = "" %}
-{% assign has_video = false %}
-
+{% assign video = selected_product.media | where: 'media_type', 'video' | first %}
 {% if video %}
-  {% assign preview_url = video.preview_image | image_url: width: 800 %}
-  {% assign seconds = video.duration | divided_by: 1000 %}
-  {% assign minutes = seconds | divided_by: 60 %}
-  {% assign remainder_seconds = seconds | modulo: 60 %}
-  {% capture video_duration %}{{ minutes }}:{% if remainder_seconds < 10 %}0{% endif %}{{ remainder_seconds }}{% endcapture %}
-  {% assign has_video = true %}
-{% elsif selected_product.handle == 'taladro-24v-dewalt-accesorios-maleta' %}
-  {% assign preview_url = selected_product.images[0] | image_url: width: 800 %}
-  {% assign video_duration = "0:45" %}
-  {% assign has_video = true %}
-{% endif %}
-
-{% if has_video %}
-<div style="background: var(--color-fondo-claro, #F9F9F9); padding: 60px 20px; text-align: center;">
-  <div style="max-width: 800px; margin: 0 auto;">
-    <h2 style="font-family: var(--font-titulos); font-size: 32px; font-weight: 800; margin-bottom: 24px; color: var(--color-texto, #111);">Míralo funcionando</h2>
-    
-    <div style="position: relative; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: #000; cursor: pointer;" onclick="const v = this.querySelector('video'); v.play(); v.setAttribute('controls', 'controls'); this.querySelector('.play-overlay').style.display='none';">
-      
-      {% if video %}
-        {{ video | video_tag: style: 'width: 100%; display: block;', image_size: '800x' }}
-      {% else %}
-        <video style="width: 100%; display: block; opacity: 0.8;" poster="{{ preview_url }}" playsinline>
-          <source src="{{ 'video_taladro.mp4' | asset_url }}" type="video/mp4">
-        </video>
-      {% endif %}
-
-      <div class="play-overlay">
-        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-          <svg width="64" height="64" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));">
-            <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" fill="rgba(0,0,0,0.5)"></circle>
-            <path d="M10 8l6 4-6 4V8z"></path>
-          </svg>
-        </div>
-        <div style="position: absolute; bottom: 16px; right: 16px; background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px; font-weight: bold; font-family: var(--font-body);">
-          {{ video_duration }}
-        </div>
+  {% assign seg = video.duration | divided_by: 1000 %}
+  <section id="demo" class="lv">
+    <div class="lv__in">
+      <h2 class="lv__h">{{ section.settings.titulo }}</h2>
+      {% if section.settings.subtitulo != blank %}<p class="lv__p">{{ section.settings.subtitulo }}</p>{% endif %}
+      <div class="lv__box">
+        {{ video | video_tag: controls: true, preload: 'none', image_size: '1000x', class: 'lv__v' }}
+        <span class="lv__tag">Video de {{ seg }} s</span>
       </div>
-
     </div>
-
-  </div>
-</div>
+  </section>
+  <style>
+    .lv { background: #121417; color: #FFFFFF; padding: 52px 20px; }
+    .lv__in { max-width: 760px; margin: 0 auto; }
+    .lv__h { margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 36px; line-height: 1; color: #FFFFFF; text-transform: none; }
+    .lv__p { margin: 10px 0 0; font-size: 16px; line-height: 1.5; color: #AEB6BF; }
+    .lv__box { margin-top: 20px; position: relative; border-radius: 20px; overflow: hidden; background: #1D2126; }
+    .lv__v { width: 100%; display: block; max-height: 640px; object-fit: contain; background: #1D2126; }
+    .lv__tag { position: absolute; left: 14px; top: 14px; background: #121417; color: #FFFFFF; font-size: 13px; font-weight: 600; padding: 6px 10px; border-radius: 8px; pointer-events: none; }
+    @media (min-width: 1024px) { .lv__h { font-size: 44px; } }
+  </style>
 {% endif %}
 {% schema %}
-{ "name": "Landing Video", "settings": [{ "type": "product", "id": "main_product", "label": "Producto" }], "presets": [{ "name": "Landing Video" }] }
+{
+  "name": "Landing Video",
+  "settings": [
+    { "type": "product", "id": "main_product", "label": "Producto" },
+    { "type": "text", "id": "titulo", "label": "Título", "default": "Míralo funcionando" },
+    { "type": "text", "id": "subtitulo", "label": "Subtítulo", "default": "El kit completo: qué trae y cómo se usa." }
+  ],
+  "presets": [{ "name": "Landing Video" }]
+}
 {% endschema %}

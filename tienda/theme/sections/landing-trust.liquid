@@ -1,37 +1,20 @@
-<div style="background: #1D2126; color: white; padding: 24px 20px; text-align: left;">
-  <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px;">
-    
-    <style>
-      .trust-item { display: flex; align-items: center; gap: 16px; font-weight: bold; font-family: var(--font-body); font-size: 16px; }
-      .trust-icon { color: var(--color-naranja, #F2661B); display: flex; align-items: center; justify-content: center; }
-      @media(min-width: 768px) {
-        .trust-wrapper { flex-direction: row !important; justify-content: center; gap: 40px !important; }
-      }
-    </style>
-
-    <div class="trust-wrapper" style="display: flex; flex-direction: column; gap: 16px;">
-      <div class="trust-item">
-        <div class="trust-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg>
-        </div>
-        Pagas al recibir
-      </div>
-      <div class="trust-item">
-        <div class="trust-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 18H3c-.6 0-1-.4-1-1V7c0-.6.4-1 1-1h10c.6 0 1 .4 1 1v11"/><path d="M14 9h4l4 4v5c0 .6-.4 1-1 1h-2"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>
-        </div>
-        Envío a todo Colombia
-      </div>
-      <div class="trust-item">
-        <div class="trust-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        </div>
-        Garantía de 30 días
-      </div>
-    </div>
-
+<section aria-label="Compra sin riesgo" class="lt">
+  <div class="lt__in">
+    <div class="lt__i"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F2661B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 10v4M18 10v4"/></svg><span>{{ section.settings.t1 }}</span></div>
+    <div class="lt__i"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F2661B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg><span>{{ section.settings.t2 }}</span></div>
+    <div class="lt__i"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F2661B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg><span>{{ section.settings.t3 }}</span></div>
   </div>
-</div>
+</section>
+<style>
+  .lt { background: #1D2126; border-top: 1px solid #2E343B; border-bottom: 1px solid #2E343B; padding: 20px; color: #FFFFFF; font-family: 'Barlow', sans-serif; }
+  .lt__in { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .lt__i { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; font-size: 13px; font-weight: 600; line-height: 1.3; }
+  @media (min-width: 1024px) { .lt__i { font-size: 15px; } }
+</style>
 {% schema %}
-{ "name": "Landing Trust", "presets": [{ "name": "Landing Trust" }] }
+{ "name": "Landing Confianza", "settings": [
+  { "type": "text", "id": "t1", "label": "Punto 1", "default": "Pagas en efectivo al recibir" },
+  { "type": "text", "id": "t2", "label": "Punto 2", "default": "Envío gratis en 2 a 5 días hábiles" },
+  { "type": "text", "id": "t3", "label": "Punto 3", "default": "Garantía de 30 días" } ],
+  "presets": [{ "name": "Landing Confianza" }] }
 {% endschema %}

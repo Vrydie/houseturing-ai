@@ -1,41 +1,50 @@
-<div style="background: var(--color-grafito, #1A1A1A); padding: 60px 20px;">
-  <div style="max-width: 1200px; margin: 0 auto;">
-    <h2 style="font-family: var(--font-titulos); font-size: 32px; font-weight: 800; margin-bottom: 40px; color: white; text-align: center;">Un taladro, tres modos</h2>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
-      
-      <div style="background: #1D2126; padding: 24px; border-radius: 12px; display: flex; align-items: flex-start; gap: 16px;">
-        <div style="background: var(--color-naranja, #F2661B); width: 56px; height: 56px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+<section id="modos" class="lm">
+  <div class="lm__in">
+    <h2 class="lm__h">{{ section.settings.titulo }}</h2>
+    {% if section.settings.subtitulo != blank %}<p class="lm__p">{{ section.settings.subtitulo }}</p>{% endif %}
+    <div class="lm__g">
+      {% for block in section.blocks %}
+        <div class="lm__c" {{ block.shopify_attributes }}>
+          <span class="lm__i">
+            {%- case block.settings.icono -%}
+              {%- when 'atornillador' -%}<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#121417" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6l-1 4h-4z"/><path d="M12 7v14"/><path d="M9 10l6 2M9 14l6 2M9 18l3 1"/></svg>
+              {%- when 'taladro' -%}<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#121417" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v6"/><path d="M10 8h4l-1 12-1 2-1-2z"/><path d="M10.5 12l3 1.5M10.5 15.5l3 1.5"/></svg>
+              {%- else -%}<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#121417" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="10" height="16" rx="1"/><path d="M3 9h10M3 14h10M8 4v5M6 14v6"/><path d="M16 12h5M17 8l3-2M17 16l3 2"/></svg>
+            {%- endcase -%}
+          </span>
+          <div class="lm__t"><span class="lm__n">{{ block.settings.nombre }}</span><span class="lm__d">{{ block.settings.texto }}</span></div>
         </div>
-        <div style="text-align: left;">
-          <h3 style="font-family: var(--font-titulos); font-size: 20px; font-weight: bold; margin-bottom: 4px; color: white;">Atornillador</h3>
-          <p style="color: #ccc; font-size: 15px; margin: 0;">Para armar muebles y ajustes rápidos.</p>
-        </div>
-      </div>
-
-      <div style="background: #1D2126; padding: 24px; border-radius: 12px; display: flex; align-items: flex-start; gap: 16px;">
-        <div style="background: var(--color-naranja, #F2661B); width: 56px; height: 56px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="21.17" y1="8" x2="12" y2="8"/><line x1="3.95" y1="6.06" x2="8.54" y2="14"/></svg>
-        </div>
-        <div style="text-align: left;">
-          <h3 style="font-family: var(--font-titulos); font-size: 20px; font-weight: bold; margin-bottom: 4px; color: white;">Taladro</h3>
-          <p style="color: #ccc; font-size: 15px; margin: 0;">Perfora madera, plástico y metal blando.</p>
-        </div>
-      </div>
-
-      <div style="background: #1D2126; padding: 24px; border-radius: 12px; display: flex; align-items: flex-start; gap: 16px;">
-        <div style="background: var(--color-naranja, #F2661B); width: 56px; height: 56px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l3-9 5 18 3-9h5"/></svg>
-        </div>
-        <div style="text-align: left;">
-          <h3 style="font-family: var(--font-titulos); font-size: 20px; font-weight: bold; margin-bottom: 4px; color: white;">Percutor</h3>
-          <p style="color: #ccc; font-size: 15px; margin: 0;">Impacto para taladrar mampostería y ladrillo.</p>
-        </div>
-      </div>
-
+      {% endfor %}
     </div>
   </div>
-</div>
+</section>
+<style>
+  .lm { background: #121417; color: #FFFFFF; padding: 52px 20px; font-family: 'Barlow', sans-serif; }
+  .lm__in { max-width: 1200px; margin: 0 auto; }
+  .lm__h { margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 36px; line-height: 1; color: #FFFFFF; text-transform: none; }
+  .lm__p { margin: 10px 0 0; font-size: 16px; line-height: 1.5; color: #AEB6BF; }
+  .lm__g { margin-top: 22px; display: flex; flex-direction: column; gap: 12px; }
+  .lm__c { background: #1D2126; border: 1px solid #2E343B; border-radius: 16px; padding: 18px; display: flex; gap: 16px; align-items: flex-start; }
+  .lm__i { width: 56px; height: 56px; flex-shrink: 0; border-radius: 12px; background: #F2661B; display: flex; align-items: center; justify-content: center; }
+  .lm__t { display: flex; flex-direction: column; gap: 4px; }
+  .lm__n { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.1; }
+  .lm__d { font-size: 15px; line-height: 1.45; color: #AEB6BF; }
+  @media (min-width: 1024px) { .lm__h { font-size: 44px; } .lm__g { flex-direction: row; } .lm__c { flex: 1; } }
+</style>
 {% schema %}
-{ "name": "Landing Modes", "presets": [{ "name": "Landing Modes" }] }
+{
+  "name": "Landing Modos",
+  "settings": [
+    { "type": "text", "id": "titulo", "label": "Título", "default": "Un taladro, tres modos" },
+    { "type": "text", "id": "subtitulo", "label": "Subtítulo", "default": "Cambias de modo girando el anillo frontal." }
+  ],
+  "blocks": [
+    { "type": "modo", "name": "Modo", "settings": [
+      { "type": "select", "id": "icono", "label": "Icono", "options": [ { "value": "atornillador", "label": "Atornillador" }, { "value": "taladro", "label": "Taladro" }, { "value": "percutor", "label": "Percutor" } ], "default": "taladro" },
+      { "type": "text", "id": "nombre", "label": "Nombre" },
+      { "type": "text", "id": "texto", "label": "Texto" }
+    ] }
+  ],
+  "presets": [{ "name": "Landing Modos" }]
+}
 {% endschema %}

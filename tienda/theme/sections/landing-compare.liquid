@@ -1,59 +1,53 @@
-<div style="background: white; padding: 60px 16px; text-align: center;">
-  <div style="max-width: 800px; margin: 0 auto;">
-    <h2 style="font-family: var(--font-titulos); font-size: 32px; font-weight: 800; margin-bottom: 32px; color: var(--color-grafito, #1A1A1A);">¿Por separado o en un solo maletín?</h2>
-    
-    <style>
-      .compare-table { width: 100%; border-collapse: collapse; text-align: left; background: white; font-family: var(--font-body); font-size: 14px; }
-      .compare-table th, .compare-table td { padding: 12px 8px; border-bottom: 1px solid #EAEAEA; color: #1A1A1A; }
-      .compare-table th { background: #F9F9F9; font-weight: bold; }
-      .compare-table th:not(:first-child), .compare-table td:not(:first-child) { text-align: center; }
-      .compare-highlight { color: var(--color-naranja, #F2661B); font-weight: bold; }
-      @media (min-width: 768px) {
-        .compare-table { font-size: 16px; }
-        .compare-table th, .compare-table td { padding: 16px; }
-      }
-    </style>
-
-    <div style="overflow-x: auto; max-width: 100%; border: 1px solid #EAEAEA; border-radius: 8px;">
-      <table class="compare-table">
-        <thead>
-          <tr>
-            <th>Característica</th>
-            <th>Por separado</th>
-            <th class="compare-highlight">Nuestro Kit</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Pedidos</td>
-            <td>Llegan distintos días</td>
-            <td class="compare-highlight">Todo en 1 caja</td>
-          </tr>
-          <tr>
-            <td>Baterías</td>
-            <td>1 sola (o pagas extra)</td>
-            <td class="compare-highlight">2 incluidas</td>
-          </tr>
-          <tr>
-            <td>Accesorios</td>
-            <td>Comprar aparte</td>
-            <td class="compare-highlight">24 piezas</td>
-          </tr>
-          <tr>
-            <td>Dónde guardarlo</td>
-            <td>En cajas sueltas</td>
-            <td class="compare-highlight">Maletín de alto impacto</td>
-          </tr>
-          <tr>
-            <td>Cómo pagas</td>
-            <td>Tarjeta por anticipado</td>
-            <td class="compare-highlight">En efectivo al recibir</td>
-          </tr>
-        </tbody>
-      </table>
+<section id="comparar" class="lc">
+  <div class="lc__in">
+    <h2 class="lc__h">{{ section.settings.titulo }}</h2>
+    <div class="lc__t" role="table" aria-label="{{ section.settings.titulo | escape }}">
+      <div class="lc__r lc__r--head" role="row">
+        <span role="columnheader"></span>
+        <span role="columnheader" class="lc__sep">{{ section.settings.col_a }}</span>
+        <span role="columnheader" class="lc__kit lc__kit--head">{{ section.settings.col_b }}</span>
+      </div>
+      {% for block in section.blocks %}
+        <div class="lc__r" role="row" {{ block.shopify_attributes }}>
+          <span role="rowheader" class="lc__rh">{{ block.settings.fila }}</span>
+          <span role="cell" class="lc__sep">{{ block.settings.separado }}</span>
+          <span role="cell" class="lc__kit{% if forloop.last %} lc__kit--last{% endif %}">{{ block.settings.kit }}</span>
+        </div>
+      {% endfor %}
     </div>
   </div>
-</div>
+</section>
+<style>
+  .lc { background: #FFFFFF; color: #121417; padding: 52px 20px; }
+  .lc__in { max-width: 760px; margin: 0 auto; }
+  .lc__h { margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 36px; line-height: 1; color: #121417; text-transform: none; }
+  .lc__t { margin-top: 22px; display: flex; flex-direction: column; font-family: 'Barlow', sans-serif; }
+  .lc__r { display: grid; grid-template-columns: 30% 35% 35%; border-top: 1px solid #DDE1E4; font-size: 14px; line-height: 1.35; }
+  .lc__r--head { border-top: 0; align-items: end; }
+  .lc__r > span { padding: 14px 8px; }
+  .lc__r--head > span { padding: 0 8px 10px; font-weight: 700; color: #4A525B; }
+  .lc__rh { padding-left: 0 !important; font-weight: 700; }
+  .lc__sep { color: #4A525B; }
+  .lc__kit { background: #F1F2F3; font-weight: 600; color: #121417; }
+  .lc__r--head .lc__kit--head { padding: 10px 8px !important; border-radius: 12px 12px 0 0; background: #121417; color: #FFFFFF; }
+  .lc__kit--last { border-radius: 0 0 12px 12px; }
+  @media (min-width: 1024px) { .lc__h { font-size: 44px; } .lc__r { font-size: 16px; } }
+</style>
 {% schema %}
-{ "name": "Landing Compare", "presets": [{ "name": "Landing Compare" }] }
+{
+  "name": "Landing Comparar",
+  "settings": [
+    { "type": "text", "id": "titulo", "label": "Título", "default": "Por separado o en un solo maletín" },
+    { "type": "text", "id": "col_a", "label": "Columna 1", "default": "Por separado" },
+    { "type": "text", "id": "col_b", "label": "Columna 2", "default": "Este kit" }
+  ],
+  "blocks": [
+    { "type": "fila", "name": "Fila", "settings": [
+      { "type": "text", "id": "fila", "label": "Fila" },
+      { "type": "text", "id": "separado", "label": "Por separado" },
+      { "type": "text", "id": "kit", "label": "Este kit" }
+    ] }
+  ],
+  "presets": [{ "name": "Landing Comparar" }]
+}
 {% endschema %}

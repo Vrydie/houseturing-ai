@@ -66,3 +66,13 @@ Comparamos la maqueta aprobada con la implementación real del tema.
 | Maqueta (390px) | Implementación (390px) |
 |---|---|
 | ![Maqueta](maqueta/12_barra_fija.png) | ![Implementación](390px_12_sticky_bar.png) |
+
+
+---
+## Dictamen de Claude — 8.ª ronda (28-sep-2026): NO PASA, quedan 5 puntos
+Aprobados garantía, cierre, confianza, modos y chip. Faltan X1-X5 (ver OT-02): textos de la tabla comparativa, video y duración reales, footer legal y header.
+
+
+---
+## Dictamen de Claude — cierre (28-sep-2026): APROBADO, falta el dueño
+Las capturas (`390px_*.png`, `390px_barra_fija_en_pantalla.png`, `1440px_completa.png`) coinciden con `maqueta/`. Pendiente: aprobación del dueño y datos legales del footer.
