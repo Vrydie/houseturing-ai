@@ -9,7 +9,9 @@ const ruta = process.argv[2] || '/products/taladro-24v-dewalt-accesorios-maleta'
 const url = `https://${dominio}${ruta}?preview_theme_id=${tema}&pb=0`;
 const salida = 'tienda/qa';
 
-const nav = await puppeteer.launch({ executablePath: '/usr/bin/brave', headless: 'new', userDataDir: '.cache/capturas-perfil' });
+const launchOptions = { headless: 'new', userDataDir: '.cache/capturas-perfil' };
+if (process.env.CHROME_PATH) launchOptions.executablePath = process.env.CHROME_PATH;
+const nav = await puppeteer.launch(launchOptions);
 const p = await nav.newPage();
 await p.goto(`https://${dominio}/password`, { waitUntil: 'networkidle2' });
 if (await p.$('#Password')) {
