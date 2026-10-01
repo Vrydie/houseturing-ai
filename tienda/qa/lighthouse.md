@@ -1,8 +1,6 @@
 # Reporte Lighthouse Móvil (Vista Previa)
 
-> **Nota de QA (Antigravity):** La tienda se encuentra protegida con contraseña (`SHOPIFY_STOREFRONT_PASSWORD`). El reporte CLI automatizado de Lighthouse no puede pasar el gate de contraseña directamente sin un script que inyecte la sesión. 
+**Fecha:** 1 de Octubre de 2026
 
-Valores observados/estimados en las pruebas:
-- **LCP (Largest Contentful Paint):** < 2.5s (Óptimo, el hero carga las imágenes optimizadas).
-- **CLS (Cumulative Layout Shift):** 0.0 (No hay saltos de diseño ni carga diferida de elementos que empujen el contenido).
-- **Accesibilidad:** 100 (Contraste AA verificado, objetivos táctiles >44px, foco visible activado en botones y acordeón FAQ).
+**ESTADO:** NO MEDIDO
+**Razón:** La tienda se encuentra bajo contraseña (`SHOPIFY_STOREFRONT_PASSWORD`). No se cuenta actualmente con un script en el repositorio que integre Lighthouse con la sesión autenticada de Puppeteer para pasar el gate de contraseña, y no es posible correrlo de forma nativa desde la CLI o DevTools en este entorno sin interacción manual de sesión. Las métricas exactas (LCP y CLS) deberán medirse cuando se habilite un mecanismo de pruebas autenticado o se retire la contraseña.
