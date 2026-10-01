@@ -1,6 +1,6 @@
 # OT-06 — Fulfillment y Eventos de Shopify (DS-10)
 
-**Estado:** borrador · **Frente:** B · **Responsable:** Vrydie · **Ejecuta:** Antigravity · **Planifica:** Claude
+**Estado:** para revisión · **Frente:** B · **Responsable:** Vrydie · **Ejecuta:** Antigravity · **Planifica:** Claude
 **Lecturas obligatorias:**
 - [ROADMAP.md](../ROADMAP.md): Fase 6 (Flujo 3: Fulfillment).
 - [entrada_shopify_order.example.json](../schemas/entrada_shopify_order.example.json).
@@ -30,7 +30,11 @@ Configurar el receptor de eventos (webhooks) de Shopify en n8n para que el siste
 - Dueño: Confirmar si el evento `fulfillments/update` en Dropify actualmente envía el estado detallado del paquete (`shipment_status`), o si tendremos que armarlo en base a la API de Dropi más adelante.
 
 ## Reporte de ejecución (lo llena Antigravity al terminar)
-- **Estado final:** Pendiente
-- **Diagnóstico inicial:** ...
-- **Qué se hizo:** ...
-- **Evidencia:** ...
+- **Estado final:** Para revisión
+- **Diagnóstico inicial:** Se crearon los workflows generadores (scripts JS) en lugar de JSONs quemados para estandarización. Se observó que las credenciales de Postgres están en n8n pero no disponibles para pruebas locales desde CLI (o n8n fallaba en CLI).
+- **Qué se hizo:**
+  1. Se generó el workflow `DS-10_Eventos_Shopify` que recibe webhooks, valida el HMAC (SHA256) con el `SHOPIFY_API_SECRET`, hace deduplicación en la base de datos `eventos_webhook` y enruta eventos como pedidos creados/cancelados y fulfillments a la tabla `pedidos`.
+  2. Se generó el workflow `DS-11_Vigilante_Pedidos` con un Schedule (cron) de 6 horas para consultar la BD y notificar a Telegram si hay pedidos en estado "creado" de más de 24 horas.
+  3. Se escribieron las pruebas automatizadas para `DS-10` (simulando los headers y el payload de Shopify).
+- **Evidencia:** Revisa los archivos en la carpeta `workflows/` (`generate_ot06_ds10.mjs` y `generate_ot06_vigilante.mjs`). Importa los JSON a tu instancia de n8n.
+- **Desvíos o Decisiones:** El nodo "Crypto HMAC" fallaba al hacer hash sobre el objeto `body`, así que se corrigió para usar `typeof $json.body === "string" ? $json.body : JSON.stringify($json.body)`. Las pruebas vía CLI con `n8n execute` a veces fallan por falta de credenciales de UI en el ambiente CLI o errores del propio n8n de variables de entorno. Te sugiero que lo pruebes importándolo directamente a n8n y pegándole al webhook de prueba.

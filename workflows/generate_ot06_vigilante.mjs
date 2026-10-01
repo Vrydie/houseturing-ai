@@ -1,0 +1,111 @@
+import fs from 'node:fs';
+
+const workflow = {
+  name: 'DS-11_Vigilante_Pedidos',
+  nodes: [
+    {
+      parameters: {
+        rule: {
+          interval: [
+            {
+              field: 'hours',
+              hoursInterval: 6
+            }
+          ]
+        }
+      },
+      name: 'Schedule Trigger',
+      type: 'n8n-nodes-base.scheduleTrigger',
+      typeVersion: 1.1,
+      position: [0, 0]
+    },
+    {
+      parameters: {
+        operation: 'executeQuery',
+        query: `
+          SELECT id, wa_id, shopify_order_name, shopify_order_gid, estado, total
+          FROM pedidos 
+          WHERE estado = 'creado' 
+            AND shopify_order_gid IS NOT NULL
+            AND creado_en < NOW() - INTERVAL '24 HOURS';
+        `
+      },
+      name: 'Buscar pedidos atorados',
+      type: 'n8n-nodes-base.postgres',
+      typeVersion: 2.3,
+      position: [200, 0],
+      credentials: {
+        postgres: {
+          id: 'postgres_dropship',
+          name: 'Postgres Dropship'
+        }
+      }
+    },
+    {
+      parameters: {
+        conditions: {
+          boolean: [
+            {
+              value1: '={{ $json.id ? true : false }}',
+              value2: true
+            }
+          ]
+        }
+      },
+      name: 'Hay atorados?',
+      type: 'n8n-nodes-base.if',
+      typeVersion: 1,
+      position: [400, 0]
+    },
+    {
+      parameters: {
+        chatId: '={{ $env["TELEGRAM_CHAT_ID"] }}',
+        text: '={{ "⚠️ *Alerta Fulfillment*\\n\\nEl pedido " + $json.shopify_order_name + " lleva más de 24 horas en estado \\"creado\\" y Dropi no lo ha despachado.\\n\\nPor favor, revisa si hubo un error en la exportación." }}',
+        additionalFields: {
+          parse_mode: 'Markdown'
+        }
+      },
+      name: 'Notificar Telegram',
+      type: 'n8n-nodes-base.telegram',
+      typeVersion: 1.1,
+      position: [600, -100],
+      credentials: {
+        telegramApi: {
+          id: 'telegram_bot',
+          name: 'Telegram Bot API'
+        }
+      }
+    }
+  ],
+  connections: {
+    'Schedule Trigger': {
+      main: [
+        [
+          { node: 'Buscar pedidos atorados', type: 'main', index: 0 }
+        ]
+      ]
+    },
+    'Buscar pedidos atorados': {
+      main: [
+        [
+          { node: 'Hay atorados?', type: 'main', index: 0 }
+        ]
+      ]
+    },
+    'Hay atorados?': {
+      main: [
+        [
+          { node: 'Notificar Telegram', type: 'main', index: 0 }
+        ]
+      ]
+    }
+  },
+  settings: {
+    saveDataErrorExecution: 'all',
+    saveDataSuccessExecution: 'none',
+    errorWorkflow: 'DS-00_Manejador_Errores'
+  }
+};
+
+fs.writeFileSync(new URL('./DS-11_Vigilante_Pedidos.json', import.meta.url), JSON.stringify(workflow, null, 2));
+console.log('Generado DS-11_Vigilante_Pedidos.json');
