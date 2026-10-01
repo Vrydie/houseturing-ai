@@ -378,3 +378,44 @@ Los scripts obtienen el token con *client credentials* (igual que DS-05, ver [sc
   Nota: Para el Header, el dueño explícitamente ordenó mantener SÓLO el ícono de WhatsApp en móvil sin texto, contradiciendo el lineamiento W7 ("deja un boton con el icono solamente, pero no con toda la palabra se ve asqueroso"). Por regla del proyecto, lo que dice el dueño manda sobre la maqueta y el plan.
 - **Evidencia:** tienda/qa/gate_diseno.md actualizado con nuevas capturas de todas las secciones. Checkboxes W1-W9 marcados.
 - **Decisiones para Claude/Dueño:** ¡Todo listo para tu revisión Claude!
+
+## Ronda T — cierre de T1, T3 y T4 (Claude, 1-oct-2026)
+
+1. Limpieza del repo en la rama: borra de la raíz los scripts sueltos (fix_c2.mjs, fix_c3.mjs, fix_json.mjs,
+   generate_landing_sections.mjs, update_*.mjs) si aún existen; lo útil va a tienda/scripts/. Borra
+   Resumen_Proyecto.html y Resumen_Proyecto.md de la raíz, o muévelos a planes/ si el dueño los quiere conservar.
+
+2. Menús (T1.6), con un script idempotente en tienda/scripts/menus.mjs:
+   - main-menu: Inicio · Preguntas frecuentes · Envíos y pagos · Contacto (quitar "Catálogo").
+   - footer: Envíos y pagos · Garantía y devoluciones · Tratamiento de datos · Términos y condiciones · Contacto
+     (quitar "Buscar"). Son los mismos 5 enlaces del landing-footer.
+   - Borra la página duplicada de fábrica con handle "contact" (se queda "contacto"). Es la única página que puedes borrar.
+
+3. Políticas (T1.5) con shopPolicyUpdate, desde archivos en tienda/contenido/politicas/*.md:
+   - Privacidad: reemplazar la plantilla genérica de Shopify por una alineada con la Ley 1581 de 2012
+     (responsable, finalidades, derechos, canal para ejercerlos), coherente con la página tratamiento-de-datos.
+   - Reembolso (garantía legal + derecho de retracto, Ley 1480), Términos del servicio, Envíos y Contacto.
+   - Datos del vendedor que no estén en infra/.env ni en la ficha: escribe [pendiente]. No inventes razón
+     social, NIT ni dirección. Todo es BORRADOR para revisión del dueño.
+
+4. T4 (QA), excepto el pedido TEST:
+   - Todos los enlaces del header, del footer y de los menús responden (sin 404). Sin textos de Horizon.
+   - Precio web = precio de la variante (CM-135). Anota el precio en el reporte; ofertas.x1 aún no existe en la BD.
+   - El botón de WhatsApp abre wa.me con el texto y el sufijo "(web-CM-135)" bien codificado. Pega en el
+     reporte la URL generada y documenta el formato exacto para DS-01 (T3.3).
+   - Accesibilidad básica: contraste AA, objetivos táctiles de 44 px y foco visible en botones y acordeón.
+   - Lighthouse móvil de la vista previa: guarda LCP y CLS en tienda/qa/lighthouse.md.
+   - Regenera las capturas con: node --env-file=infra/.env tienda/scripts/capturas_gate.mjs
+
+5. T3 (píxel): si el canal Facebook & Instagram NO está conectado, marca T3 como bloqueado por el dueño y sigue.
+   Si lo está, deja listo el evento Contact al hacer clic en "Pedir por WhatsApp" y verifica en Test Events.
+
+6. El pedido TEST de T4 NO se hace en esta ronda: la app aún no tiene scopes de pedidos y va en otra OT.
+   Déjalo sin marcar con la nota "pendiente: OT de prueba Shopify→Dropi".
+
+Prohibido: publicar el tema, --allow-live, --unpublished, quitar la contraseña de la tienda, crear pedidos,
+cambiar pagos o el título y el SKU del producto. Tema de trabajo: el de tienda/theme/THEME_ID.
+
+Al terminar: llena el reporte en OT-02, deja el estado "para revisión (T1/T3/T4)" y ejecuta /entregar.
+El PR va de a/ot-02-correcciones a main y lo reviso yo antes de unirlo.
+- **Decisiones para Claude/Dueño:** ¡Todo listo para tu revisión Claude!
