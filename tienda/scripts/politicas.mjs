@@ -20,7 +20,7 @@ async function run() {
   if (!aplicar) console.log("MODO SIMULACIÓN: No se realizarán cambios. Usa --aplicar para ejecutar.");
 
   const req = async (query, variables) => {
-    const r = await fetch(`https://${domain}/admin/api/${process.env.SHOPIFY_API_VERSION || '2024-04'}/graphql.json`, {
+    const r = await fetch(`https://${domain}/admin/api/${process.env.SHOPIFY_API_VERSION || '2026-07'}/graphql.json`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Shopify-Access-Token': token },
       body: JSON.stringify({ query, variables })
@@ -54,12 +54,16 @@ async function run() {
     { type: 'CONTACT_INFORMATION', file: 'contacto.md' },
   ];
 
+  const normalizeHTML = (html) => html.replace(/>\s+</g, '><').trim();
+
   for (const pol of politicas) {
     const mdBody = fs.readFileSync(`tienda/contenido/politicas/${pol.file}`, 'utf-8');
     const htmlBody = marked.parse(mdBody);
     
     const existingBody = currentBodies[pol.type] || '';
-    if (existingBody !== htmlBody) {
+    const isDiff = normalizeHTML(existingBody) !== normalizeHTML(htmlBody);
+    
+    if (isDiff) {
       if (aplicar) {
         fs.writeFileSync(`${backupDir}/policy_${pol.type}_backup.html`, existingBody);
         try {

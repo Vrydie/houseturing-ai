@@ -18,7 +18,7 @@ async function run() {
   if (!aplicar) console.log("MODO SIMULACIÓN: No se realizarán cambios. Usa --aplicar para ejecutar.");
 
   const req = async (query, variables) => {
-    const r = await fetch(`https://${domain}/admin/api/${process.env.SHOPIFY_API_VERSION || '2024-04'}/graphql.json`, {
+    const r = await fetch(`https://${domain}/admin/api/${process.env.SHOPIFY_API_VERSION || '2026-07'}/graphql.json`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Shopify-Access-Token': token },
       body: JSON.stringify({ query, variables })

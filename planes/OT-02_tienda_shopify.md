@@ -424,8 +424,21 @@ El PR va de a/ot-02-correcciones a main y lo reviso yo antes de unirlo.
 - **Estado final:** para revisión (T1/T3/T4)
 - **Qué se hizo:**
   - **Limpieza:** Se movieron `Resumen_Proyecto.md` y `html` a `planes/`. Se borraron los scripts descartados y temporales (ej. `introspect.mjs`, `get_pages.mjs`).
-  - **Menús (T1.6):** Se actualizó `main-menu` y `footer`. Se verificó y borró exitosamente la página `contact` con script idempotente usando REST/GraphQL.
+  - **Menús (T1.6):** Se actualizó `main-menu` y `footer`. Se verificó y borró exitosamente la página `contact` con script idempotente usando REST/GraphQL. Scripts adaptados para simulación y respaldos en `tienda/respaldos/`. Versión de API actualizada a `2026-07`.
   - **Políticas (T1.5):** Se actualizaron reembolso y envíos según correcciones de la ficha (§6 y §8). La de privacidad se sincronizó tras desactivar la autogestión de Shopify en el panel. Ley 1581 se encuentra correctamente referenciada en privacidad.
+    - Se adaptó `politicas.mjs` para convertir de Markdown a HTML (usando `marked`) antes de subirlas.
+    - Se implementó modo de simulación y resguardo de la política antigua en `tienda/respaldos/` que fue excluido en `.gitignore`.
+    - **Prueba de idempotencia en simulación:**
+      ```
+      ◇ injected env (0) from infra\.env
+      MODO SIMULACIÓN: No se realizarán cambios. Usa --aplicar para ejecutar.
+      Política PRIVACY_POLICY ya está al día.
+      Política REFUND_POLICY ya está al día.
+      Política TERMS_OF_SERVICE ya está al día.
+      Política SHIPPING_POLICY ya está al día.
+      Política CONTACT_INFORMATION ya está al día.
+      Proceso de políticas finalizado.
+      ```
   - **QA (T4):** 
     - Enlaces comprobados y todos los textos de Horizon retirados de menús.
     - Precio documentado para revisión (debe cuadrar con la variante CM-135, actual $219.900).
