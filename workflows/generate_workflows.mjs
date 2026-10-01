@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -60,8 +60,8 @@ if (items.length === 0) return [{ json: { cubierto: false } }];
 if (items.length === 1) {
   const row = items[0];
   const dias = row.dias_entrega_min === row.dias_entrega_max 
-    ? row.dias_entrega_min + " días hábiles"
-    : row.dias_entrega_min + " a " + row.dias_entrega_max + " días hábiles";
+    ? row.dias_entrega_min + " d├¡as h├íbiles"
+    : row.dias_entrega_min + " a " + row.dias_entrega_max + " d├¡as h├íbiles";
   
   return [{ json: { 
     cubierto: true, 
@@ -126,7 +126,7 @@ export function normalizeYcloud(event) {
     case 'location':
       if (!Number.isFinite(m.location?.latitude) || !Number.isFinite(m.location?.longitude)) return [];
       ubicacion = {latitud:m.location.latitude,longitud:m.location.longitude,direccion:m.location.address ?? null};
-      texto = `[ubicación] ${ubicacion.latitud}, ${ubicacion.longitud}${ubicacion.direccion ? ' '+ubicacion.direccion : ''}`; break;
+      texto = `[ubicaci├│n] ${ubicacion.latitud}, ${ubicacion.longitud}${ubicacion.direccion ? ' '+ubicacion.direccion : ''}`; break;
     case 'sticker': texto = '[sticker]'; break;
     default: texto = '[mensaje no compatible]';
   }
@@ -140,7 +140,7 @@ export function normalizeYcloud(event) {
 }
 export function bubbles(input, empresa, random = Math.random) {
   const partes = input.plantilla ? [null] : String(input.texto ?? '').split(/\n\s*\n/).filter(s=>s.trim());
-  // Máximo tres burbujas, sin perder párrafos adicionales.
+  // M├íximo tres burbujas, sin perder p├írrafos adicionales.
   if (partes.length > 3) partes.splice(2, partes.length-2, partes.slice(2).join('\n\n'));
   return partes.map(texto=>({
     texto,waitTime:Math.min(7,Math.max(1.5,0.035*(texto?.length ?? 0)+0.5+random())),
@@ -172,10 +172,12 @@ function request(w,name,url,body) {
 const inputTrigger=w=>node(w,'Entrada','executeWorkflowTrigger',{},1);
 const unwrap=(w,n)=>code(w,n,'return [{json:$json.data}];');
 
-const stubWorkflow=workflow(ids.stub,'DS-02 Agente (stub)');
-inputTrigger(stubWorkflow);
-code(stubWorkflow,'Respuesta stub',`const p=$input.first().json; return [{json:{...p,texto:'Hola, recibimos tu mensaje: '+p.texto}}];`);
-link(stubWorkflow,'Entrada','Respuesta stub');
+
+const stubWorkflow = JSON.parse(fs.readFileSync(new URL('./DS-02_stub.json', import.meta.url)));
+const crearPedidoWorkflow = JSON.parse(fs.readFileSync(new URL('./DS-T2_crear_pedido.json', import.meta.url)));
+const generarLinkWorkflow = JSON.parse(fs.readFileSync(new URL('./DS-T3_generar_link_pago.json', import.meta.url)));
+const consultarEstadoWorkflow = JSON.parse(fs.readFileSync(new URL('./DS-T4_consultar_estado.json', import.meta.url)));
+const escalarHumanoWorkflow = JSON.parse(fs.readFileSync(new URL('./DS-T5_escalar_a_humano.json', import.meta.url)));
 
 const entradaWhatsappWorkflow=workflow(ids.entrada,'DS-01 Entrada WhatsApp');
 const e=entradaWhatsappWorkflow;
@@ -195,8 +197,8 @@ pg(e,'Ingresar mensaje','SELECT ycloud_ingresar($1::jsonb) AS data',"={{ [JSON.s
 unwrap(e,'Resultado ingreso');
 iff(e,'Es entrada',"={{ $json.accion === 'entrada' }}");
 iff(e,'Solo lectura',"={{ $json.accion === 'solo_leer' }}");
-code(e,'Preparar leído',"return [{json:{...$json,no_responder:true}}];");
-node(e,'Marcar leído','executeWorkflow',{workflowId:ids.enviar,options:{waitForSubWorkflow:true}},1);
+code(e,'Preparar le├¡do',"return [{json:{...$json,no_responder:true}}];");
+node(e,'Marcar le├¡do','executeWorkflow',{workflowId:ids.enviar,options:{waitForSubWorkflow:true}},1);
 wait(e,'Debounce',"={{ $json.debounce }}");
 code(e,'Iniciar intentos',"return [{json:{...$json,intento:0}}];");
 pg(e,'Reclamar turno','SELECT ycloud_reclamar($1::bigint,$2) AS data, $3::integer AS intento',"={{ [$json.conversacion_id,$json.wamid,$json.intento] }}");
@@ -212,36 +214,36 @@ node(e,'Call Send','executeWorkflow',{workflowId:ids.enviar,options:{waitForSubW
 for(const [a,b,o] of [
  ['Webhook POST','Leer cuerpo crudo'],['Leer cuerpo crudo','Leer secreto'],['Leer secreto','Verificar firma'],['Verificar firma','Normalizar YCloud'],['Normalizar YCloud','Es estado'],
  ['Es estado','Actualizar estado'],['Es estado','Ingresar mensaje',1],['Ingresar mensaje','Resultado ingreso'],['Resultado ingreso','Es entrada'],
- ['Es entrada','Debounce'],['Es entrada','Solo lectura',1],['Solo lectura','Preparar leído'],['Preparar leído','Marcar leído'],
+ ['Es entrada','Debounce'],['Es entrada','Solo lectura',1],['Solo lectura','Preparar le├¡do'],['Preparar le├¡do','Marcar le├¡do'],
  ['Debounce','Iniciar intentos'],['Iniciar intentos','Reclamar turno'],['Reclamar turno','Resultado turno'],['Resultado turno','Turno listo'],
  ['Turno listo','Contrato DS02'],['Turno listo','Reintentar bloqueo',1],['Reintentar bloqueo','Esperar bloqueo'],
  ['Esperar bloqueo','Siguiente intento'],['Siguiente intento','Reclamar turno'],['Contrato DS02','Call Stub'],['Call Stub','Contexto transporte'],['Contexto transporte','Call Send']]) link(e,a,b,o);
 
 const enviarWhatsappWorkflow=workflow(ids.enviar,'DS-03 Enviar WhatsApp');const s=enviarWhatsappWorkflow;
 inputTrigger(s);
-pg(s,'Configuración',`SELECT COALESCE((SELECT valor FROM config WHERE clave='whatsapp_modo_simulado'),'true')='true' AS simulado,
+pg(s,'Configuraci├│n',`SELECT COALESCE((SELECT valor FROM config WHERE clave='whatsapp_modo_simulado'),'true')='true' AS simulado,
  COALESCE((SELECT valor FROM config WHERE clave='ycloud_numero_empresa'),'') AS empresa`);
-code(s,'Preparar envío',`${bubbles.toString()}
+code(s,'Preparar env├¡o',`${bubbles.toString()}
 const p=$('Entrada').first().json;
-if(!$json.simulado && !/^\\+?\\d{8,15}$/.test($json.empresa)) throw new Error('Configurar el número de empresa antes de modo real');
+if(!$json.simulado && !/^\\+?\\d{8,15}$/.test($json.empresa)) throw new Error('Configurar el n├║mero de empresa antes de modo real');
 return [{json:{...p,simulado:$json.simulado,burbujas:bubbles(p,$json.empresa)}}];`);
 iff(s,'Sin respuesta',"={{ $json.no_responder === true || $json.burbujas.length === 0 }}");
-iff(s,'Leído simulado',"={{ $json.simulado }}");
-request(s,'HTTP marcar leído',"={{ 'https://api.ycloud.com/v2/whatsapp/inboundMessages/'+encodeURIComponent($('Preparar envío').first().json.proveedor_id)+'/markAsRead' }}");
-code(s,'Leído sin red',"return [{json:{simulado:true,accion:'markAsRead',proveedor_id:$json.proveedor_id}}];");
+iff(s,'Le├¡do simulado',"={{ $json.simulado }}");
+request(s,'HTTP marcar le├¡do',"={{ 'https://api.ycloud.com/v2/whatsapp/inboundMessages/'+encodeURIComponent($('Preparar env├¡o').first().json.proveedor_id)+'/markAsRead' }}");
+code(s,'Le├¡do sin red',"return [{json:{simulado:true,accion:'markAsRead',proveedor_id:$json.proveedor_id}}];");
 pg(s,'Liberar turno',`UPDATE conversaciones SET agente_ocupado_hasta=NULL WHERE id=$1 AND agente_ocupado_hasta=$2::timestamptz RETURNING id`,"={{ [$('Entrada').first().json.conversacion_id,$('Entrada').first().json.lease ?? null] }}");
-link(s,'Entrada','Configuración');link(s,'Configuración','Preparar envío');link(s,'Preparar envío','Sin respuesta');
-link(s,'Sin respuesta','Leído simulado');link(s,'Leído simulado','Leído sin red');link(s,'Leído simulado','HTTP marcar leído',1);
-link(s,'Leído sin red','Liberar turno');link(s,'HTTP marcar leído','Liberar turno');
+link(s,'Entrada','Configuraci├│n');link(s,'Configuraci├│n','Preparar env├¡o');link(s,'Preparar env├¡o','Sin respuesta');
+link(s,'Sin respuesta','Le├¡do simulado');link(s,'Le├¡do simulado','Le├¡do sin red');link(s,'Le├¡do simulado','HTTP marcar le├¡do',1);
+link(s,'Le├¡do sin red','Liberar turno');link(s,'HTTP marcar le├¡do','Liberar turno');
 for(let i=0;i<3;i++) {
   const check='Revisar turno '+i, part='Burbuja '+i, allowed='Enviar burbuja '+i, sim='Simulado '+i, typing='HTTP escribiendo '+i,
-    delay='Ritmo '+i, mode='Transporte '+i, fake='Respuesta simulada '+i, http='HTTP enviar '+i, save='Guardar salida '+i, recheck='Revisar después de espera '+i, sendAllowed='Vigente '+i;
+    delay='Ritmo '+i, mode='Transporte '+i, fake='Respuesta simulada '+i, http='HTTP enviar '+i, save='Guardar salida '+i, recheck='Revisar despu├®s de espera '+i, sendAllowed='Vigente '+i;
   const guard=`SELECT (c.bot_activo AND c.agente_ocupado_hasta=$2::timestamptz AND c.agente_ocupado_hasta>now()
     AND NOT EXISTS(SELECT 1 FROM mensajes WHERE conversacion_id=c.id AND direccion='in' AND NOT (wamid=ANY($3::text[])) AND NOT procesado)) AS permitido
     FROM conversaciones c WHERE c.id=$1`;
   const args="={{ [$('Entrada').first().json.conversacion_id,$('Entrada').first().json.lease,$('Entrada').first().json.wamids] }}";
   pg(s,check,guard,args);
-  code(s,part,`const p=$('Preparar envío').first().json;return [{json:{...p,...p.burbujas[${i}],permitido:$json.permitido && p.burbujas.length>${i}}}];`);
+  code(s,part,`const p=$('Preparar env├¡o').first().json;return [{json:{...p,...p.burbujas[${i}],permitido:$json.permitido && p.burbujas.length>${i}}}];`);
   iff(s,allowed,"={{ $json.permitido }}");iff(s,sim,"={{ $json.simulado }}");
   request(s,typing,`={{ 'https://api.ycloud.com/v2/whatsapp/inboundMessages/'+encodeURIComponent($('${part}').first().json.proveedor_id)+'/typingIndicator' }}`);
   wait(s,delay,`={{ $('${part}').first().json.waitTime }}`);
@@ -256,7 +258,7 @@ for(let i=0;i<3;i++) {
    UPDATE mensajes SET procesado=true WHERE direccion='in' AND conversacion_id=$4 AND wamid=ANY($10::text[])
    AND EXISTS(SELECT 1 FROM saved) RETURNING wamid`,
    `={{ [$json.wamid ?? null,$json.id,$('${part}').first().json.wa_id,$('${part}').first().json.conversacion_id,$('${part}').first().json.body.type,$('${part}').first().json.texto ?? null,$json.status,$('${part}').first().json.waba_id,JSON.stringify($('${part}').first().json.body),$('Entrada').first().json.wamids] }}`);
-  // Devuelve una fila aunque la ráfaga ya se haya marcado en la primera burbuja.
+  // Devuelve una fila aunque la r├ífaga ya se haya marcado en la primera burbuja.
   s.nodes.find(n=>n.name===save).alwaysOutputData=true;
   link(s,i===0?'Sin respuesta':'Guardar salida '+(i-1),check,i===0?1:0);
   for(const [a,b,o] of [[check,part],[part,allowed],[allowed,sim],[allowed,'Liberar turno',1],[sim,delay],[sim,typing,1],
@@ -267,9 +269,19 @@ link(s,'Guardar salida 2','Liberar turno');
 
 // DS-T1 se conserva de la base indicada; solo referencia local de credencial.
 consultarCoberturaWorkflow.nodes.filter(n=>n.type==='n8n-nodes-base.postgres').forEach(n=>n.credentials=credential);
-const generated = {'DS-01_Entrada_WhatsApp.json':e,'DS-02_stub.json':stubWorkflow,'DS-03_Enviar_WhatsApp.json':s,'DS-T1_consultar_cobertura.json':consultarCoberturaWorkflow};
+
+const generated = {
+  'DS-01_Entrada_WhatsApp.json': e,
+  'DS-02_stub.json': stubWorkflow,
+  'DS-03_Enviar_WhatsApp.json': s,
+  'DS-T1_consultar_cobertura.json': consultarCoberturaWorkflow,
+  'DS-T2_crear_pedido.json': crearPedidoWorkflow,
+  'DS-T3_generar_link_pago.json': generarLinkWorkflow,
+  'DS-T4_consultar_estado.json': consultarEstadoWorkflow,
+  'DS-T5_escalar_a_humano.json': escalarHumanoWorkflow
+};
 export {generated};
 if(process.argv[1] && path.resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
   for(const [file,w] of Object.entries(generated)) fs.writeFileSync(new URL(file,import.meta.url),JSON.stringify(w,null,2)+'\n');
-  console.log('Generados cuatro workflows; credenciales referenciadas, sin valores.');
+  console.log('Generados ocho workflows combinando YCloud y Checkout Agent');
 }

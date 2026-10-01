@@ -15,8 +15,8 @@
       "parameters": {}
     },
     {
-      "id": "Configuración",
-      "name": "Configuración",
+      "id": "Configuraci├│n",
+      "name": "Configuraci├│n",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
@@ -36,8 +36,8 @@
       }
     },
     {
-      "id": "Preparar envío",
-      "name": "Preparar envío",
+      "id": "Preparar env├¡o",
+      "name": "Preparar env├¡o",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
@@ -45,7 +45,7 @@
         0
       ],
       "parameters": {
-        "jsCode": "function bubbles(input, empresa, random = Math.random) {\n  const partes = input.plantilla ? [null] : String(input.texto ?? '').split(/\\n\\s*\\n/).filter(s=>s.trim());\n  // Máximo tres burbujas, sin perder párrafos adicionales.\n  if (partes.length > 3) partes.splice(2, partes.length-2, partes.slice(2).join('\\n\\n'));\n  return partes.map(texto=>({\n    texto,waitTime:Math.min(7,Math.max(1.5,0.035*(texto?.length ?? 0)+0.5+random())),\n    body:{from:empresa,to:'+'+input.wa_id,type:input.plantilla?'template':'text',\n      ...(input.plantilla?{template:input.plantilla}:{text:{body:texto},...(input.responder_a_wamid?{context:{message_id:input.responder_a_wamid}}:{})})}\n  }));\n}\nconst p=$('Entrada').first().json;\nif(!$json.simulado && !/^\\+?\\d{8,15}$/.test($json.empresa)) throw new Error('Configurar el número de empresa antes de modo real');\nreturn [{json:{...p,simulado:$json.simulado,burbujas:bubbles(p,$json.empresa)}}];"
+        "jsCode": "function bubbles(input, empresa, random = Math.random) {\r\n  const partes = input.plantilla ? [null] : String(input.texto ?? '').split(/\\n\\s*\\n/).filter(s=>s.trim());\r\n  // M├íximo tres burbujas, sin perder p├írrafos adicionales.\r\n  if (partes.length > 3) partes.splice(2, partes.length-2, partes.slice(2).join('\\n\\n'));\r\n  return partes.map(texto=>({\r\n    texto,waitTime:Math.min(7,Math.max(1.5,0.035*(texto?.length ?? 0)+0.5+random())),\r\n    body:{from:empresa,to:'+'+input.wa_id,type:input.plantilla?'template':'text',\r\n      ...(input.plantilla?{template:input.plantilla}:{text:{body:texto},...(input.responder_a_wamid?{context:{message_id:input.responder_a_wamid}}:{})})}\r\n  }));\r\n}\nconst p=$('Entrada').first().json;\nif(!$json.simulado && !/^\\+?\\d{8,15}$/.test($json.empresa)) throw new Error('Configurar el n├║mero de empresa antes de modo real');\nreturn [{json:{...p,simulado:$json.simulado,burbujas:bubbles(p,$json.empresa)}}];"
       }
     },
     {
@@ -69,8 +69,8 @@
       }
     },
     {
-      "id": "Leído simulado",
-      "name": "Leído simulado",
+      "id": "Le├¡do simulado",
+      "name": "Le├¡do simulado",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
@@ -89,8 +89,8 @@
       }
     },
     {
-      "id": "HTTP marcar leído",
-      "name": "HTTP marcar leído",
+      "id": "HTTP marcar le├¡do",
+      "name": "HTTP marcar le├¡do",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -99,7 +99,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "={{ 'https://api.ycloud.com/v2/whatsapp/inboundMessages/'+encodeURIComponent($('Preparar envío').first().json.proveedor_id)+'/markAsRead' }}",
+        "url": "={{ 'https://api.ycloud.com/v2/whatsapp/inboundMessages/'+encodeURIComponent($('Preparar env├¡o').first().json.proveedor_id)+'/markAsRead' }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "options": {
@@ -114,8 +114,8 @@
       }
     },
     {
-      "id": "Leído sin red",
-      "name": "Leído sin red",
+      "id": "Le├¡do sin red",
+      "name": "Le├¡do sin red",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
@@ -182,7 +182,7 @@
         240
       ],
       "parameters": {
-        "jsCode": "const p=$('Preparar envío').first().json;return [{json:{...p,...p.burbujas[0],permitido:$json.permitido && p.burbujas.length>0}}];"
+        "jsCode": "const p=$('Preparar env├¡o').first().json;return [{json:{...p,...p.burbujas[0],permitido:$json.permitido && p.burbujas.length>0}}];"
       }
     },
     {
@@ -266,8 +266,8 @@
       "webhookId": "ot05-Ritmo-0"
     },
     {
-      "id": "Revisar después de espera 0",
-      "name": "Revisar después de espera 0",
+      "id": "Revisar despu├®s de espera 0",
+      "name": "Revisar despu├®s de espera 0",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
@@ -426,7 +426,7 @@
         720
       ],
       "parameters": {
-        "jsCode": "const p=$('Preparar envío').first().json;return [{json:{...p,...p.burbujas[1],permitido:$json.permitido && p.burbujas.length>1}}];"
+        "jsCode": "const p=$('Preparar env├¡o').first().json;return [{json:{...p,...p.burbujas[1],permitido:$json.permitido && p.burbujas.length>1}}];"
       }
     },
     {
@@ -510,8 +510,8 @@
       "webhookId": "ot05-Ritmo-1"
     },
     {
-      "id": "Revisar después de espera 1",
-      "name": "Revisar después de espera 1",
+      "id": "Revisar despu├®s de espera 1",
+      "name": "Revisar despu├®s de espera 1",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
@@ -670,7 +670,7 @@
         960
       ],
       "parameters": {
-        "jsCode": "const p=$('Preparar envío').first().json;return [{json:{...p,...p.burbujas[2],permitido:$json.permitido && p.burbujas.length>2}}];"
+        "jsCode": "const p=$('Preparar env├¡o').first().json;return [{json:{...p,...p.burbujas[2],permitido:$json.permitido && p.burbujas.length>2}}];"
       }
     },
     {
@@ -754,8 +754,8 @@
       "webhookId": "ot05-Ritmo-2"
     },
     {
-      "id": "Revisar después de espera 2",
-      "name": "Revisar después de espera 2",
+      "id": "Revisar despu├®s de espera 2",
+      "name": "Revisar despu├®s de espera 2",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
@@ -887,25 +887,25 @@
       "main": [
         [
           {
-            "node": "Configuración",
+            "node": "Configuraci├│n",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Configuración": {
+    "Configuraci├│n": {
       "main": [
         [
           {
-            "node": "Preparar envío",
+            "node": "Preparar env├¡o",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Preparar envío": {
+    "Preparar env├¡o": {
       "main": [
         [
           {
@@ -920,7 +920,7 @@
       "main": [
         [
           {
-            "node": "Leído simulado",
+            "node": "Le├¡do simulado",
             "type": "main",
             "index": 0
           }
@@ -934,25 +934,25 @@
         ]
       ]
     },
-    "Leído simulado": {
+    "Le├¡do simulado": {
       "main": [
         [
           {
-            "node": "Leído sin red",
+            "node": "Le├¡do sin red",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "HTTP marcar leído",
+            "node": "HTTP marcar le├¡do",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Leído sin red": {
+    "Le├¡do sin red": {
       "main": [
         [
           {
@@ -963,7 +963,7 @@
         ]
       ]
     },
-    "HTTP marcar leído": {
+    "HTTP marcar le├¡do": {
       "main": [
         [
           {
@@ -1047,14 +1047,14 @@
       "main": [
         [
           {
-            "node": "Revisar después de espera 0",
+            "node": "Revisar despu├®s de espera 0",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Revisar después de espera 0": {
+    "Revisar despu├®s de espera 0": {
       "main": [
         [
           {
@@ -1207,14 +1207,14 @@
       "main": [
         [
           {
-            "node": "Revisar después de espera 1",
+            "node": "Revisar despu├®s de espera 1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Revisar después de espera 1": {
+    "Revisar despu├®s de espera 1": {
       "main": [
         [
           {
@@ -1367,14 +1367,14 @@
       "main": [
         [
           {
-            "node": "Revisar después de espera 2",
+            "node": "Revisar despu├®s de espera 2",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Revisar después de espera 2": {
+    "Revisar despu├®s de espera 2": {
       "main": [
         [
           {
