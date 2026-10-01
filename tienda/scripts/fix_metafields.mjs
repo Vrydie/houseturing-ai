@@ -31,14 +31,14 @@ async function run() {
       namespace: "landing",
       key: "hook",
       type: "single_line_text_field",
-      value: "Atraviesa concreto, metal y madera sin esfuerzo"
+      value: "Haz todo tú mismo sin llamar al técnico"
     },
     {
       ownerId: productId,
       namespace: "landing",
       key: "subtitulo",
       type: "multi_line_text_field",
-      value: "Kit profesional de taladro inalámbrico de 48V con doble batería de litio, percutor y maletín maestro."
+      value: "Un kit de herramientas portátil y potente que te permite taladrar, atornillar y reparar en casa sin depender de cables."
     },
     {
       ownerId: productId,
@@ -46,18 +46,10 @@ async function run() {
       key: "beneficios",
       type: "list.single_line_text_field",
       value: JSON.stringify([
-        "Taladro inalámbrico 48V con percutor",
-        "2 baterías de litio recargables",
-        "Cargador rápido de pared",
-        "Juego de brocas para madera, metal y pared",
-        "Juego de copas y puntas",
-        "Extensor flexible",
-        "Destornilladores manuales",
-        "Alicate y bisturí",
-        "Cinta métrica",
-        "Cinta aislante",
-        "Probador de corriente",
-        "Maletín rígido anti-impactos"
+        "Inalámbrico y portátil con 2 baterías",
+        "Múltiples accesorios en un solo maletín",
+        "Tres modos: taladro, percutor y atornillador",
+        "Luz LED integrada para espacios oscuros"
       ])
     },
     {
@@ -66,9 +58,9 @@ async function run() {
       key: "como_funciona",
       type: "list.single_line_text_field",
       value: JSON.stringify([
-        "Pide ahora desde tu celular sin pagar nada por adelantado.",
-        "Te lo enviamos gratis a tu ciudad en menos de 48 horas.",
-        "Pagas en efectivo únicamente cuando lo recibas en tus manos."
+        "Carga una de las baterías al 100% antes de usarlo.",
+        "Inserta la batería y selecciona la broca o punta.",
+        "Ajusta el torque y el modo según el material."
       ])
     },
     {
@@ -76,19 +68,19 @@ async function run() {
       namespace: "landing",
       key: "garantia",
       type: "multi_line_text_field",
-      value: "Tienes derecho de retracto y garantía legal sobre fallas de fábrica. No tienes que pagar nada por adelantado, solo pagas cuando recibas el paquete en tus manos."
+      value: "Tienes 30 días de garantía directa por defectos de fábrica (el motor no enciende o baterías no cargan). Escalaré tu caso con soporte técnico si lo necesitas."
     },
     {
       ownerId: productId,
       namespace: "landing",
       key: "whatsapp_texto",
       type: "single_line_text_field",
-      value: "Hola. Quiero pedir el Taladro 48V con pago contra entrega."
+      value: "Hola. Quiero pedir el Kit Taladro Percutor con pago contra entrega."
     }
   ];
 
   for (const mf of mfs) {
-    await req(`
+    const res = await req(`
       mutation ($metafields: [MetafieldsSetInput!]!) {
         metafieldsSet(metafields: $metafields) {
           metafields { id value }
@@ -96,6 +88,9 @@ async function run() {
         }
       }
     `, { metafields: [mf] });
+    if(res.metafieldsSet.userErrors.length > 0) {
+      console.log("Error en MF", mf.key, res.metafieldsSet.userErrors);
+    }
   }
   console.log("Metafields updated!");
 }

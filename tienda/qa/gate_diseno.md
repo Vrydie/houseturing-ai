@@ -1,41 +1,78 @@
-# Revisión de Diseño (Gate C6)
+# Gate de Diseño (Gate C6)
 
-Este documento contiene la comparación de la maqueta v2 con la vista previa del tema Horizon, sección por sección.
+Comparamos la maqueta aprobada con la implementación real del tema.
 
-## 1. Hero
-| Maqueta v2 | Vista previa 390px (Móvil) | Vista previa 1440px (Escritorio) |
-|---|---|---|
-| [Captura de maqueta v2] | [Pega tu captura aquí] | [Pega tu captura aquí] |
-
-## 2. Qué Incluye
-| Maqueta v2 | Vista previa 390px (Móvil) | Vista previa 1440px (Escritorio) |
-|---|---|---|
-| [Captura de maqueta v2] | [Pega tu captura aquí] | [Pega tu captura aquí] |
-
-## 3. Cómo Pedir
-| Maqueta v2 | Vista previa 390px (Móvil) | Vista previa 1440px (Escritorio) |
-|---|---|---|
-| [Captura de maqueta v2] | [Pega tu captura aquí] | [Pega tu captura aquí] |
-
-## 4. Garantía
-| Maqueta v2 | Vista previa 390px (Móvil) | Vista previa 1440px (Escritorio) |
-|---|---|---|
-| [Captura de maqueta v2] | [Pega tu captura aquí] | [Pega tu captura aquí] |
-
-## 5. Preguntas Frecuentes
-| Maqueta v2 | Vista previa 390px (Móvil) | Vista previa 1440px (Escritorio) |
-|---|---|---|
-| [Captura de maqueta v2] | [Pega tu captura aquí] | [Pega tu captura aquí] |
-
-## 6. Cierre Oscuro
-| Maqueta v2 | Vista previa 390px (Móvil) | Vista previa 1440px (Escritorio) |
-|---|---|---|
-| [Captura de maqueta v2] | [Pega tu captura aquí] | [Pega tu captura aquí] |
-
-## 7. Barra Fija (Sticky)
-| Maqueta v2 | Vista previa 390px (Móvil) |
+## 0. Vista Completa
+| Maqueta (390px) | Implementación (1440px) |
 |---|---|
-| [Captura de maqueta v2] | [Pega tu captura aquí] |
+| ![Maqueta Completa](maqueta/00_completa_390.png) | ![Vista Completa](1440px_completa.png) |
+
+## 1. Anuncio y Header
+| Maqueta (390px) | Implementación (390px) |
+|---|---|
+| ![Maqueta](maqueta/01_anuncio_y_header.png) | ![Implementación](390px_00_header.png)<br>![Anuncio](390px_01_anuncio.png) |
+
+## 2. Hero
+| Maqueta (390px) | Implementación (390px) |
+|---|---|
+| ![Maqueta](maqueta/02_hero.png) | ![Implementación](390px_02_hero.png) |
+
+## 3. Franja de Confianza
+| Maqueta (390px) | Implementación (390px) |
+|---|---|
+| ![Maqueta](maqueta/03_confianza.png) | ![Implementación](390px_03_confianza.png) |
+
+## 4. Video y Cómo Funciona
+| Maqueta (390px) | Implementación (390px) |
+|---|---|
+| ![Maqueta](maqueta/04_video.png) | ![Implementación](390px_04_video.png) |
+
+## 5. Qué Incluye
+| Maqueta (390px) | Implementación (390px) |
+|---|---|
+| ![Maqueta](maqueta/05_incluye.png) | ![Implementación](390px_05_incluye.png) |
+
+## 6. Modos de Uso
+| Maqueta (390px) | Implementación (390px) |
+|---|---|
+| ![Maqueta](maqueta/06_modos.png) | ![Implementación](390px_06_modos.png) |
+
+## 7. Comparativa
+| Maqueta (390px) | Implementación (390px) |
+|---|---|
+| ![Maqueta](maqueta/07_comparar.png) | ![Implementación](390px_07_comparar.png) |
+
+## 8. Garantía
+| Maqueta (390px) | Implementación (390px) |
+|---|---|
+| ![Maqueta](maqueta/08_garantia.png) | ![Implementación](390px_08_garantia.png) |
+
+## 9. Preguntas Frecuentes
+| Maqueta (390px) | Implementación (390px) |
+|---|---|
+| ![Maqueta](maqueta/09_preguntas.png) | ![Implementación](390px_09_preguntas.png) |
+
+## 10. Cierre
+| Maqueta (390px) | Implementación (390px) |
+|---|---|
+| ![Maqueta](maqueta/10_cierre.png) | ![Implementación](390px_10_cierre.png) |
+
+## 11. Footer Legal
+| Maqueta (390px) | Implementación (390px) |
+|---|---|
+| ![Maqueta](maqueta/11_footer.png) | ![Implementación](390px_11_footer.png) |
+
+## 12. Barra Fija
+| Maqueta (390px) | Implementación (390px) |
+|---|---|
+| ![Maqueta](maqueta/12_barra_fija.png) | ![Implementación](390px_12_sticky_bar.png) |
+
 
 ---
-**Nota para el dueño:** Por favor, pega las capturas de la vista previa de la web (`https://zp1wvd-02.myshopify.com?preview_theme_id=157512106102`) en las columnas de Vista previa para proceder con la revisión de Claude.
+## Dictamen de Claude — 8.ª ronda (28-sep-2026): NO PASA, quedan 5 puntos
+Aprobados garantía, cierre, confianza, modos y chip. Faltan X1-X5 (ver OT-02): textos de la tabla comparativa, video y duración reales, footer legal y header.
+
+
+---
+## Dictamen de Claude — cierre (28-sep-2026): APROBADO, falta el dueño
+Las capturas (`390px_*.png`, `390px_barra_fija_en_pantalla.png`, `1440px_completa.png`) coinciden con `maqueta/`. Pendiente: aprobación del dueño y datos legales del footer.

@@ -1,0 +1,30 @@
+{%- capture wa_texto -%}Hola, quiero información del kit (web){%- endcapture -%}
+<div class="lh__bar">{{ section.settings.anuncio }}</div>
+<header class="lh">
+  <div class="lh__in">
+    <a href="{{ routes.root_url }}" class="lh__logo">{{ shop.name }}</a>
+    {%- if settings.whatsapp_number != blank -%}
+      <a href="https://wa.me/{{ settings.whatsapp_number }}?text={{ wa_texto | url_encode }}" class="lh__wa" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-5A8.5 8.5 0 1 1 21 11.5z"/></svg>
+        WhatsApp
+      </a>
+    {%- endif -%}
+  </div>
+</header>
+<style>
+  .lh__bar { background: #0B0D0F; color: #FFFFFF; font-family: 'Barlow', sans-serif; font-size: 13px; font-weight: 600; line-height: 18px; text-align: center; padding: 9px 16px; }
+  .lh { background: #121417; }
+  .lh__in { height: 60px; max-width: 1200px; margin: 0 auto; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; padding: 0 16px 0 20px; }
+  .lh__logo { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 25px; color: #FFFFFF; text-decoration: none; }
+  .lh__wa { height: 44px; display: inline-flex; align-items: center; gap: 8px; padding: 0 16px; border-radius: 999px; background: #25D366; color: #0B2B1A; font-family: 'Barlow', sans-serif; font-size: 15px; font-weight: 700; text-decoration: none; }
+  .lh__wa:focus-visible, .lh__logo:focus-visible { outline: 3px solid #FFFFFF; outline-offset: 3px; }
+</style>
+{% schema %}
+{
+  "name": "Landing Header",
+  "enabled_on": { "groups": ["header"] },
+  "settings": [
+    { "type": "text", "id": "anuncio", "label": "Anuncio", "default": "Envío gratis a toda Colombia y pagas al recibir" }
+  ]
+}
+{% endschema %}

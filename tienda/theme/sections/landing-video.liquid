@@ -1,0 +1,36 @@
+{% assign selected_product = section.settings.main_product | default: product %}
+{% assign video = selected_product.media | where: 'media_type', 'video' | first %}
+{% if video %}
+  {% assign seg = video.duration | divided_by: 1000 %}
+  <section id="demo" class="lv">
+    <div class="lv__in">
+      <h2 class="lv__h">{{ section.settings.titulo }}</h2>
+      {% if section.settings.subtitulo != blank %}<p class="lv__p">{{ section.settings.subtitulo }}</p>{% endif %}
+      <div class="lv__box">
+        {{ video | video_tag: controls: true, preload: 'none', image_size: '1000x', class: 'lv__v' }}
+        <span class="lv__tag">Video de {{ seg }} s</span>
+      </div>
+    </div>
+  </section>
+  <style>
+    .lv { background: #121417; color: #FFFFFF; padding: 52px 20px; }
+    .lv__in { max-width: 760px; margin: 0 auto; }
+    .lv__h { margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 36px; line-height: 1; color: #FFFFFF; text-transform: none; }
+    .lv__p { margin: 10px 0 0; font-size: 16px; line-height: 1.5; color: #AEB6BF; }
+    .lv__box { margin-top: 20px; position: relative; border-radius: 20px; overflow: hidden; background: #1D2126; }
+    .lv__v { width: 100%; display: block; max-height: 640px; object-fit: contain; background: #1D2126; }
+    .lv__tag { position: absolute; left: 14px; top: 14px; background: #121417; color: #FFFFFF; font-size: 13px; font-weight: 600; padding: 6px 10px; border-radius: 8px; pointer-events: none; }
+    @media (min-width: 1024px) { .lv__h { font-size: 44px; } }
+  </style>
+{% endif %}
+{% schema %}
+{
+  "name": "Landing Video",
+  "settings": [
+    { "type": "product", "id": "main_product", "label": "Producto" },
+    { "type": "text", "id": "titulo", "label": "Título", "default": "Míralo funcionando" },
+    { "type": "text", "id": "subtitulo", "label": "Subtítulo", "default": "El kit completo: qué trae y cómo se usa." }
+  ],
+  "presets": [{ "name": "Landing Video" }]
+}
+{% endschema %}

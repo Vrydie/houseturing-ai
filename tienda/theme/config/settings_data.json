@@ -1,12 +1,3 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin theme editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "current": {
     "logo_height": 36,
@@ -14,9 +5,9 @@
     "page_background_color": "{{ settings.color_palette.background }}",
     "page_width": "narrow",
     "page_text_color": "{{ settings.color_palette.foreground }}",
-    "type_body_font": "inter_n4",
+    "type_body_font": "barlow_n4",
     "type_subheading_font": "inter_n5",
-    "type_heading_font": "inter_n7",
+    "type_heading_font": "barlow_condensed_n8",
     "type_accent_font": "inter_n7",
     "type_size_paragraph": "14",
     "type_line_height_paragraph": "body-loose",
@@ -107,7 +98,9 @@
       "foreground": "#000000",
       "color1": "#333333",
       "color2": "#DFDFDF"
-    }
+    },
+    "whatsapp_number": "573160944561",
+    "type_header_font": "barlow_condensed_n8"
   },
   "presets": {
     "Horizon": {

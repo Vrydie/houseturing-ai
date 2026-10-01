@@ -1,0 +1,50 @@
+<section id="modos" class="lm">
+  <div class="lm__in">
+    <h2 class="lm__h">{{ section.settings.titulo }}</h2>
+    {% if section.settings.subtitulo != blank %}<p class="lm__p">{{ section.settings.subtitulo }}</p>{% endif %}
+    <div class="lm__g">
+      {% for block in section.blocks %}
+        <div class="lm__c" {{ block.shopify_attributes }}>
+          <span class="lm__i">
+            {%- case block.settings.icono -%}
+              {%- when 'atornillador' -%}<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#121417" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6l-1 4h-4z"/><path d="M12 7v14"/><path d="M9 10l6 2M9 14l6 2M9 18l3 1"/></svg>
+              {%- when 'taladro' -%}<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#121417" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v6"/><path d="M10 8h4l-1 12-1 2-1-2z"/><path d="M10.5 12l3 1.5M10.5 15.5l3 1.5"/></svg>
+              {%- else -%}<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#121417" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="10" height="16" rx="1"/><path d="M3 9h10M3 14h10M8 4v5M6 14v6"/><path d="M16 12h5M17 8l3-2M17 16l3 2"/></svg>
+            {%- endcase -%}
+          </span>
+          <div class="lm__t"><span class="lm__n">{{ block.settings.nombre }}</span><span class="lm__d">{{ block.settings.texto }}</span></div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<style>
+  .lm { background: #121417; color: #FFFFFF; padding: 52px 20px; font-family: 'Barlow', sans-serif; }
+  .lm__in { max-width: 1200px; margin: 0 auto; }
+  .lm__h { margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 36px; line-height: 1; color: #FFFFFF; text-transform: none; }
+  .lm__p { margin: 10px 0 0; font-size: 16px; line-height: 1.5; color: #AEB6BF; }
+  .lm__g { margin-top: 22px; display: flex; flex-direction: column; gap: 12px; }
+  .lm__c { background: #1D2126; border: 1px solid #2E343B; border-radius: 16px; padding: 18px; display: flex; gap: 16px; align-items: flex-start; }
+  .lm__i { width: 56px; height: 56px; flex-shrink: 0; border-radius: 12px; background: #F2661B; display: flex; align-items: center; justify-content: center; }
+  .lm__t { display: flex; flex-direction: column; gap: 4px; }
+  .lm__n { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.1; }
+  .lm__d { font-size: 15px; line-height: 1.45; color: #AEB6BF; }
+  @media (min-width: 1024px) { .lm__h { font-size: 44px; } .lm__g { flex-direction: row; } .lm__c { flex: 1; } }
+</style>
+{% schema %}
+{
+  "name": "Landing Modos",
+  "settings": [
+    { "type": "text", "id": "titulo", "label": "Título", "default": "Un taladro, tres modos" },
+    { "type": "text", "id": "subtitulo", "label": "Subtítulo", "default": "Cambias de modo girando el anillo frontal." }
+  ],
+  "blocks": [
+    { "type": "modo", "name": "Modo", "settings": [
+      { "type": "select", "id": "icono", "label": "Icono", "options": [ { "value": "atornillador", "label": "Atornillador" }, { "value": "taladro", "label": "Taladro" }, { "value": "percutor", "label": "Percutor" } ], "default": "taladro" },
+      { "type": "text", "id": "nombre", "label": "Nombre" },
+      { "type": "text", "id": "texto", "label": "Texto" }
+    ] }
+  ],
+  "presets": [{ "name": "Landing Modos" }]
+}
+{% endschema %}

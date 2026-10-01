@@ -1,12 +1,25 @@
-
-{% assign selected_product = section.settings.main_product | default: product %}
-<div style="background: var(--color-gris-claro); color: var(--color-grafito); padding: 40px 20px;">
-  <div style="border: 2px solid var(--color-linea); padding: 32px 20px; border-radius: 8px; max-width: 600px; margin: 0 auto; text-align: center;">
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-    <h2 style="font-weight: 800; font-size: 28px; margin-bottom: 16px; text-transform: uppercase;">Garantía</h2>
-    <p style="font-size: 18px; line-height: 1.5;">{{ selected_product.metafields.landing.garantia.value }}</p>
+<section id="garantia" class="lg">
+  <div class="lg__c">
+    <span class="lg__i"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F2661B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+    <div class="lg__t">
+      <h2 class="lg__h">{{ section.settings.titulo }}</h2>
+      <p class="lg__p">{{ section.settings.texto }}</p>
+      <a href="/pages/garantia-y-devoluciones" class="lg__a">Ver condiciones de garantía</a>
+    </div>
   </div>
-</div>
+</section>
+<style>
+  .lg { background: #F1F2F3; color: #121417; padding: 40px 20px; font-family: 'Barlow', sans-serif; }
+  .lg__c { max-width: 760px; margin: 0 auto; background: #FFFFFF; border: 1px solid #DDE1E4; border-radius: 20px; padding: 22px; display: flex; gap: 16px; align-items: flex-start; }
+  .lg__i { width: 52px; height: 52px; flex-shrink: 0; border-radius: 999px; background: #121417; display: flex; align-items: center; justify-content: center; }
+  .lg__t { display: flex; flex-direction: column; gap: 8px; }
+  .lg__h { margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 26px; line-height: 1.05; text-transform: none; color: #121417; }
+  .lg__p { margin: 0; font-size: 15px; line-height: 1.5; color: #4A525B; }
+  .lg__a { padding: 8px 0; font-size: 15px; font-weight: 700; color: #121417; text-decoration: underline; text-underline-offset: 3px; }
+</style>
 {% schema %}
-{ "name": "Landing Garantia", "settings": [{ "type": "product", "id": "main_product", "label": "Producto Estrella" }], "presets": [{ "name": "Landing Garantia" }] }
+{ "name": "Landing Garantía", "settings": [
+  { "type": "text", "id": "titulo", "label": "Título", "default": "Garantía de 30 días" },
+  { "type": "textarea", "id": "texto", "label": "Texto", "default": "Si llega con un defecto de fábrica, nos escribes por este mismo WhatsApp y te lo cambiamos." } ],
+  "presets": [{ "name": "Landing Garantía" }] }
 {% endschema %}
