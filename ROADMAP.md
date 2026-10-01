@@ -14,7 +14,7 @@ Estas decisiones condicionan todo lo demás. Están tomadas con recomendación; 
 
 | # | Decisión | Recomendación | Por qué |
 |---|---|---|---|
-| D1 | Canal de WhatsApp | **API Cloud oficial de Meta** (descartar Evolution/Baileys) | Solo la API oficial entrega el objeto `referral.ctwa_clid` de los anuncios Click-to-WhatsApp. Sin ese ID, la API de Conversiones no puede atribuir la venta al anuncio y el Flujo 4 queda ciego. Evolution y Baileys emulan WhatsApp Web, así que el riesgo de que baneen el número es alto justo cuando entra tráfico pago. Además no permiten plantillas aprobadas, que son obligatorias para la postventa fuera de la ventana de 24 h. |
+| D1 | Canal de WhatsApp | **API Cloud oficial de Meta, a través de YCloud como BSP** (revisada el 28-sep-2026; descartar Evolution/Baileys) | Sigue siendo la API oficial, así que el objeto `referral.ctwa_clid` de los anuncios Click-to-WhatsApp llega igual (YCloud lo entrega como `referral.ctwa_clid` y el `wabaId` en el mismo evento) y la API de Conversiones puede atribuir la venta. Evolution y Baileys emulan WhatsApp Web: riesgo alto de baneo justo cuando entra tráfico pago, y sin plantillas aprobadas. **Por qué el BSP y no Meta directo:** evita crear la app, el usuario del sistema y el token permanente, el webhook se reconfigura desde un panel (sirve una URL de túnel temporal) y su bandeja compartida permite **ver en vivo lo que responde el bot**, que el ROADMAP exigía para el go-live. **Ojo:** los anuncios CTWA y la CAPI siguen necesitando el Business Manager del dueño, así que la WABA debe quedar en su BM (Embedded Sign-up). Detalle en [planes/OT-05](planes/OT-05_whatsapp_ycloud.md). |
 | D2 | Dónde corre n8n | **Instancia propia del proyecto** con Docker Compose en `infra/` (n8n + Postgres + túnel). **Desarrollo:** en este PC, puerto 5690. **Producción:** la misma carpeta `infra/` en un VPS, antes de encender anuncios | Queda aislada del n8n de *farmacia*: sin cambiar su config, sin reiniciarlo y sin exponerlo a internet. Además, desarrollo y producción son idénticos. Meta y Shopify exigen una URL HTTPS pública, y un PC de escritorio se suspende: cada minuto caído son leads pagados que nadie atiende. |
 | D3 | Base de datos de negocio | **Postgres** (BD `dropship`, separada de la interna de n8n) | Sirve para la idempotencia (los webhooks llegan duplicados), la memoria del chat, el vínculo conversación ↔ pedido ↔ `ctwa_clid` y el interruptor de bot on/off. |
 | D4 | Conocimiento del agente | **System prompt, sin RAG.** Cada conversación carga solo la ficha del producto de su anuncio (`productos.base_conocimiento`) | La ficha de un producto cabe en el prompt. RAG solo añadiría latencia y puntos de fallo. Con varios productos se sigue cumpliendo, porque el anuncio de origen dice cuál ficha cargar. |
@@ -171,13 +171,21 @@ Todos viven en la instancia n8n del proyecto (`infra/`) y llevan el prefijo **`D
 **Objetivo:** tener todas las credenciales de §5 cargadas en n8n y probadas con un nodo HTTP Request.
 
 **2A · Meta (WhatsApp + Ads + CAPI)**
-- [ ] Crear una app tipo **Business** en developers.facebook.com con los productos *WhatsApp* y *Marketing API*.
-- [ ] Crear la WABA, registrar el número y conseguir la aprobación del **nombre para mostrar**. Añadir método de pago a la WABA.
-- [ ] Crear un **usuario del sistema** (Business Settings → Usuarios del sistema, rol admin) y asignarle la app, la WABA, la cuenta publicitaria, la página y el dataset. Genera un **token sin expiración** con: `whatsapp_business_messaging`, `whatsapp_business_management`, `ads_management`, `ads_read`, `business_management`. Si luego activas Lead Ads, suma `leads_retrieval`, `pages_manage_metadata`, `pages_read_engagement` y `pages_show_list`.
+> **D1 revisada (28-sep-2026):** WhatsApp entra por **YCloud** (BSP oficial). Los pasos de la app de Meta
+> para mensajería quedan sin efecto; los de Ads y CAPI siguen igual de obligatorios. Ver [planes/OT-05](planes/OT-05_whatsapp_ycloud.md).
+
+*WhatsApp (por YCloud):*
+- [ ] Cuenta en YCloud (plan gratis: API, webhooks y bandeja compartida).
+- [ ] **Embedded Sign-up** con el **Business Manager propio**, número dedicado que no esté en la app de WhatsApp y aprobación del **nombre para mostrar**.
+- [ ] Saldo cargado en YCloud (Meta cobra los mensajes; los entrantes son gratis).
+- [ ] **API key** y **webhook** (`whatsapp.inbound_message.received` y `whatsapp.message.updated`) con su `secret` guardado en la bóveda.
+- [ ] Enviar a aprobación las **plantillas** de [prompts/plantillas_whatsapp.md](prompts/plantillas_whatsapp.md), desde YCloud.
+- [ ] **Verificación del negocio** en Security Center del BM. No bloquea las pruebas del bot; sí hace falta para los anuncios y para subir los límites de mensajería.
+
+*Ads y CAPI (directo con Meta, no cambia):*
+- [ ] Crear una app tipo **Business** en developers.facebook.com con el producto *Marketing API*.
+- [ ] Crear un **usuario del sistema** (Business Settings → Usuarios del sistema, rol admin) y asignarle la app, la WABA, la cuenta publicitaria, la página y el dataset. Genera un **token sin expiración** con `ads_management`, `ads_read` y `business_management`. Si luego activas Lead Ads, suma `leads_retrieval`, `pages_manage_metadata`, `pages_read_engagement` y `pages_show_list`.
 - [ ] Crear el **dataset (píxel)** en Events Manager y **vincularlo a la WABA**. Es requisito de la CAPI para mensajería.
-- [ ] Configurar el **webhook de WhatsApp**: callback = URL de producción de DS-01, *verify token* = cadena aleatoria tuya, suscribir el campo `messages`.
-- [ ] Mientras desarrollas, usar el **número de prueba** que da Meta (hasta 5 destinatarios verificados).
-- [ ] Enviar a aprobación las **plantillas** de [prompts/plantillas_whatsapp.md](prompts/plantillas_whatsapp.md).
 
 **2B · Shopify**
 - [ ] Tienda con plan activo, moneda, dominio y políticas publicadas.
@@ -215,8 +223,15 @@ Todos viven en la instancia n8n del proyecto (`infra/`) y llevan el prefijo **`D
 
 **Objetivo:** el bot responde en menos de 15 s, perfila al cliente y resuelve dudas usando solo información de la ficha.
 
+> **D1 revisada (28-sep-2026):** los mensajes entran por **YCloud**, así que en DS-01 y DS-03 cambian tres cosas
+> respecto a lo que describen los pasos de abajo: **no hay handshake GET** (el endpoint se registra en el panel de
+> YCloud), la firma es `YCloud-Signature` (HMAC-SHA256 de `"<t>.<raw body>"`) en vez de `X-Hub-Signature-256`, y los
+> estados llegan como evento `whatsapp.message.updated` en vez de `value.statuses`. Todo lo demás —200 inmediato,
+> dedupe, debounce, bloqueo por conversación y ritmo humano— se mantiene igual. Detalle en
+> [planes/OT-05](planes/OT-05_whatsapp_ycloud.md).
+
 **DS-01 Entrada WhatsApp** (nodo Webhook con *Allow Multiple HTTP Methods* y *Raw Body* activado):
-1. **GET:** si `hub.mode == "subscribe"` y `hub.verify_token` coincide, responder `hub.challenge` en texto plano.
+1. **GET:** si `hub.mode == "subscribe"` y `hub.verify_token` coincide, responder `hub.challenge` en texto plano. *(Con YCloud no aplica.)*
 2. **POST:** responder **200 de inmediato**. Si Meta no recibe el 200 rápido, reintenta y duplica mensajes.
 3. **Verificar la firma** `X-Hub-Signature-256` = `sha256=` + HMAC-SHA256(raw body, App Secret) con el nodo Crypto. Si no coincide, descartar.
 4. Si el payload trae `value.statuses` (enviado/entregado/leído/fallido), actualizar `mensajes.estado` y terminar.
@@ -380,9 +395,12 @@ Inventario completo con nombres de variable en [.env.example](.env.example).
 
 | Servicio | Credencial / dato | Dónde se obtiene | Uso |
 |---|---|---|---|
-| Meta | App ID, **App Secret** | developers.facebook.com → tu app → Configuración básica | Verificar la firma de los webhooks de WhatsApp |
-| Meta | **Token de usuario del sistema** (permanente) | Business Settings → Usuarios del sistema | WhatsApp, CAPI y Marketing API |
-| Meta | Business ID, WABA ID, **Phone Number ID** | Business Settings / WhatsApp Manager | Enviar mensajes |
+| YCloud | **API Key** | Panel de YCloud → Developers → API Keys | Enviar mensajes de WhatsApp, marcar leído y "escribiendo…" |
+| YCloud | **Webhook secret** (`whsec_…`) | Developers → Webhook, al crear el endpoint (se ve una sola vez) | Verificar la firma `YCloud-Signature` |
+| YCloud | Número de la empresa, WABA ID | Panel de YCloud → WhatsApp → Accounts | `from` de los envíos y `whatsapp_business_account_id` de la CAPI |
+| Meta | App ID, **App Secret** | developers.facebook.com → tu app → Configuración básica | Firma de los webhooks de Shopify/Meta que no pasan por YCloud |
+| Meta | **Token de usuario del sistema** (permanente) | Business Settings → Usuarios del sistema | CAPI y Marketing API |
+| Meta | Business ID | Business Settings | Dueño de la WABA y de la cuenta publicitaria |
 | Meta | Verify token (lo inventas tú) | — | Handshake del webhook |
 | Meta | Ad Account ID (`act_…`), IDs de campaña | Ads Manager | Guardián de stock |
 | Meta | **Dataset / Pixel ID** vinculado a la WABA | Events Manager | CAPI |

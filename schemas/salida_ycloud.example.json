@@ -1,0 +1,56 @@
+{
+  "texto": {
+    "from": "{{BUSINESS-PHONE-NUMBER}}",
+    "to": "{{CUSTOMER-PHONE-NUMBER}}",
+    "type": "text",
+    "text": {
+      "body": "*Learn* how to format your messages: https://faq.whatsapp.com/539178204879377",
+      "preview_url": true
+    },
+    "context": {
+      "message_id": "wamid.BgNODYxN..."
+    }
+  },
+  "plantilla": {
+    "from": "{{BUSINESS-PHONE-NUMBER}}",
+    "to": "{{CUSTOMER-PHONE-NUMBER}}",
+    "type": "template",
+    "template": {
+      "name": "otp_one_tap",
+      "language": {
+        "code": "{{LANGUAGE-CODE}}",
+        "policy": "deterministic"
+      },
+      "components": [
+        {
+          "type": "body",
+          "parameters": [
+            {
+              "type": "text",
+              "text": "797011"
+            }
+          ]
+        },
+        {
+          "type": "button",
+          "sub_type": "url",
+          "index": "0",
+          "parameters": [
+            {
+              "type": "text",
+              "text": "797011"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "marcar_leido": {
+    "method": "POST",
+    "url": "https://api.ycloud.com/v2/whatsapp/inboundMessages/{id}/markAsRead"
+  },
+  "escribiendo": {
+    "method": "POST",
+    "url": "https://api.ycloud.com/v2/whatsapp/inboundMessages/{id}/typingIndicator"
+  }
+}

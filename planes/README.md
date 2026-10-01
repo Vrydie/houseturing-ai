@@ -31,6 +31,7 @@ Estados: `borrador` → `lista` → `en curso` → `bloqueada` → `para revisi�
 | OT | Frente | Responsable | Tema | Fase | Estado | Depende de |
 |---|---|---|---|---|---|---|
 | [OT-01](OT-01_infra_fase1.md) | B | Vrydie | Infraestructura del proyecto (n8n propio + Postgres en Docker) | F1 | para revisión | — |
-| [OT-02](OT-02_tienda_shopify.md) | A | dueño | Tienda Shopify: plantilla de landing (producto de ejemplo) | T | diseño aprobado (C6) — sigue T3/T4 | — |
-| [OT-03](OT-03_entrada_whatsapp.md) | B | Vrydie | Entrada de WhatsApp (DS-01), envío (DS-03) y cobertura (DS-T1) | F4 / F5 | en curso | OT-01 |
+| [OT-02](OT-02_tienda_shopify.md) | A | dueño | Tienda Shopify: plantilla de landing (producto de ejemplo) | T | diseño aprobado (C6) · T1 y T4 para revisión · T3 bloqueado (píxel, dueño) · pedido TEST pendiente de la OT de prueba Shopify→Dropi | — |
+| [OT-03](OT-03_entrada_whatsapp.md) | B | Vrydie | Entrada de WhatsApp (DS-01), envío (DS-03) y cobertura (DS-T1) | F4 / F5 | parte 1 para revisión · **parte 2 anulada** · sus fallas C1-C9 se corrigen en OT-05 | OT-01 |
+| [OT-05](OT-05_whatsapp_ycloud.md) | B | Vrydie | Canal de WhatsApp por **YCloud** (coexistencia) + correcciones C1-C9 de OT-03 | F2A / F4 | para revisión (partes 1 y 2) · parte 3 pendiente con el dueño | OT-03 parte 1 |
 | OT-04 | B | Vrydie | Agente de ventas (DS-02) y herramientas de pedido (DS-T2 a T5) | F4 / F5 | por redactar (`/redactar-ot`) | OT-03 |

@@ -1,51 +1,33 @@
 {
-  "object": "whatsapp_business_account",
-  "entry": [
-    {
-      "id": "111111111111111",
-      "changes": [
-        {
-          "value": {
-            "messaging_product": "whatsapp",
-            "metadata": {
-              "display_phone_number": "573000000000",
-              "phone_number_id": "222222222222222"
-            },
-            "contacts": [
-              {
-                "profile": {
-                  "name": "Juan Perez"
-                },
-                "wa_id": "573001112233"
-              }
-            ],
-            "messages": [
-              {
-                "from": "573001112233",
-                "id": "wamid.HBgLNTczMDAxMTEyMjMzFQIAEhgUM0VCMDNGQUFCMzM1QzVBNUMxQTMA",
-                "timestamp": "1710000000",
-                "type": "text",
-                "text": {
-                  "body": "Hola, me interesa este producto"
-                },
-                "referral": {
-                  "source_url": "https://fb.me/",
-                  "source_id": "ad_123456789",
-                  "source_type": "ad",
-                  "headline": "Taladro Inalámbrico 20V",
-                  "body": "Compra ahora con envío gratis",
-                  "media_type": "image",
-                  "image_url": "https://scontent.xx.fbcdn.net/v/t39.30808-6/...",
-                  "video_url": "",
-                  "thumbnail_url": "",
-                  "ctwa_clid": "ctwa_abc123"
-                }
-              }
-            ]
-          },
-          "field": "messages"
-        }
-      ]
+  "id": "evt_eEkn26qar3nOB8md",
+  "type": "whatsapp.inbound_message.received",
+  "apiVersion": "v2",
+  "createTime": "2023-02-22T12:00:00.000Z",
+  "whatsappInboundMessage": {
+    "id": "63f872f6741c165b4342a751",
+    "wamid": "wamid.HBgNODi...",
+    "wabaId": "WABA-ID",
+    "from": "573000050001",
+    "fromUserId": "US.13491208655302741918",
+    "fromParentUserId": "US.11815799212886844830",
+    "customerProfile": {
+      "name": "Joe",
+      "username": "@JoeJoe"
+    },
+    "to": "573000050999",
+    "sendTime": "2023-02-22T12:00:00.000Z",
+    "type": "text",
+    "text": {
+      "body": "OK"
+    },
+    "referral": {
+      "source_url": "https://fb.me/xxx",
+      "source_type": "ad",
+      "source_id": "MEDIA-ID",
+      "headline": "Chat with us",
+      "media_type": "image",
+      "image_url": "https://scontent.xx.fbcdn.net/v/t45.1600-4/xxx.jpg",
+      "ctwa_clid": "feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd"
     }
-  ]
+  }
 }

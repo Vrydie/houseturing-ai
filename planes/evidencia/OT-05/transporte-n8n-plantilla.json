@@ -1,0 +1,241 @@
+{
+  "comando": "node tests/whatsapp/transporte_n8n.mjs plantilla",
+  "nota": "HTTP Request real de n8n contra mock local; API YCloud no llamada; config global simulada; autenticación real pendiente de parte 3",
+  "execution": {
+    "status": "success",
+    "nodos": [
+      {
+        "name": "Inicio",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Entrada",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Configuración",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Preparar envío",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Sin respuesta",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Revisar turno 0",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Burbuja 0",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Enviar burbuja 0",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Simulado 0",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "HTTP escribiendo 0",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Ritmo 0",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Revisar después de espera 0",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Vigente 0",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Transporte 0",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "HTTP enviar 0",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Guardar salida 0",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Revisar turno 1",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Burbuja 1",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Enviar burbuja 1",
+        "status": [
+          "success"
+        ]
+      },
+      {
+        "name": "Liberar turno",
+        "status": [
+          "success"
+        ]
+      }
+    ]
+  },
+  "log": [
+    {
+      "sql": "SELECT valor FROM config WHERE clave='whatsapp_modo_simulado';",
+      "salida": "true"
+    },
+    {
+      "sql": "SELECT ycloud_ingresar('{\"accion\":\"mensaje\",\"wa_id\":\"5770737885467\",\"nombre_perfil\":\"Joe\",\"wamid\":\"wamid.mock-1790737885467\",\"proveedor_id\":\"mock-1790737885467\",\"waba_id\":\"WABA-ID\",\"autor\":\"cliente\",\"tipo\":\"text\",\"texto\":\"OK\",\"estado\":null,\"recibido_en\":\"2026-09-30T03:11:25.467Z\",\"origen\":{\"tipo\":\"ctwa\",\"ctwa_clid\":\"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\",\"ad_id\":\"MEDIA-ID\",\"ad_headline\":\"Chat with us\"}}'::jsonb);",
+      "salida": "{\"wa_id\": \"5770737885467\", \"wamid\": \"wamid.mock-1790737885467\", \"accion\": \"entrada\", \"debounce\": 8, \"proveedor_id\": \"mock-1790737885467\", \"conversacion_id\": 29}"
+    },
+    {
+      "sql": "SELECT ycloud_reclamar(29,'wamid.mock-1790737885467');",
+      "salida": "{\"lease\": \"2026-09-30T03:12:25.650065+00:00\", \"accion\": \"responder\", \"waba_id\": \"WABA-ID\", \"normalizado\": {\"texto\": \"OK\", \"tipos\": [\"text\"], \"wa_id\": \"5770737885467\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.mock-1790737885467\"], \"recibido_en\": \"2026-09-30T03:11:25.467Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 29}, \"proveedor_id\": \"mock-1790737885467\"}"
+    },
+    {
+      "sql": "UPDATE conversaciones SET agente_ocupado_hasta='2026-09-30T03:14:25.705Z'::timestamptz WHERE id=29;",
+      "salida": "UPDATE 1"
+    },
+    {
+      "sql": "SELECT COALESCE(json_agg(m),'[]'::json) FROM (SELECT wamid,wa_id,direccion,tipo,texto,estado,proveedor_id,autor,normalizado,creado_en FROM mensajes WHERE conversacion_id=29 ORDER BY creado_en) m;",
+      "salida": "[{\"wamid\":\"wamid.mock-1790737885467\",\"wa_id\":\"5770737885467\",\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"OK\",\"estado\":null,\"proveedor_id\":\"mock-1790737885467\",\"autor\":\"cliente\",\"normalizado\":{\"texto\": \"OK\", \"tipos\": [\"text\"], \"wa_id\": \"5770737885467\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.mock-1790737885467\"], \"recibido_en\": \"2026-09-30T03:11:25.467Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 29},\"creado_en\":\"2026-09-30T03:11:25.534401+00:00\"}, \n {\"wamid\":\"ycloud:mock-1790737896173\",\"wa_id\":\"5770737885467\",\"direccion\":\"out\",\"tipo\":\"template\",\"texto\":null,\"estado\":\"accepted\",\"proveedor_id\":\"mock-1790737896173\",\"autor\":\"bot\",\"normalizado\":{\"to\": \"+5770737885467\", \"from\": \"+573000050999\", \"type\": \"template\", \"template\": {\"name\": \"prueba_local\", \"language\": {\"code\": \"es\"}}},\"creado_en\":\"2026-09-30T03:11:36.192942+00:00\"}]"
+    }
+  ],
+  "calls": [
+    {
+      "method": "POST",
+      "path": "/v2/whatsapp/inboundMessages/mock-1790737871060/typingIndicator",
+      "body": null,
+      "time": 1790737879830
+    },
+    {
+      "method": "POST",
+      "path": "/v2/whatsapp/messages",
+      "body": {
+        "from": "+573000050999",
+        "to": "+5770737871060",
+        "type": "text",
+        "text": {
+          "body": "Primera, \"comillas\""
+        },
+        "context": {
+          "message_id": "wamid.mock-1790737871060"
+        }
+      },
+      "time": 1790737881373
+    },
+    {
+      "method": "POST",
+      "path": "/v2/whatsapp/inboundMessages/mock-1790737871060/typingIndicator",
+      "body": null,
+      "time": 1790737881480
+    },
+    {
+      "method": "POST",
+      "path": "/v2/whatsapp/messages",
+      "body": {
+        "from": "+573000050999",
+        "to": "+5770737871060",
+        "type": "text",
+        "text": {
+          "body": "Segunda"
+        },
+        "context": {
+          "message_id": "wamid.mock-1790737871060"
+        }
+      },
+      "time": 1790737883011
+    },
+    {
+      "method": "POST",
+      "path": "/v2/whatsapp/inboundMessages/mock-1790737871060/typingIndicator",
+      "body": null,
+      "time": 1790737883159
+    },
+    {
+      "method": "POST",
+      "path": "/v2/whatsapp/messages",
+      "body": {
+        "from": "+573000050999",
+        "to": "+5770737871060",
+        "type": "text",
+        "text": {
+          "body": "Tercera"
+        },
+        "context": {
+          "message_id": "wamid.mock-1790737871060"
+        }
+      },
+      "time": 1790737884672
+    },
+    {
+      "method": "POST",
+      "path": "/v2/whatsapp/inboundMessages/mock-1790737885467/typingIndicator",
+      "body": null,
+      "time": 1790737894636
+    },
+    {
+      "method": "POST",
+      "path": "/v2/whatsapp/messages",
+      "body": {
+        "from": "+573000050999",
+        "to": "+5770737885467",
+        "type": "template",
+        "template": {
+          "name": "prueba_local",
+          "language": {
+            "code": "es"
+          }
+        }
+      },
+      "time": 1790737896173
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+✔ C7: coincide con HMAC documentado y usa comparación constante (1.182806ms)
+✔ C6: todos los tipos validan contra el contrato sin propiedades de transporte (67.41958ms)
+✔ C3: CTWA conserva atribución; origen web y orgánico (0.338067ms)
+✔ Estados y ecos nunca se confunden con entrada de cliente (0.680922ms)
+✔ C8: componente aleatorio 0.5–1.5, límites y máximo tres burbujas sin truncar texto (0.353796ms)
+✔ C1: transporte de texto/plantilla como objeto y leído/escribiendo separados (0.24977ms)
+✔ C2/C4: parámetros SQL en arreglos, sin secretos ni pinData en exportaciones (0.47286ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 75.531857

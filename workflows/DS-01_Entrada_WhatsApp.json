@@ -1,214 +1,658 @@
 {
+  "id": "8c5216d4-f62a-47c8-8658-96164bebdf4b",
   "name": "DS-01 Entrada WhatsApp",
+  "active": false,
   "nodes": [
     {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "whatsapp",
-        "responseMode": "lastNode",
-        "options": {
-          "rawBody": true
-        }
-      },
-      "id": "webhook",
-      "name": "Webhook",
+      "id": "Webhook POST",
+      "name": "Webhook POST",
       "type": "n8n-nodes-base.webhook",
-      "typeVersion": 1.1,
+      "typeVersion": 2,
       "position": [
         0,
         0
       ],
-      "webhookId": "whatsapp-in"
-    },
-    {
       "parameters": {
-        "respondWith": "json",
-        "responseBody": "{\"status\":\"ok\"}",
-        "options": {}
-      },
-      "id": "respond200",
-      "name": "Respond 200",
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.1,
-      "position": [
-        200,
-        -100
-      ]
-    },
-    {
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "SELECT valor FROM config WHERE clave = 'whatsapp_app_secret_prueba'"
-      },
-      "id": "get_secret",
-      "name": "Get Secret",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.3,
-      "credentials": {
-        "postgres": {
-          "id": "b1b2JJ18qDVF2dWp",
-          "name": "Postgres"
+        "httpMethod": "POST",
+        "path": "whatsapp",
+        "responseMode": "onReceived",
+        "options": {
+          "rawBody": true
         }
       },
-      "position": [
-        200,
-        100
-      ]
+      "webhookId": "whatsapp-in-post"
     },
     {
+      "id": "Leer secreto",
+      "name": "Leer secreto",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        240,
+        0
+      ],
       "parameters": {
-        "action": "hmac",
-        "type": "SHA256",
-        "value": "={{ JSON.stringify($('Webhook').first().json.body) }}",
-        "dataPropertyName": "hmac",
-        "secret": "={{ $json.valor }}"
+        "operation": "executeQuery",
+        "query": "SELECT valor FROM config WHERE clave='ycloud_webhook_secret'",
+        "options": {}
       },
-      "id": "crypto",
-      "name": "Crypto",
-      "type": "n8n-nodes-base.crypto",
+      "credentials": {
+        "postgres": {
+          "id": "ot05-postgres",
+          "name": "Postgres dropship"
+        }
+      }
+    },
+    {
+      "id": "Leer cuerpo crudo",
+      "name": "Leer cuerpo crudo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const raw=await this.helpers.getBinaryDataBuffer(0,'data');return [{json:{raw:raw.toString('utf8'),headers:$json.headers}}];"
+      }
+    },
+    {
+      "id": "Verificar firma",
+      "name": "Verificar firma",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "jsCode": "function verifySignature(raw, header, secret, crypto, now = Date.now()) {\r\n  if (!secret || typeof header !== 'string') return false;\r\n  const parts = header.split(',').map(s => s.trim());\r\n  const timestamps = parts.filter(s => /^t=\\d+$/.test(s));\r\n  const signatures = parts.filter(s => /^s=[a-fA-F0-9]{64}$/.test(s));\r\n  if (timestamps.length !== 1 || signatures.length !== 1 || parts.length !== 2) return false;\r\n  const t = timestamps[0].slice(2);\r\n  if (Math.abs(now / 1000 - Number(t)) > 300) return false;\r\n  const expected = crypto.createHmac('sha256', secret).update(t + '.').update(raw).digest();\r\n  const actual = Buffer.from(signatures[0].slice(2), 'hex');\r\n  return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);\r\n}\nconst incoming=$('Leer cuerpo crudo').first().json;\nif (!verifySignature(Buffer.from(incoming.raw,'utf8'),incoming.headers['ycloud-signature'],$json.valor,require('crypto'))) return [];\nlet event;try {event=JSON.parse(incoming.raw);}catch{return [];}\nreturn [{json:event}];"
+      }
+    },
+    {
+      "id": "Normalizar YCloud",
+      "name": "Normalizar YCloud",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        0
+      ],
+      "parameters": {
+        "jsCode": "function normalizeYcloud(event) {\r\n  if (event.type === 'whatsapp.message.updated') {\r\n    const m = event.whatsappMessage;\r\n    if (!m?.id || !['accepted','sent','delivered','read','failed'].includes(m.status)) return [];\r\n    return [{json:{accion:'estado',proveedor_id:m.id,wamid:m.wamid || null,estado:m.status}}];\r\n  }\r\n  const human = event.type === 'whatsapp.smb.message.echoes';\r\n  if (!human && event.type !== 'whatsapp.inbound_message.received') return [];\r\n  const m = human ? event.whatsappMessage : event.whatsappInboundMessage;\r\n  if (!m?.id || !m.wamid || !m.sendTime) return [];\r\n  const wa_id = String(human ? m.to : m.from).replace(/^\\+/, '');\r\n  if (!/^\\d{8,15}$/.test(wa_id) || !Number.isFinite(Date.parse(m.sendTime))) return [];\r\n  const allowed = ['text','audio','image','button','interactive','location','sticker'];\r\n  const tipo = allowed.includes(m.type) ? m.type : 'other';\r\n  let texto = '';\r\n  let ubicacion;\r\n  switch (tipo) {\r\n    case 'text': texto = m.text?.body ?? ''; break;\r\n    case 'audio': texto = '[nota de voz sin transcribir]'; break;\r\n    case 'image': texto = ('[imagen] ' + (m.image?.caption ?? '')).trim(); break;\r\n    case 'button': texto = m.button?.text ?? m.button?.payload ?? ''; break;\r\n    case 'interactive': texto = m.interactive?.button_reply?.title ?? m.interactive?.list_reply?.title ?? m.interactive?.nfm_reply?.body ?? '[interactivo]'; break;\r\n    case 'location':\r\n      if (!Number.isFinite(m.location?.latitude) || !Number.isFinite(m.location?.longitude)) return [];\r\n      ubicacion = {latitud:m.location.latitude,longitud:m.location.longitude,direccion:m.location.address ?? null};\r\n      texto = `[ubicaci├│n] ${ubicacion.latitud}, ${ubicacion.longitud}${ubicacion.direccion ? ' '+ubicacion.direccion : ''}`; break;\r\n    case 'sticker': texto = '[sticker]'; break;\r\n    default: texto = '[mensaje no compatible]';\r\n  }\r\n  const r = m.referral;\r\n  return [{json:{accion:'mensaje',wa_id,nombre_perfil:m.customerProfile?.name ?? null,\r\n    wamid:m.wamid,proveedor_id:m.id,waba_id:m.wabaId ?? null,autor:human?'humano':'cliente',\r\n    tipo,texto,estado:human?(m.status ?? 'sent'):null,recibido_en:new Date(m.sendTime).toISOString(),\r\n    origen:{tipo:r?'ctwa':(/\\(web-[^)]+\\)/.test(texto)?'web':'organico'),\r\n      ctwa_clid:r?.ctwa_clid ?? null,ad_id:r?.source_id ?? null,ad_headline:r?.headline ?? null},\r\n    ...(ubicacion?{ubicacion}:{})}}];\r\n}\nreturn normalizeYcloud($json);"
+      }
+    },
+    {
+      "id": "Es estado",
+      "name": "Es estado",
+      "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        400,
-        100
-      ]
-    },
-    {
+        1200,
+        0
+      ],
       "parameters": {
-        "jsCode": "const sig = $('Webhook').first().json.headers['x-hub-signature-256'];\nif (sig !== 'sha256=' + $json.hmac) throw new Error('Invalid signature. sig=' + sig + ' | expected=sha256=' + $json.hmac);\nreturn [{json: $('Webhook').first().json.body}];"
-      },
-      "id": "verify",
-      "name": "Verify Signature",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        600,
-        100
-      ]
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.accion === 'estado' }}",
+              "value2": true
+            }
+          ]
+        }
+      }
     },
     {
-      "parameters": {
-        "jsCode": "const entry = $json.entry[0].changes[0].value;\nif (entry.messages) return [{json: entry}];\nreturn [];"
-      },
-      "id": "router",
-      "name": "Router",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
+      "id": "Actualizar estado",
+      "name": "Actualizar estado",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
       "position": [
-        800,
-        100
-      ]
-    },
-    {
+        1440,
+        0
+      ],
       "parameters": {
         "operation": "executeQuery",
-        "query": "INSERT INTO mensajes (wamid, wa_id, direccion, tipo) VALUES ('{{ $json.messages[0].id }}', '{{ $json.contacts[0].wa_id }}', 'in', 'text') ON CONFLICT DO NOTHING RETURNING wamid"
-      },
-      "id": "dedupe",
-      "name": "Dedupe Postgres",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.3,
-      "credentials": {
-        "postgres": {
-          "id": "b1b2JJ18qDVF2dWp",
-          "name": "Postgres"
+        "query": "UPDATE mensajes SET estado=$1,wamid=COALESCE($3,wamid)\nWHERE direccion='out' AND (proveedor_id=$2 OR wamid=$3) RETURNING wamid,estado",
+        "options": {
+          "queryReplacement": "={{ [$json.estado,$json.proveedor_id,$json.wamid] }}"
         }
       },
-      "position": [
-        1000,
-        200
-      ]
+      "credentials": {
+        "postgres": {
+          "id": "ot05-postgres",
+          "name": "Postgres dropship"
+        }
+      }
     },
     {
+      "id": "Ingresar mensaje",
+      "name": "Ingresar mensaje",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        240
+      ],
       "parameters": {
-        "workflowId": "47415668-dea8-4059-aafb-d20d3f8f3213",
-        "options": {}
+        "operation": "executeQuery",
+        "query": "SELECT ycloud_ingresar($1::jsonb) AS data",
+        "options": {
+          "queryReplacement": "={{ [JSON.stringify($json)] }}"
+        }
       },
-      "id": "call_stub",
-      "name": "Call Stub",
+      "credentials": {
+        "postgres": {
+          "id": "ot05-postgres",
+          "name": "Postgres dropship"
+        }
+      }
+    },
+    {
+      "id": "Resultado ingreso",
+      "name": "Resultado ingreso",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        240
+      ],
+      "parameters": {
+        "jsCode": "return [{json:$json.data}];"
+      }
+    },
+    {
+      "id": "Es entrada",
+      "name": "Es entrada",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        480,
+        240
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.accion === 'entrada' }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Solo lectura",
+      "name": "Solo lectura",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        720,
+        240
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.accion === 'solo_leer' }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Preparar le├¡do",
+      "name": "Preparar le├¡do",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        240
+      ],
+      "parameters": {
+        "jsCode": "return [{json:{...$json,no_responder:true}}];"
+      }
+    },
+    {
+      "id": "Marcar le├¡do",
+      "name": "Marcar le├¡do",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
         1200,
-        200
-      ]
+        240
+      ],
+      "parameters": {
+        "workflowId": "a0c7abce-0081-4c80-aa6a-72f4200ec489",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      }
     },
     {
+      "id": "Debounce",
+      "name": "Debounce",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1440,
+        240
+      ],
       "parameters": {
-        "workflowId": "0c54dca5-e075-4c6d-9408-15b4fbe1b60a",
-        "options": {}
+        "amount": "={{ $json.debounce }}",
+        "unit": "seconds"
       },
-      "id": "call_send",
+      "webhookId": "ot05-Debounce"
+    },
+    {
+      "id": "Iniciar intentos",
+      "name": "Iniciar intentos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        480
+      ],
+      "parameters": {
+        "jsCode": "return [{json:{...$json,intento:0}}];"
+      }
+    },
+    {
+      "id": "Reclamar turno",
+      "name": "Reclamar turno",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        240,
+        480
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT ycloud_reclamar($1::bigint,$2) AS data, $3::integer AS intento",
+        "options": {
+          "queryReplacement": "={{ [$json.conversacion_id,$json.wamid,$json.intento] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "ot05-postgres",
+          "name": "Postgres dropship"
+        }
+      }
+    },
+    {
+      "id": "Resultado turno",
+      "name": "Resultado turno",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        480
+      ],
+      "parameters": {
+        "jsCode": "return [{json:{...$json.data,intento:$json.intento}}];"
+      }
+    },
+    {
+      "id": "Turno listo",
+      "name": "Turno listo",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        720,
+        480
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.accion === 'responder' }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Reintentar bloqueo",
+      "name": "Reintentar bloqueo",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        960,
+        480
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.accion === 'reintentar' && $json.intento < 5 }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Esperar bloqueo",
+      "name": "Esperar bloqueo",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1200,
+        480
+      ],
+      "parameters": {
+        "amount": 3,
+        "unit": "seconds"
+      },
+      "webhookId": "ot05-Esperar-bloqueo"
+    },
+    {
+      "id": "Siguiente intento",
+      "name": "Siguiente intento",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        480
+      ],
+      "parameters": {
+        "jsCode": "return [{json:{...$('Resultado ingreso').first().json,intento:$json.intento+1}}];"
+      }
+    },
+    {
+      "id": "Contrato DS02",
+      "name": "Contrato DS02",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        720
+      ],
+      "parameters": {
+        "jsCode": "return [{json:$json.normalizado}];"
+      }
+    },
+    {
+      "id": "Call Stub",
+      "name": "Call Stub",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        240,
+        720
+      ],
+      "parameters": {
+        "workflowId": "ae42ab9a-9d5c-40fb-b18b-b8626c78b51b",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      }
+    },
+    {
+      "id": "Contexto transporte",
+      "name": "Contexto transporte",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        720
+      ],
+      "parameters": {
+        "jsCode": "const t=$('Resultado turno').last().json;return [{json:{...$json,lease:t.lease,proveedor_id:t.proveedor_id,waba_id:t.waba_id,responder_a_wamid:$json.wamids.at(-1)}}];"
+      }
+    },
+    {
+      "id": "Call Send",
       "name": "Call Send",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        1400,
-        200
-      ]
+        720,
+        720
+      ],
+      "parameters": {
+        "workflowId": "a0c7abce-0081-4c80-aa6a-72f4200ec489",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      }
     }
   ],
   "connections": {
-    "Webhook": {
+    "Webhook POST": {
       "main": [
         [
           {
-            "node": "Get Secret",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Respond 200",
+            "node": "Leer cuerpo crudo",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Get Secret": {
+    "Leer cuerpo crudo": {
       "main": [
         [
           {
-            "node": "Crypto",
+            "node": "Leer secreto",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Crypto": {
+    "Leer secreto": {
       "main": [
         [
           {
-            "node": "Verify Signature",
+            "node": "Verificar firma",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Verify Signature": {
+    "Verificar firma": {
       "main": [
         [
           {
-            "node": "Router",
+            "node": "Normalizar YCloud",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Router": {
+    "Normalizar YCloud": {
       "main": [
         [
           {
-            "node": "Dedupe Postgres",
+            "node": "Es estado",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Dedupe Postgres": {
+    "Es estado": {
+      "main": [
+        [
+          {
+            "node": "Actualizar estado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ingresar mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ingresar mensaje": {
+      "main": [
+        [
+          {
+            "node": "Resultado ingreso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resultado ingreso": {
+      "main": [
+        [
+          {
+            "node": "Es entrada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Es entrada": {
+      "main": [
+        [
+          {
+            "node": "Debounce",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Solo lectura",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Solo lectura": {
+      "main": [
+        [
+          {
+            "node": "Preparar le├¡do",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar le├¡do": {
+      "main": [
+        [
+          {
+            "node": "Marcar le├¡do",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Debounce": {
+      "main": [
+        [
+          {
+            "node": "Iniciar intentos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Iniciar intentos": {
+      "main": [
+        [
+          {
+            "node": "Reclamar turno",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reclamar turno": {
+      "main": [
+        [
+          {
+            "node": "Resultado turno",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resultado turno": {
+      "main": [
+        [
+          {
+            "node": "Turno listo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Turno listo": {
+      "main": [
+        [
+          {
+            "node": "Contrato DS02",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reintentar bloqueo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reintentar bloqueo": {
+      "main": [
+        [
+          {
+            "node": "Esperar bloqueo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Esperar bloqueo": {
+      "main": [
+        [
+          {
+            "node": "Siguiente intento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Siguiente intento": {
+      "main": [
+        [
+          {
+            "node": "Reclamar turno",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contrato DS02": {
       "main": [
         [
           {
@@ -223,6 +667,17 @@
       "main": [
         [
           {
+            "node": "Contexto transporte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contexto transporte": {
+      "main": [
+        [
+          {
             "node": "Call Send",
             "type": "main",
             "index": 0
@@ -231,5 +686,11 @@
       ]
     }
   },
-  "id": "4a1e5af4-45a7-42e3-b343-6821745b71a5"
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false
+  }
 }

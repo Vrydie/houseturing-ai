@@ -1,0 +1,151 @@
+{
+  "caso": "01-ctwa-C1-C2-C3",
+  "comando": "OT05_ENV_FILE=<infra/.env principal> node tests/whatsapp/integracion.mjs",
+  "http": [
+    {
+      "comando": "POST http://127.0.0.1:5690/webhook/whatsapp con firma válida",
+      "status": 200,
+      "ms": 1201,
+      "body": "{\"message\":\"Workflow was started\"}",
+      "fixture": {
+        "id": "evt_eEkn26qar3nOB8md",
+        "type": "whatsapp.inbound_message.received",
+        "apiVersion": "v2",
+        "createTime": "2023-02-22T12:00:00.000Z",
+        "whatsappInboundMessage": {
+          "id": "ot05-1790737273612-1",
+          "wamid": "wamid.ot05-1790737273612-1",
+          "wabaId": "WABA-ID",
+          "from": "5793727361201",
+          "fromUserId": "US.13491208655302741918",
+          "fromParentUserId": "US.11815799212886844830",
+          "customerProfile": {
+            "name": "Joe",
+            "username": "@JoeJoe"
+          },
+          "to": "BUSINESS-PHONE-NUMBER",
+          "sendTime": "2026-09-30T03:01:13.683Z",
+          "type": "text",
+          "text": {
+            "body": "Hola, quiero \"dos\", por favor\nSegunda línea con apóstrofo: O'Brien"
+          },
+          "referral": {
+            "source_url": "https://fb.me/xxx",
+            "source_type": "ad",
+            "source_id": "MEDIA-ID",
+            "headline": "Chat with us",
+            "media_type": "image",
+            "image_url": "https://scontent.xx.fbcdn.net/v/t45.1600-4/xxx.jpg",
+            "ctwa_clid": "feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd"
+          }
+        }
+      }
+    },
+    {
+      "comando": "POST http://127.0.0.1:5690/webhook/whatsapp con firma válida",
+      "status": 200,
+      "ms": 160,
+      "body": "{\"message\":\"Workflow was started\"}",
+      "fixture": {
+        "id": "evt_eEkn26qar3nOB8md",
+        "type": "whatsapp.inbound_message.received",
+        "apiVersion": "v2",
+        "createTime": "2023-02-22T12:00:00.000Z",
+        "whatsappInboundMessage": {
+          "id": "ot05-1790737273612-1",
+          "wamid": "wamid.ot05-1790737273612-1",
+          "wabaId": "WABA-ID",
+          "from": "5793727361201",
+          "fromUserId": "US.13491208655302741918",
+          "fromParentUserId": "US.11815799212886844830",
+          "customerProfile": {
+            "name": "Joe",
+            "username": "@JoeJoe"
+          },
+          "to": "BUSINESS-PHONE-NUMBER",
+          "sendTime": "2026-09-30T03:01:13.683Z",
+          "type": "text",
+          "text": {
+            "body": "Hola, quiero \"dos\", por favor\nSegunda línea con apóstrofo: O'Brien"
+          },
+          "referral": {
+            "source_url": "https://fb.me/xxx",
+            "source_type": "ad",
+            "source_id": "MEDIA-ID",
+            "headline": "Chat with us",
+            "media_type": "image",
+            "image_url": "https://scontent.xx.fbcdn.net/v/t45.1600-4/xxx.jpg",
+            "ctwa_clid": "feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd"
+          }
+        }
+      }
+    }
+  ],
+  "sql": [
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361201' ORDER BY creado_en,wamid) x;",
+      "salida": "[]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361201' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-1\",\"wa_id\":\"5793727361201\",\"conversacion_id\":18,\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-1\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\", \"tipos\": [\"text\"], \"wa_id\": \"5793727361201\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-1\"], \"recibido_en\": \"2026-09-30T03:01:13.683Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 18},\"creado_en\":\"2026-09-30T03:01:14.981178+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361201' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-1\",\"wa_id\":\"5793727361201\",\"conversacion_id\":18,\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-1\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\", \"tipos\": [\"text\"], \"wa_id\": \"5793727361201\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-1\"], \"recibido_en\": \"2026-09-30T03:01:13.683Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 18},\"creado_en\":\"2026-09-30T03:01:14.981178+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361201' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-1\",\"wa_id\":\"5793727361201\",\"conversacion_id\":18,\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-1\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\", \"tipos\": [\"text\"], \"wa_id\": \"5793727361201\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-1\"], \"recibido_en\": \"2026-09-30T03:01:13.683Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 18},\"creado_en\":\"2026-09-30T03:01:14.981178+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361201' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-1\",\"wa_id\":\"5793727361201\",\"conversacion_id\":18,\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-1\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\", \"tipos\": [\"text\"], \"wa_id\": \"5793727361201\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-1\"], \"recibido_en\": \"2026-09-30T03:01:13.683Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 18},\"creado_en\":\"2026-09-30T03:01:14.981178+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361201' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-1\",\"wa_id\":\"5793727361201\",\"conversacion_id\":18,\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-1\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\", \"tipos\": [\"text\"], \"wa_id\": \"5793727361201\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-1\"], \"recibido_en\": \"2026-09-30T03:01:13.683Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 18},\"creado_en\":\"2026-09-30T03:01:14.981178+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361201' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-1\",\"wa_id\":\"5793727361201\",\"conversacion_id\":18,\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-1\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\", \"tipos\": [\"text\"], \"wa_id\": \"5793727361201\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-1\"], \"recibido_en\": \"2026-09-30T03:01:13.683Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 18},\"creado_en\":\"2026-09-30T03:01:14.981178+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361201' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-1\",\"wa_id\":\"5793727361201\",\"conversacion_id\":18,\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-1\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\", \"tipos\": [\"text\"], \"wa_id\": \"5793727361201\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-1\"], \"recibido_en\": \"2026-09-30T03:01:13.683Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 18},\"creado_en\":\"2026-09-30T03:01:14.981178+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361201' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-1\",\"wa_id\":\"5793727361201\",\"conversacion_id\":18,\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-1\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\", \"tipos\": [\"text\"], \"wa_id\": \"5793727361201\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-1\"], \"recibido_en\": \"2026-09-30T03:01:13.683Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 18},\"creado_en\":\"2026-09-30T03:01:14.981178+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361201' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-1\",\"wa_id\":\"5793727361201\",\"conversacion_id\":18,\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-1\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\", \"tipos\": [\"text\"], \"wa_id\": \"5793727361201\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-1\"], \"recibido_en\": \"2026-09-30T03:01:13.683Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 18},\"creado_en\":\"2026-09-30T03:01:14.981178+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361201' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-1\",\"wa_id\":\"5793727361201\",\"conversacion_id\":18,\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-1\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\", \"tipos\": [\"text\"], \"wa_id\": \"5793727361201\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-1\"], \"recibido_en\": \"2026-09-30T03:01:13.683Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 18},\"creado_en\":\"2026-09-30T03:01:14.981178+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361201' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-1\",\"wa_id\":\"5793727361201\",\"conversacion_id\":18,\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-1\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\", \"tipos\": [\"text\"], \"wa_id\": \"5793727361201\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-1\"], \"recibido_en\": \"2026-09-30T03:01:13.683Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 18},\"creado_en\":\"2026-09-30T03:01:14.981178+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361201' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-1\",\"wa_id\":\"5793727361201\",\"conversacion_id\":18,\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-1\",\"waba_id\":\"WABA-ID\",\"procesado\":false,\"normalizado\":{\"texto\": \"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\", \"tipos\": [\"text\"], \"wa_id\": \"5793727361201\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-1\"], \"recibido_en\": \"2026-09-30T03:01:13.683Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 18},\"creado_en\":\"2026-09-30T03:01:14.981178+00:00\"}]"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361201' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-1\",\"wa_id\":\"5793727361201\",\"conversacion_id\":18,\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-1\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"texto\": \"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\", \"tipos\": [\"text\"], \"wa_id\": \"5793727361201\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-1\"], \"recibido_en\": \"2026-09-30T03:01:13.683Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 18},\"creado_en\":\"2026-09-30T03:01:14.981178+00:00\"}, \n {\"wamid\":\"ycloud:sim-64-0\",\"wa_id\":\"5793727361201\",\"conversacion_id\":18,\"direccion\":\"out\",\"tipo\":\"text\",\"texto\":\"Hola, recibimos tu mensaje: Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":\"simulado\",\"autor\":\"bot\",\"proveedor_id\":\"sim-64-0\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"to\": \"+5793727361201\", \"from\": \"\", \"text\": {\"body\": \"Hola, recibimos tu mensaje: Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\"}, \"type\": \"text\", \"context\": {\"message_id\": \"wamid.ot05-1790737273612-1\"}},\"creado_en\":\"2026-09-30T03:01:28.494334+00:00\"}]"
+    },
+    {
+      "comando": "SELECT row_to_json(c) FROM conversaciones c WHERE id=18;",
+      "salida": "{\"id\":18,\"wa_id\":\"5793727361201\",\"sku\":null,\"origen\":\"ctwa\",\"ctwa_clid\":\"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\",\"ad_id\":\"MEDIA-ID\",\"ad_headline\":\"Chat with us\",\"lead_id\":null,\"estado\":\"abierta\",\"bot_activo\":true,\"motivo_escalamiento\":null,\"agente_ocupado_hasta\":null,\"turnos_agente\":0,\"ultimo_mensaje_cliente_en\":\"2026-09-30T03:01:13.683+00:00\",\"creada_en\":\"2026-09-30T03:01:14.981178+00:00\"}"
+    },
+    {
+      "comando": "SELECT COALESCE(json_agg(x),'[]'::json) FROM (SELECT wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,autor,proveedor_id,waba_id,procesado,normalizado,creado_en FROM mensajes WHERE wa_id='5793727361201' ORDER BY creado_en,wamid) x;",
+      "salida": "[{\"wamid\":\"wamid.ot05-1790737273612-1\",\"wa_id\":\"5793727361201\",\"conversacion_id\":18,\"direccion\":\"in\",\"tipo\":\"text\",\"texto\":\"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":null,\"autor\":\"cliente\",\"proveedor_id\":\"ot05-1790737273612-1\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"texto\": \"Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\", \"tipos\": [\"text\"], \"wa_id\": \"5793727361201\", \"origen\": {\"tipo\": \"ctwa\", \"ad_id\": \"MEDIA-ID\", \"ctwa_clid\": \"feRgX__yiYtsI1HhjI2FRjyKInYlrU9cm9ml-Yl1MXp_fJy6Mwp-adZ-yLqOWX5CiZJYtjQERgKbAUetcwFXb_6FUYyOl9Kc6HFOBCd\", \"ad_headline\": \"Chat with us\"}, \"wamids\": [\"wamid.ot05-1790737273612-1\"], \"recibido_en\": \"2026-09-30T03:01:13.683Z\", \"nombre_perfil\": \"Joe\", \"conversacion_id\": 18},\"creado_en\":\"2026-09-30T03:01:14.981178+00:00\"}, \n {\"wamid\":\"ycloud:sim-64-0\",\"wa_id\":\"5793727361201\",\"conversacion_id\":18,\"direccion\":\"out\",\"tipo\":\"text\",\"texto\":\"Hola, recibimos tu mensaje: Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\",\"estado\":\"simulado\",\"autor\":\"bot\",\"proveedor_id\":\"sim-64-0\",\"waba_id\":\"WABA-ID\",\"procesado\":true,\"normalizado\":{\"to\": \"+5793727361201\", \"from\": \"\", \"text\": {\"body\": \"Hola, recibimos tu mensaje: Hola, quiero \\\"dos\\\", por favor\\nSegunda línea con apóstrofo: O'Brien\"}, \"type\": \"text\", \"context\": {\"message_id\": \"wamid.ot05-1790737273612-1\"}},\"creado_en\":\"2026-09-30T03:01:28.494334+00:00\"}]"
+    }
+  ],
+  "resultado": "PASS"
+}

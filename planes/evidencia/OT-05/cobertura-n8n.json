@@ -1,0 +1,41 @@
+{
+  "comando": "node tests/whatsapp/cobertura_n8n.mjs",
+  "status": "success",
+  "resultados": [
+    {
+      "cubierto": true,
+      "ciudad_oficial": "Bogotá",
+      "departamento_oficial": "Bogotá D.C.",
+      "acepta_contraentrega": true,
+      "dias_entrega": "1 a 2 días hábiles"
+    },
+    {
+      "opciones": [
+        {
+          "ciudad": "San José",
+          "departamento": "Guaviare",
+          "acepta_contraentrega": true,
+          "dias_entrega_min": 4,
+          "dias_entrega_max": 8
+        },
+        {
+          "ciudad": "San José",
+          "departamento": "Caldas",
+          "acepta_contraentrega": true,
+          "dias_entrega_min": 2,
+          "dias_entrega_max": 4
+        }
+      ]
+    },
+    {
+      "cubierto": false
+    },
+    {
+      "cubierto": true,
+      "ciudad_oficial": "Leticia",
+      "departamento_oficial": "Amazonas",
+      "acepta_contraentrega": false,
+      "dias_entrega": "5 a 15 días hábiles"
+    }
+  ]
+}

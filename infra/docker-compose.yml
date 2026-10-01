@@ -37,6 +37,7 @@ services:
       - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
       - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-America/Bogota}
       - WEBHOOK_URL=${WEBHOOK_URL}
+      - NODE_FUNCTION_ALLOW_BUILTIN=crypto
     volumes:
       - ./data/n8n:/home/node/.n8n
       - ../workflows:/workflows
@@ -53,3 +54,13 @@ services:
       - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
     profiles:
       - tunnel
+
+  # URL efímera; el dueño levanta este perfil sobre la instancia existente.
+  cloudflared-quick:
+    image: cloudflare/cloudflared:latest
+    container_name: houseturing_tunnel_quick
+    command: tunnel --url http://n8n:5678
+    profiles:
+      - tunnel-quick
+    depends_on:
+      - n8n
