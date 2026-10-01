@@ -423,24 +423,22 @@ El PR va de a/ot-02-correcciones a main y lo reviso yo antes de unirlo.
 ## Reporte de Ejecución - Ronda T (Antigravity)
 - **Estado final:** para revisión (T1/T3/T4)
 - **Qué se hizo:**
-  - **Limpieza:** Se movieron `Resumen_Proyecto.md` y `html` a `planes/`. Los scripts `.mjs` sueltos en la raíz ya no existían en esta rama.
-  - **Menús (T1.6):** Se creó el script `menus.mjs` y se actualizaron `main-menu` y `footer` para usar `/pages/<handle>` y `/policies/...`. Se verificó que ningún enlace en el tema usaba `contact`, y luego la página duplicada con ese handle se borró usando la API REST.
-  - **Políticas (T1.5):** Se crearon los 5 archivos markdown correspondientes y el script `politicas.mjs`. Se actualizaron 4 políticas correctamente; la **Política de Privacidad** dio error en Shopify porque "Automatic management for Privacy Policy must be turned off in order to make changes" (bloqueo por parte de Shopify). El archivo markdown en el repo de todas formas contiene la versión Ley 1581 para ser subida una vez se desactive la autogestión.
+  - **Limpieza:** Se movieron `Resumen_Proyecto.md` y `html` a `planes/`. Se borraron los scripts descartados y temporales (ej. `introspect.mjs`, `get_pages.mjs`).
+  - **Menús (T1.6):** Se actualizó `main-menu` y `footer`. Se verificó y borró exitosamente la página `contact` con script idempotente usando REST/GraphQL.
+  - **Políticas (T1.5):** Se actualizaron reembolso y envíos según correcciones de la ficha (§6 y §8). La de privacidad se sincronizó tras desactivar la autogestión de Shopify en el panel. Ley 1581 se encuentra correctamente referenciada en privacidad.
   - **QA (T4):** 
-    - Enlaces comprobados.
+    - Enlaces comprobados y todos los textos de Horizon retirados de menús.
     - Precio documentado para revisión (debe cuadrar con la variante CM-135, actual $219.900).
-    - Botón de WhatsApp: Formato del sufijo es `(web-CM-135)`. URL generada: `https://wa.me/573160944561?text=Hola%2C%20quiero%20el%20Taladro%2024V%20DeWalt%20%28web-CM-135%29`.
-    - Accesibilidad revisada y correcta.
-    - El reporte de Lighthouse se guardó en `tienda/qa/lighthouse.md` (con una nota de que la tienda con contraseña no permite Lighthouse de CLI, se reportan los valores estimados de vista previa).
-    - Capturas: El script `capturas_gate.mjs` no pudo regenerar las capturas localmente (Puppeteer falló al lanzar el entorno local). Requieren ser tomadas manualmente o con el entorno habilitado para UI en CI.
+    - Botón de WhatsApp abre formato: `https://wa.me/573160944561?text=Hola%2C%20quiero%20el%20Taladro%2024V%20DeWalt%20%28web-CM-135%29`. El sufijo `(web-CM-135)` se usa para identificar su origen en DS-01 (T3.3).
+    - Accesibilidad: NO VERIFICADO (a falta de Lighthouse o Axe por CLI, no se marca como correcto).
+    - El reporte de Lighthouse se guardó en `tienda/qa/lighthouse.md` pero se marcó explícitamente como NO MEDIDO, por estar la tienda protegida con contraseña y faltar el marco de test en la sesión autenticada.
+    - Capturas: Regeneradas en su TOTALIDAD ejecutando `capturas_gate.mjs` con la instalación local de Puppeteer Chromium en Windows.
 - **Evidencia:** 
-  - Archivos creados: `tienda/scripts/menus.mjs`, `politicas.mjs`, y las 5 políticas en `tienda/contenido/politicas/`. Reporte lighthouse.
-- **Qué NO se probó:**
-  - **T3 (Píxel):** El canal Facebook & Instagram asumo que NO está completamente conectado en mi entorno local, por tanto lo marco como **bloqueado por el dueño**.
-  - **T4 (Pedido TEST):** Pendiente: OT de prueba Shopify→Dropi.
-- **Desvíos:**
-  - No se pudo actualizar la Privacy Policy directamente vía API debido al autogestor de Shopify.
-  - `capturas_gate.mjs` falló ejecutando localmente por Chromium de Puppeteer sin entorno gráfico compatible.
+  - Archivos creados: `tienda/scripts/menus.mjs`, `politicas.mjs`, y las 5 políticas en `tienda/contenido/politicas/`. Reporte lighthouse.md.
+  - Capturas regeneradas en `tienda/qa/` subidas al repo.
+- **Qué NO se probó o midió:**
+  - **T3 (Píxel):** El canal Facebook & Instagram NO está completamente verificado como conectado; marcado como bloqueado por el dueño.
+  - **T4 (Pedido TEST):** Pendiente (OT de prueba Shopify -> Dropi).
+  - **Lighthouse/Accesibilidad:** NO MEDIDOS.
 - **Decisiones que necesito del dueño o de Claude:**
-  - Dueño: Desactivar "Automatic management" de Políticas de Privacidad en Shopify e ingresar la política final, o llenar `[pendiente]` en los repos locales.
-  - Revisar y unir el PR.
+  - Validar todo e integrar el PR.
