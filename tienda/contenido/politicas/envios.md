@@ -1,7 +1,7 @@
 # Política de Envíos
 
 **1. Zonas de Cobertura**
-Realizamos despachos a nivel nacional en Colombia mediante Coordinadora o Servientrega, cubriendo la mayoría de ciudades y municipios con pago contra entrega.
+Realizamos despachos a nivel nacional en Colombia mediante Servientrega, Inter Rapidísimo o Envía, cubriendo la mayoría de ciudades y municipios con pago contra entrega.
 
 **2. Costo de Envío**
 El envío es siempre **gratis**.
