@@ -62,6 +62,8 @@ async function run() {
   if (activeTest) {
     console.log(`\nIdempotencia: Ya existe un pedido de prueba activo (${activeTest.name}, ID: ${activeTest.id}). Cancelalo antes de crear uno nuevo.`);
     return;
+  } else {
+    console.log("Idempotencia: no hay pedidos TEST ot-06 activos");
   }
 
   // 2. Fetch Variant CM-135
@@ -151,6 +153,11 @@ async function run() {
   payloadForLog.order.billingAddress.address1 = mask(payloadForLog.order.billingAddress.address1);
   payloadForLog.order.billingAddress.phone = mask(payloadForLog.order.billingAddress.phone);
   payloadForLog.order.customer.toUpsert.phone = mask(payloadForLog.order.customer.toUpsert.phone);
+  
+  // Mask tag and custom attribute
+  payloadForLog.order.tags = payloadForLog.order.tags.map(t => t.startsWith('wa:') ? `wa:${mask(t.replace('wa:', ''))}` : t);
+  const waIdAttr = payloadForLog.order.customAttributes.find(a => a.key === 'wa_id');
+  if (waIdAttr) waIdAttr.value = mask(waIdAttr.value);
 
   if (!aplicar) {
     console.log("\nPayload a enviar (enmascarado):");

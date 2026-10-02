@@ -70,10 +70,10 @@ async function run() {
     console.log(`\n[SIMULACIÓN] Se cancelaría el pedido ${order.name} (${order.id}) con restock:true, sin notificar al cliente.`);
   } else {
     const cancelQ = `
-      mutation orderCancel($orderId: ID!, $notifyCustomer: Boolean, $reason: OrderCancelReason, $restock: Boolean) {
-        orderCancel(orderId: $orderId, notifyCustomer: $notifyCustomer, reason: $reason, restock: $restock) {
+      mutation orderCancel($orderId: ID!, $notifyCustomer: Boolean, $reason: OrderCancelReason!, $restock: Boolean!, $staffNote: String) {
+        orderCancel(orderId: $orderId, notifyCustomer: $notifyCustomer, reason: $reason, restock: $restock, staffNote: $staffNote) {
           job { id }
-          userErrors { field message }
+          orderCancelUserErrors { field message }
         }
       }
     `;
@@ -81,8 +81,14 @@ async function run() {
       orderId: order.id,
       notifyCustomer: false,
       reason: "OTHER",
-      restock: true
+      restock: true,
+      staffNote: "Cancelación de pedido de prueba OT-06"
     });
+    
+    if (resCancel.orderCancel.orderCancelUserErrors && resCancel.orderCancel.orderCancelUserErrors.length > 0) {
+      throw new Error("Errores al cancelar: " + JSON.stringify(resCancel.orderCancel.orderCancelUserErrors));
+    }
+    
     console.log(`\nPedido ${order.name} cancelado con éxito.`);
     console.dir(resCancel.orderCancel, { depth: null });
   }
