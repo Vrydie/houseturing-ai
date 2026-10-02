@@ -15,9 +15,27 @@
 
 # ---------------------------------------------------------------------------
 # 1) CONTRAENTREGA  (DS-T2)  — scope write_orders
-#    Crea el pedido directamente con pago pendiente. Dropify lo toma en 5-10 min.
-#    ⚠️ Fase 0.4: confirmar que Dropi lo importa bien con este formato
-#       (nombre de la pasarela, teléfono, provinceCode).
+#    Crea el pedido directamente con pago pendiente.
+#
+#    ✅ VALIDADO CON DROPI (OT-06, 1-oct-2026): el pedido TEST #1001 llegó a Dropi en ~3 min
+#       como "CON RECAUDO" por el valor exacto, con SKU, nombre, celular y dirección correctos
+#       (la dirección pasó la validación automática de Dropi). Datos reales en el reporte de OT-06.
+#    Lo que hace falta:
+#       - lineItems con el variantId del producto vinculado en Dropify (mismo SKU que en Dropi).
+#       - shippingAddress completa: address1, address2 (barrio), city, provinceCode, countryCode "CO", phone.
+#       - phone en formato +57XXXXXXXXXX: Dropi lo guarda sin el +57.
+#       - transactions con gateway "Pago contra entrega" (debe existir como pago manual en Shopify).
+#    Lo que NO va:
+#       - "customer.toUpsert": Shopify exige email o id y rechaza el pedido entero
+#         (INVALID_FIELD_ARGUMENTS). Los clientes de WhatsApp no dan correo: omitir "customer".
+#    Comportamiento observado:
+#       - Dropify añade el tag "Order sent to dropi" al pedido en Shopify cuando lo pasa.
+#       - En Dropi entra como "PENDIENTE CONFIRMACION": no se despacha hasta que alguien lo confirma.
+#       - orderCreate no descuenta inventario (inventoryBehaviour por defecto: BYPASS).
+#         Al cancelar, usar restock:false o se infla el stock.
+#       - En Dropify debe estar activa "Sincronizar órdenes automáticamente" y DESACTIVADA
+#         "Sincronizar órdenes pagadas" (los pedidos contraentrega están pendientes de pago).
+#    En pruebas: tag "TEST", nota "NO DESPACHAR" y cancelar primero en Dropi, luego en Shopify.
 # ---------------------------------------------------------------------------
 mutation CrearPedidoContraentrega($order: OrderCreateOrderInput!, $options: OrderCreateOptionsInput) {
   orderCreate(order: $order, options: $options) {
@@ -55,9 +73,6 @@ mutation CrearPedidoContraentrega($order: OrderCreateOrderInput!, $options: Orde
 #       "phone": "+573001112233"
 #     },
 #     "billingAddress": { ...igual que shippingAddress... },
-#     "customer": {
-#       "toUpsert": { "firstName": "Laura", "lastName": "Gómez", "phone": "+573001112233" }
-#     },
 #     "tags": ["canal:whatsapp", "wa:573001112233"],
 #     "note": "Barrio: Chapinero. Referencia: portería café. Preferencia: tarde.",
 #     "customAttributes": [

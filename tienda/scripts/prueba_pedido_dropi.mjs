@@ -104,13 +104,8 @@ async function run() {
       lineItems: [
         { variantId: variant.id, quantity: 1, priceSet: { shopMoney: { amount: "219900", currencyCode: "COP" } } }
       ],
-      customer: {
-        toUpsert: {
-          firstName: process.env.PRUEBA_NOMBRE,
-          lastName: process.env.PRUEBA_APELLIDO,
-          phone: celular.startsWith('+57') ? celular : `+57${celular}`
-        }
-      },
+      // Sin "customer": toUpsert exige email o id y los clientes de WhatsApp no dan correo.
+      // Nombre, teléfono y dirección van en shippingAddress, que es lo que lee Dropify.
       shippingAddress: {
         firstName: process.env.PRUEBA_NOMBRE,
         lastName: process.env.PRUEBA_APELLIDO,
@@ -152,7 +147,6 @@ async function run() {
   payloadForLog.order.shippingAddress.phone = mask(payloadForLog.order.shippingAddress.phone);
   payloadForLog.order.billingAddress.address1 = mask(payloadForLog.order.billingAddress.address1);
   payloadForLog.order.billingAddress.phone = mask(payloadForLog.order.billingAddress.phone);
-  payloadForLog.order.customer.toUpsert.phone = mask(payloadForLog.order.customer.toUpsert.phone);
   
   // Mask tag and custom attribute
   payloadForLog.order.tags = payloadForLog.order.tags.map(t => t.startsWith('wa:') ? `wa:${mask(t.replace('wa:', ''))}` : t);

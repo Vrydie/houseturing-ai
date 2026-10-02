@@ -67,7 +67,7 @@ async function run() {
   }
 
   if (!aplicar) {
-    console.log(`\n[SIMULACIÓN] Se cancelaría el pedido ${order.name} (${order.id}) con restock:true, sin notificar al cliente.`);
+    console.log(`\n[SIMULACIÓN] Se cancelaría el pedido ${order.name} (${order.id}) con restock:false (el pedido no descontó inventario), sin notificar al cliente.`);
   } else {
     const cancelQ = `
       mutation orderCancel($orderId: ID!, $notifyCustomer: Boolean, $reason: OrderCancelReason!, $restock: Boolean!, $staffNote: String) {
@@ -81,7 +81,7 @@ async function run() {
       orderId: order.id,
       notifyCustomer: false,
       reason: "OTHER",
-      restock: true,
+      restock: false, // orderCreate no descuenta stock (inventoryBehaviour BYPASS): devolverlo inflaría el inventario
       staffNote: "Cancelación de pedido de prueba OT-06"
     });
     
