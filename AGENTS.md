@@ -38,6 +38,19 @@ Idioma de trabajo: español.
 - Quitar la contraseña de la tienda, cambiar métodos de pago o cambiar la configuración general de Shopify.
 - Borrar datos de Postgres o volúmenes de `infra/data/`.
 
+## 4 bis. Simular antes de ejecutar
+- Todo script que escriba en un servicio externo (Shopify, Meta, YCloud, Dropi) o en Postgres corre por defecto en **modo simulación**: lee el estado actual y muestra qué cambiaría (antes → después) sin escribir nada. Solo escribe si se ejecuta con `--aplicar`.
+- Orden obligatorio, con la salida de cada paso pegada en el reporte de la OT:
+  1. Simulación.
+  2. El dueño o Claude revisan la salida y dan el OK. **Sin OK no hay `--aplicar`.**
+  3. `--aplicar`.
+  4. Otra simulación, que debe decir "sin cambios" (prueba de idempotencia).
+- Los borrados se listan uno por uno en la simulación. Sin esa lista no se borra nada.
+- Antes de sobrescribir contenido (políticas, páginas, metafields, configuración), el script guarda el estado anterior en `tienda/respaldos/<fecha>/` (ignorado por git) para poder revertirlo.
+- En la salida, los datos personales (teléfonos, direcciones, correos) van enmascarados: `300***1122`.
+- La lógica que decide dinero o datos del cliente (precios, ofertas, validación de teléfono y dirección, cobertura) lleva pruebas automáticas con `node --test` que corren sin red.
+- Workflows de n8n: primero con los payloads de `schemas/` y los mocks de `tests/`; después con el número de prueba; nunca de entrada con clientes. Los pedidos de prueba llevan el tag `TEST` (§4).
+
 ## 5. Fuentes de datos permitidas
 - Solo APIs oficiales o endpoints listados en MODULO_PRODUCTOS.md (Dropi API de integraciones, búsqueda pública de Éxito, SerpApi, AliExpress Affiliate API, MercadoLibre API).
 - **No hacer scraping** del panel de Dropi, de Temu, de Shein ni de Falabella.
@@ -73,6 +86,8 @@ Idioma de trabajo: español.
 - Nombra los workflows `DS-XX Nombre` como en el inventario del ROADMAP y expórtalos a `workflows/` al terminar cada uno.
 - Prueba con los payloads de `schemas/` antes de conectar servicios reales.
 - Al terminar cada tarea, marca su casilla en el ROADMAP y reporta qué se probó y qué no.
+- **Nunca reportes como hecho lo que no se midió o no se probó.** Si no hay evidencia, se escribe `NO MEDIDO` o `NO VERIFICADO` con el motivo. Nada de valores "estimados" en lugar de mediciones.
+- **Archivos de texto siempre en UTF-8.** En PowerShell, nunca uses `>`, `>>`, `Out-File`, `Set-Content` ni `Add-Content` sin `-Encoding utf8`: escriben en UTF-16 y rompen archivos como `.gitignore`. Antes de cada commit, `git diff` no debe mostrar "Binary files differ" en un archivo de texto ni archivos vacíos que antes tenían contenido.
 
 ## 11. Frentes (dos personas en el mismo repositorio)
 - **Identifica tu frente** con `git config user.name`: `https-JosephJoestar` = **Frente A** (tienda y ventas) · `Vrydie` = **Frente B** (automatización). Si no coincide con ninguno, detente y pide configurarlo. Detalle en [COLABORACION.md](COLABORACION.md).
