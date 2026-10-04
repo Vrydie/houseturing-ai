@@ -286,6 +286,9 @@ INSERT INTO config (clave, valor) VALUES
     ('stock_umbral_pausa',       '10'),
     ('max_turnos_agente',        '60'),
     ('shopify_access_token',     ''),          -- lo escribe DS-05
+    ('modo_pedidos',             'simulado'),
+    ('shopify_token_expira_en',  ''),
+    ('shopify_gateway_contraentrega', 'Pago contra entrega'),
     -- Módulo P: precios y filtros (valores iniciales; ajústalos)
     ('multiplicador_precio',     '2.5'),       -- precio_venta mínimo = precio_proveedor × esto
     ('precio_venta_min',         '49900'),
