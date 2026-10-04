@@ -15,9 +15,9 @@
 DS-T2 creará pedidos contraentrega en Shopify con `orderCreate`, y Dropify debe pasarlos a Dropi con el SKU, el celular, la dirección, la ciudad, el departamento y el valor a recaudar correctos. Nadie lo ha probado. Esta OT lo prueba **con un solo pedido marcado TEST, cancelado antes del despacho**, y deja escrito el formato exacto que funciona. Ese formato es el contrato que el Frente B usa para corregir DS-T2.
 
 ## Precondiciones del dueño (Antigravity no puede hacerlas)
-- [ ] **P1. Dropify:** instalado en Shopify y el producto CM-135 vinculado a Dropi con el **mismo SKU**. Confirmarlo en el panel de Dropify.
-- [ ] **P2. Método de pago manual** en Shopify (Configuración → Pagos → Métodos de pago manuales) llamado exactamente **`Pago contra entrega`**. Si ya existe con otro nombre, anota el nombre exacto aquí: ______
-- [ ] **P3. Datos de envío de prueba** en `infra/.env` (nunca en archivos versionados): una dirección real tuya, porque Dropi valida la dirección.
+- [x] **P1. Dropify:** instalado en Shopify y el producto CM-135 vinculado a Dropi con el **mismo SKU**. Confirmarlo en el panel de Dropify.
+- [x] **P2. Método de pago manual** en Shopify (Configuración → Pagos → Métodos de pago manuales) llamado exactamente **`Pago contra entrega`**. Si ya existe con otro nombre, anota el nombre exacto aquí: ______
+- [x] **P3. Datos de envío de prueba** en `infra/.env` (nunca en archivos versionados): una dirección real tuya, porque Dropi valida la dirección.
   ```
   PRUEBA_NOMBRE=
   PRUEBA_APELLIDO=
@@ -27,7 +27,7 @@ DS-T2 creará pedidos contraentrega en Shopify con `orderCreate`, y Dropify debe
   PRUEBA_CIUDAD=         # como la escribe Dropi, p. ej. Cali
   PRUEBA_PROVINCE_CODE=  # código de departamento de Shopify, p. ej. VAC
   ```
-- [ ] **P4. Ventana de prueba:** el dueño tiene el panel de Dropi abierto durante la prueba para revisar el pedido y **cancelarlo apenas aparezca**. Si puedes, pregunta antes a soporte de Dropi a qué hora corta el despacho y si pueden pausar el envío automático de tu cuenta ese día.
+- [x] **P4. Ventana de prueba:** el dueño tiene el panel de Dropi abierto durante la prueba para revisar el pedido y **cancelarlo apenas aparezca**. Si puedes, pregunta antes a soporte de Dropi a qué hora corta el despacho y si pueden pausar el envío automático de tu cuenta ese día.
 
 Si falta alguna, marca la OT como `bloqueada`, anota cuál y detente.
 
@@ -84,20 +84,41 @@ Si falta alguna, marca la OT como `bloqueada`, anota cuál y detente.
 - Añade los nombres `PRUEBA_*` (sin valores) a `.env.example`.
 
 ## Criterios de aceptación
-- [ ] Un pedido TEST creado por API llega a Dropi con los 6 primeros campos de la tabla correctos.
-- [ ] Cancelado en Dropi antes del despacho y luego en Shopify. Sin cobros de flete.
-- [ ] Simulaciones, salidas de `--aplicar` e idempotencia (una segunda simulación ve el pedido existente y no crea otro) pegadas en el reporte.
-- [ ] Formato validado escrito en `schemas/salida_shopify_pedido.graphql`.
-- [ ] Ningún dato personal de la prueba en archivos versionados ni en capturas.
+- [x] Un pedido TEST creado por API llega a Dropi con los 6 primeros campos de la tabla correctos.
+- [x] Cancelado en Dropi antes del despacho y luego en Shopify. Sin cobros de flete.
+- [x] Simulaciones, salidas de `--aplicar` e idempotencia (una segunda simulación ve el pedido existente y no crea otro) pegadas en el reporte.
+- [x] Formato validado escrito en `schemas/salida_shopify_pedido.graphql`.
+- [x] Ningún dato personal de la prueba en archivos versionados ni en capturas.
 
 ## Para el Frente B
 DS-T2 (`workflows/DS-T2_crear_pedido.json`) debe usar el formato que valide esta OT. Hoy le faltan `lineItems`, `countryCode`, `provinceCode`, `transactions`, el precio de `ofertas`, la comprobación de `confirmado_por_cliente`, la revalidación de cobertura, la idempotencia y guardar el pedido en `pedidos` (ROADMAP Fase 5). La corrección va en una ronda de OT-04 aparte.
 
-## Reporte de ejecución (lo llena Antigravity)
-- Estado final:
-- Qué se hizo:
-- Evidencia (simulaciones, salidas, capturas):
-- Intentos y resultado de cada uno:
-- Qué NO se probó:
-- Desvíos del plan y por qué:
-- Decisiones que necesito del dueño o de Claude:
+## Reporte de ejecución
+*Ejecutado el 1-oct-2026 por Claude junto al dueño, que pidió hacerlo en la sesión (no por Antigravity).*
+
+- **Estado final:** para revisión. **La prueba pasó en el intento 1 corregido:** un pedido creado por la Admin API llegó a Dropi con los 6 campos correctos y se canceló antes del despacho.
+- **Precondiciones:**
+  - P1: SKU CM-135 igual en Shopify y Dropi. Dropify tenía **dos** productos de Shopify vinculados al mismo producto de Dropi: un duplicado importado el 1-oct a las 23:12, sin plantilla, a $260.000. El dueño lo desvinculó en Dropify y Claude lo **archivó** en Shopify (simulación → OK → aplicar → segunda simulación "sin cambios"). Queda un solo vínculo: `9032076853366` ↔ Dropi `1870930`.
+  - P2 y P3: listas según el dueño. P3 verificada (7 variables con valor, celular de 10 dígitos que empieza por 3).
+  - P4: el dueño tuvo Mis Pedidos abierto durante toda la prueba.
+  - Dropify → Configuración General, según el dueño: "Sincronizar órdenes automáticamente" activada y "Sincronizar órdenes pagadas" desactivada.
+- **Qué se hizo:** simulación → OK → `--aplicar` (falló, ver desvíos) → corrección → nueva simulación → OK → `--aplicar` (#1001) → verificación del dueño en Dropi → cancelación en Dropi → simulación de cancelación → OK → cancelación en Shopify → segunda simulación "ya está cancelado".
+- **Evidencia:** [evidencia/OT-06/README.md](evidencia/OT-06/README.md), con la línea de tiempo, la tabla del paso 4, el desglose económico de Dropi y la idempotencia. Datos personales enmascarados.
+- **Intentos:** intento 1 rechazado por Shopify antes de crear el pedido (ver desvíos). Intento 1 corregido: **éxito**. No hicieron falta los intentos 2 ni 3.
+- **Qué NO se probó:**
+  - El seguimiento por API cada 2 min durante 30 min (paso 3): el dueño vigiló Dropi directamente y apareció en ~3 min. Se consultó el pedido después: Dropify le puso el tag `Order sent to dropi`.
+  - Si cancelar en Shopify cambia algo en Dropi: NO VERIFICADO, porque ya estaba cancelado en Dropi.
+  - Que no hubo cobro de flete: en el "Historial de Cartera" del pedido no aparece ningún movimiento, y la cartera estaba en $0. Conviene que el dueño lo revise mañana.
+  - Pedidos de 2 unidades o con precio de oferta, ciudades fuera de Cali y otro producto.
+- **Desvíos del plan y por qué:**
+  1. **Se quitó `customer.toUpsert`** (el paso 1 lo pedía). Shopify lo rechaza sin email o id: `OrderCreateUpsertCustomerAttributesInput requires at least one of id, email`. Nombre y teléfono siguen en `shippingAddress`, y Dropi los tomó bien. El contrato se corrigió igual.
+  2. **`restock: false` en vez de `true`** (el paso 6 lo pedía). `orderCreate` no descontó inventario (stock 0 antes y después), así que devolverlo habría inventado una unidad.
+- **Hallazgos para el resto del proyecto:**
+  - **Dropi no despacha solo:** los pedidos entran como PENDIENTE CONFIRMACION. En producción alguien, o un flujo, tiene que confirmarlos.
+  - **Stock:** Shopify muestra 0 aunque Dropi tiene 422. Dropify no ofrece sincronizar inventario en su configuración, así que **D7 no se cumple tal como está escrita**: el guardián de stock (DS-21) no puede leer el stock de Shopify. Hay que leerlo de la API de Dropi u otra fuente.
+  - **Margen real del producto de ejemplo:** $32.241 por pedido entregado (venta $219.900; envío $17.647; comisión $10.113; proveedor $159.900).
+- **Para el Frente B:** DS-T2 debe seguir el formato validado en `schemas/salida_shopify_pedido.graphql`: sin `customer`, con `transactions` "Pago contra entrega", dirección completa y tag `TEST` en pruebas. Además de lo que ya lista la sección "Para el Frente B".
+- **Decisiones del dueño (2-oct-2026):**
+  1. **Confirmación de pedidos en Dropi: automatizarla.** Requiere la API de integraciones de Dropi (`DROPI_INTEGRATION_KEY`). Hay que confirmar con Dropi que esa API permite confirmar pedidos. Va en una OT del Frente B.
+  2. **Dropify se queda:** es lo que lleva el pedido de Shopify a Dropi. El stock para el guardián (D7) se leerá de la API de Dropi, no de Shopify. Hay que actualizar D7 en el ROADMAP en un PR compartido.
+  3. **Margen:** el dueño lo tendrá en cuenta al elegir el producto definitivo.
