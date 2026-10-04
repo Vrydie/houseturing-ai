@@ -3,7 +3,7 @@
 **Estado:** propuesta (Claude, 4-oct-2026) · **Frente:** A, con propuestas para el Frente B en la §7
 **Para quién:** el dueño (§1 a §6 y §8). Samuel (Frente B) solo necesita la §7.
 
-Los datos de WhatsApp, Gemini, túneles y Dropi vienen de fuentes de terceros (blogs y guías, citadas al final). Se marcan **por confirmar** hasta verlos en la documentación oficial o en el panel.
+Los datos de WhatsApp, Gemini y túneles vienen de fuentes de terceros (blogs y guías, citadas al final) y se marcan **por confirmar** hasta verlos en la documentación oficial. Lo de Dropi sobre la billetera y las devoluciones lo confirmó el dueño en su propia cuenta el 4-oct-2026.
 
 ## 1. Punto de partida
 - El dueño no tiene capital: **no hay muestras ni anuncios por ahora** (decisión del 4-oct-2026).
@@ -13,7 +13,7 @@ Los datos de WhatsApp, Gemini, túneles y Dropi vienen de fuentes de terceros (b
 ## 2. Meta y reglas
 - **Meta de 30 días:** 10 pedidos entregados, sin anuncios ni muestras. Es una meta, no un pronóstico.
 - **Qué significa en plata** (sopladora a $139.900; 70 % de entrega; la devolución cuesta ida y vuelta): 14 pedidos creados dejan ~9,8 entregados y unos **$330.000 netos**. Es poco, pero financia lo que sigue.
-- **Orden de reinversión:** 1) colchón en la billetera de Dropi (~$77.000, por confirmar), 2) muestra del producto (~$83.000 con flete), 3) dominio, 4) modelo de IA con facturación, 5) servidor, 6) anuncios.
+- **Orden de reinversión:** 1) colchón en la billetera de Dropi para devoluciones (cada una cuesta ~$38.000, ida y vuelta; ~$77.000 cubren dos), 2) muestra del producto (~$83.000 con flete), 3) dominio, 4) modelo de IA con facturación, 5) servidor, 6) anuncios.
 - **Reglas:** nada que el proveedor no respalde (AGENTS.md §6 y §9); sin muestra no se afirman datos medidos (nada de "48V"); fotos y videos del proveedor solo si son reales (ni capturas de otros vendedores ni imágenes de IA); precios y márgenes salen de `tienda/scripts/economia.mjs`.
 
 ## 3. Producto
@@ -41,7 +41,7 @@ Reevaluado el 4-oct-2026 con fletes reales de Dropi (7 ciudades, con recaudo, tr
 | Modelo de IA | Gemini **Flash** en el nivel gratis. El Pro dejó de ser gratis el 1-abr-2026 (según terceros) y el reporte de OT-04 dice que el agente usó `gemini-pro-latest` | **Solo con datos falsos:** en el nivel gratis Google puede usar y revisar por personas lo que se envía, y pide no mandar datos personales. Con clientes reales hay que activar facturación (en el nivel de pago no se entrena con tus datos); el costo por conversación debería ser de centavos de dólar (**por medir**) |
 | Verificación del negocio en Meta | No hace falta para empezar: sin verificar se puede escribir a 250 clientes distintos por día; la verificación sube ese tope | Cuando haya dominio |
 | Shopify | Ya se paga el plan Basic: **revisar cuánto y cuándo se renueva**, es el gasto fijo más alto | Si el dinero aprieta, vender primero por WhatsApp y crear los pedidos en Dropi a mano (§5) |
-| Dropi | Registro gratis; el recaudo llega a la billetera después de la entrega | **Por confirmar con Dropi:** si pide saldo para confirmar pedidos con recaudo y cómo cobra las devoluciones (fuentes de terceros dicen que con saldo negativo se bloquean los pedidos nuevos y que solo descuentan el flete de ida) |
+| Dropi | Registro gratis; el recaudo llega a la billetera después de la entrega. **Confirmar pedidos con recaudo no exige saldo** (confirmado por el dueño en su cuenta) | Una devolución se cobra **ida y vuelta** (confirmado por el dueño): ~$38.000 con los fletes cotizados, y sale de la billetera. **Por confirmar:** qué pasa si la billetera está en $0 cuando llega una devolución (saldo negativo, bloqueo de pedidos nuevos o descuento de las próximas ganancias) |
 
 ## 5. Primeros pedidos sin anuncios
 1. **Canal base:** el número de WhatsApp de la tienda en la app WhatsApp Business. Respuestas rápidas con el guion de [prompts/agente_ventas_system.md](../prompts/agente_ventas_system.md) y las objeciones de la ficha.
@@ -57,7 +57,7 @@ Reevaluado el 4-oct-2026 con fletes reales de Dropi (7 ciudades, con recaudo, tr
 
 ## 6. Etapas y semáforo
 - **Etapa 0 (días 1 a 7, costo $0):** elegir producto (§3), pedir material al proveedor, dejar WhatsApp Business listo, publicar las primeras 5 piezas, averiguar lo que está "por confirmar" (§8).
-- **Etapa 1 (días 8 a 30):** atender y crear pedidos a mano, y medir.
+- **Etapa 1 (días 8 a 30):** atender y crear pedidos a mano, y medir. Mientras la billetera de Dropi esté en $0, el dueño fija un **tope de pedidos en tránsito**: lo máximo que puede perder es ~$38.000 por cada pedido que se devuelva (con un tope de 3 pedidos, ~$115.000 en el peor caso).
 - **Semáforo a los 14 días y con al menos 15 publicaciones** (umbrales sugeridos, se ajustan con datos): **verde** si hay 10 o más conversaciones con el precio visible y 2 o más pedidos; **amarillo** con 5 a 9 conversaciones (cambiar el gancho del video o el precio); **rojo** con menos de 5 (cambiar de producto o de canal).
 - **Etapa 2 (primeros ingresos):** reinvertir en el orden de la §2 y conectar YCloud en coexistencia para probar el bot con datos falsos.
 - **Etapa 3 (20 o más pedidos al mes, o más de 2 horas diarias atendiendo):** bot en producción, dominio, servidor y el primer presupuesto de anuncios.
@@ -69,7 +69,7 @@ Reevaluado el 4-oct-2026 con fletes reales de Dropi (7 ciudades, con recaudo, tr
 4. **Pendientes que dependen de Dropi:** confirmación automática de pedidos y lectura de stock (API solicitada el 2-oct-2026).
 
 ## 8. Preguntas abiertas
-- **Dropi** (en el correo ya enviado a Marcos, o por soporte): ¿saldo mínimo en la billetera para confirmar o despachar pedidos con recaudo? ¿Cómo cobran las devoluciones, solo el flete de ida o también el de vuelta? ¿En cuánto tiempo llega el recaudo? ¿Hay descuento en muestras?
+- **Dropi** (en el correo ya enviado a Marcos, o por soporte): si llega una devolución y la billetera está en $0, ¿qué pasa con el cobro: queda saldo negativo, bloquean los pedidos nuevos o lo descuentan de las próximas ganancias? ¿En cuánto tiempo llega el recaudo? ¿Hay descuento en muestras? ¿Hay casos en que no cobran la vuelta de una devolución?
 - **YCloud:** ¿plan gratis, cobro por mensaje y qué exige de verificación para la coexistencia?
 - **Shopify:** fecha de renovación y monto del plan Basic.
 
@@ -77,5 +77,4 @@ Reevaluado el 4-oct-2026 con fletes reales de Dropi (7 ciudades, con recaudo, tr
 - WhatsApp: [precios 2025-2026 (CM.com)](https://www.cm.com/blog/whatsapp-business-platform-pricing/), [cambios del 1-oct-2026 (Courier)](https://www.courier.com/blog/whatsapp-pricing-changes-october-2026), [límites sin verificación (Wassenger)](https://wassenger.com/blog/en/whatsapp-business-api-without-verification)
 - Gemini: [límites del nivel gratis](https://tinkerllm.com/blog/gemini-api-free-tier-limits-rate-quotas/), [uso de datos en el nivel gratis](https://ampm-aiops.com/en/guides/gemini-free-tier-data-tradeoff-2026/)
 - Túneles: [ngrok, límites del plan gratis](https://ngrok.com/docs/pricing-limits/free-plan-limits), [Cloudflare Quick Tunnels](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/do-more-with-tunnels/trycloudflare/)
-- Dropi: [cómo funciona paso a paso (Andrey Business)](https://www.andreybusiness.com/blog/como-funciona-dropi-paso-a-paso-2026), [costos por devolución (Andrey Business)](https://www.andreybusiness.com/blog/dropi-costos-por-devolucion-cuanto-cobran-realmente)
-- Precios de mercado: [sopladoras](https://listado.mercadolibre.com.co/pistola-sopladora-aspiradora), [pulidoras](https://listado.mercadolibre.com.co/mini-pulidora-inalambrica), [sets de dados](https://listado.mercadolibre.com.co/juego-de-dados), [Homecenter: ratchet 46 piezas](https://www.homecenter.com.co/homecenter-co/k/rachet)
+- Dropi: [cómo funciona paso a paso (Andrey Business)](https://www.andreybusiness.com/blog/como-funciona-dropi-paso-a-paso-2026)- Precios de mercado: [sopladoras](https://listado.mercadolibre.com.co/pistola-sopladora-aspiradora), [pulidoras](https://listado.mercadolibre.com.co/mini-pulidora-inalambrica), [sets de dados](https://listado.mercadolibre.com.co/juego-de-dados), [Homecenter: ratchet 46 piezas](https://www.homecenter.com.co/homecenter-co/k/rachet)
