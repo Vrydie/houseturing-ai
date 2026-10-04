@@ -1,0 +1,53 @@
+<section id="comparar" class="lc">
+  <div class="lc__in">
+    <h2 class="lc__h">{{ section.settings.titulo }}</h2>
+    <div class="lc__t" role="table" aria-label="{{ section.settings.titulo | escape }}">
+      <div class="lc__r lc__r--head" role="row">
+        <span role="columnheader"></span>
+        <span role="columnheader" class="lc__sep">{{ section.settings.col_a }}</span>
+        <span role="columnheader" class="lc__kit lc__kit--head">{{ section.settings.col_b }}</span>
+      </div>
+      {% for block in section.blocks %}
+        <div class="lc__r" role="row" {{ block.shopify_attributes }}>
+          <span role="rowheader" class="lc__rh">{{ block.settings.fila }}</span>
+          <span role="cell" class="lc__sep">{{ block.settings.separado }}</span>
+          <span role="cell" class="lc__kit{% if forloop.last %} lc__kit--last{% endif %}">{{ block.settings.kit }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<style>
+  .lc { background: #FFFFFF; color: #121417; padding: 52px 20px; }
+  .lc__in { max-width: 760px; margin: 0 auto; }
+  .lc__h { margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 36px; line-height: 1; color: #121417; text-transform: none; }
+  .lc__t { margin-top: 22px; display: flex; flex-direction: column; font-family: 'Barlow', sans-serif; }
+  .lc__r { display: grid; grid-template-columns: 30% 35% 35%; border-top: 1px solid #DDE1E4; font-size: 14px; line-height: 1.35; }
+  .lc__r--head { border-top: 0; align-items: end; }
+  .lc__r > span { padding: 14px 8px; }
+  .lc__r--head > span { padding: 0 8px 10px; font-weight: 700; color: #4A525B; }
+  .lc__rh { padding-left: 0 !important; font-weight: 700; }
+  .lc__sep { color: #4A525B; }
+  .lc__kit { background: #F1F2F3; font-weight: 600; color: #121417; }
+  .lc__r--head .lc__kit--head { padding: 10px 8px !important; border-radius: 12px 12px 0 0; background: #121417; color: #FFFFFF; }
+  .lc__kit--last { border-radius: 0 0 12px 12px; }
+  @media (min-width: 1024px) { .lc__h { font-size: 44px; } .lc__r { font-size: 16px; } }
+</style>
+{% schema %}
+{
+  "name": "Landing Comparar",
+  "settings": [
+    { "type": "text", "id": "titulo", "label": "Título", "default": "Por separado o en un solo maletín" },
+    { "type": "text", "id": "col_a", "label": "Columna 1", "default": "Por separado" },
+    { "type": "text", "id": "col_b", "label": "Columna 2", "default": "Este kit" }
+  ],
+  "blocks": [
+    { "type": "fila", "name": "Fila", "settings": [
+      { "type": "text", "id": "fila", "label": "Fila" },
+      { "type": "text", "id": "separado", "label": "Por separado" },
+      { "type": "text", "id": "kit", "label": "Este kit" }
+    ] }
+  ],
+  "presets": [{ "name": "Landing Comparar" }]
+}
+{% endschema %}

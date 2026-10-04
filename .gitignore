@@ -19,3 +19,4 @@ tienda/.shopify/
 *.log
 .DS_Store
 Thumbs.db
+tienda/respaldos/

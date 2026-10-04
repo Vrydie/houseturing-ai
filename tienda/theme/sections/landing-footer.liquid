@@ -1,0 +1,39 @@
+<footer class="lf">
+  <div class="lf__in">
+    <span class="lf__logo">{{ shop.name }}</span>
+    <nav aria-label="Información legal" class="lf__nav">
+      <a href="/pages/envios-y-pagos">Envíos y pagos</a>
+      <a href="/pages/garantia-y-devoluciones">Garantía y devoluciones</a>
+      <a href="/pages/tratamiento-de-datos">Tratamiento de datos</a>
+      <a href="{% if shop.terms_of_service %}{{ shop.terms_of_service.url }}{% else %}/policies/terms-of-service{% endif %}">Términos y condiciones</a>
+      <a href="/pages/contacto">Contacto</a>
+    </nav>
+    <div class="lf__legal">
+      <span>{{ section.settings.razon_social }}, NIT {{ section.settings.nit }}</span>
+      <span>{{ section.settings.direccion }}</span>
+    </div>
+    <span class="lf__c">© {{ 'now' | date: '%Y' }} {{ shop.name }}</span>
+  </div>
+</footer>
+<style>
+  .lf { background: #0B0D0F; color: #AEB6BF; border-top: 1px solid #2E343B; font-family: 'Barlow', sans-serif; font-size: 14px; line-height: 1.5; }
+  .lf__in { max-width: 1200px; margin: 0 auto; padding: 36px 20px 104px; display: flex; flex-direction: column; gap: 20px; }
+  .lf__logo { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 24px; color: #FFFFFF; }
+  .lf__nav { display: flex; flex-direction: column; }
+  .lf__nav a { padding: 10px 0; font-size: 15px; color: #FFFFFF; text-decoration: none; }
+  .lf__nav a:hover { text-decoration: underline; }
+  .lf__legal { display: flex; flex-direction: column; gap: 2px; }
+  .lf__c { font-size: 13px; }
+  @media (min-width: 1024px) { .lf__in { padding-bottom: 36px; } .lf__nav { flex-direction: row; gap: 28px; } }
+</style>
+{% schema %}
+{
+  "name": "Landing Footer",
+  "enabled_on": { "groups": ["footer"] },
+  "settings": [
+    { "type": "text", "id": "razon_social", "label": "Razón social", "default": "[Razón social pendiente]" },
+    { "type": "text", "id": "nit", "label": "NIT", "default": "[pendiente]" },
+    { "type": "text", "id": "direccion", "label": "Dirección", "default": "[Dirección y ciudad pendientes]" }
+  ]
+}
+{% endschema %}

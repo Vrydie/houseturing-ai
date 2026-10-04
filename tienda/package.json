@@ -9,9 +9,14 @@
   "keywords": [],
   "type": "commonjs",
   "dependencies": {
-    "dotenv": "^18.0.4"
+    "dotenv": "^18.0.4",
+    "marked": "^18.0.14",
+    "puppeteer": "^25.12.0"
   },
   "devDependencies": {
     "@shopify/cli": "^4.8.2"
+  },
+  "allowScripts": {
+    "puppeteer@25.12.0": true
   }
 }

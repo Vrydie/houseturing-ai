@@ -6,23 +6,121 @@
         "main_product": "taladro-24v-dewalt-accesorios-maleta"
       }
     },
+    "trust": {
+      "type": "landing-trust",
+      "settings": {}
+    },
+    "video": {
+      "type": "landing-video",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta"
+      }
+    },
+    "modes": {
+      "type": "landing-modes",
+      "settings": {
+        "titulo": "Un taladro, tres modos",
+        "subtitulo": "Cambias de modo girando el anillo frontal."
+      },
+      "blocks": {
+        "modo_0": {
+          "type": "modo",
+          "settings": {
+            "icono": "atornillador",
+            "nombre": "Atornillador",
+            "texto": "Para armar muebles, instalar repisas y apretar tornillos."
+          }
+        },
+        "modo_1": {
+          "type": "modo",
+          "settings": {
+            "icono": "taladro",
+            "nombre": "Taladro",
+            "texto": "Para perforar madera y metal."
+          }
+        },
+        "modo_2": {
+          "type": "modo",
+          "settings": {
+            "icono": "percutor",
+            "nombre": "Percutor",
+            "texto": "Para perforar ladrillo y concreto en paredes y techos."
+          }
+        }
+      },
+      "block_order": [
+        "modo_0",
+        "modo_1",
+        "modo_2"
+      ]
+    },
+    "compare": {
+      "type": "landing-compare",
+      "settings": {
+        "main_product": "taladro-24v-dewalt-accesorios-maleta",
+        "titulo": "Por separado o en un solo maletín",
+        "col_a": "Por separado",
+        "col_b": "Este kit"
+      },
+      "blocks": {
+        "fila_0": {
+          "type": "fila",
+          "settings": {
+            "fila": "Pedidos",
+            "separado": "Varias compras y envíos",
+            "kit": "Un solo pedido"
+          }
+        },
+        "fila_1": {
+          "type": "fila",
+          "settings": {
+            "fila": "Baterías",
+            "separado": "Se compran aparte",
+            "kit": "2 incluidas"
+          }
+        },
+        "fila_2": {
+          "type": "fila",
+          "settings": {
+            "fila": "Accesorios",
+            "separado": "Uno por uno",
+            "kit": "Todos en el maletín"
+          }
+        },
+        "fila_3": {
+          "type": "fila",
+          "settings": {
+            "fila": "Dónde guardarlo",
+            "separado": "Cajón o bolsa",
+            "kit": "Maletín organizador"
+          }
+        },
+        "fila_4": {
+          "type": "fila",
+          "settings": {
+            "fila": "Cómo pagas",
+            "separado": "Depende de la tienda",
+            "kit": "En efectivo al recibir"
+          }
+        }
+      },
+      "block_order": [
+        "fila_0",
+        "fila_1",
+        "fila_2",
+        "fila_3",
+        "fila_4"
+      ]
+    },
     "incluye": {
       "type": "landing-incluye",
       "settings": {
         "main_product": "taladro-24v-dewalt-accesorios-maleta"
       }
     },
-    "pasos": {
-      "type": "landing-pasos",
-      "settings": {
-        "main_product": "taladro-24v-dewalt-accesorios-maleta"
-      }
-    },
     "garantia": {
       "type": "landing-garantia",
-      "settings": {
-        "main_product": "taladro-24v-dewalt-accesorios-maleta"
-      }
+      "settings": {}
     },
     "faq": {
       "type": "landing-faq",
@@ -45,8 +143,11 @@
   },
   "order": [
     "hero",
+    "trust",
+    "video",
     "incluye",
-    "pasos",
+    "modes",
+    "compare",
     "garantia",
     "faq",
     "cierre",

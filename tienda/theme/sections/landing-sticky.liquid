@@ -1,8 +1,8 @@
 
 {% assign selected_product = section.settings.main_product | default: product %}
 <div id="sticky-bar" class="landing-sticky" style="transform: translateY(100%);">
-  <div class="sticky-price" style="color: var(--color-naranja);">{{ selected_product.price | money }}</div>
-  <a id="sticky-btn" href="https://wa.me/573000000000?text={{ selected_product.metafields.landing.whatsapp_texto.value | url_encode }} (web-{{ selected_product.sku }})" class="sticky-btn">
+  <div class="sticky-price" style="color: var(--color-naranja);">{{ selected_product.price | money_without_trailing_zeros }}</div>
+  <a id="sticky-btn" href="https://wa.me/{{ settings.whatsapp_number }}?text={{ selected_product.metafields.landing.whatsapp_texto.value | append: " (web-" | append: selected_product.selected_or_first_available_variant.sku | append: ")" | url_encode }}" class="sticky-btn">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"></path><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"></path></svg> Pedir por WhatsApp
   </a>
 </div>

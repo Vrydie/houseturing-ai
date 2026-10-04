@@ -96,6 +96,9 @@
     content_for 'block', type: '_header-menu', id: 'header-menu', variant: 'navigation_bar', transparent: transparent
   endcapture
 
+  assign menu = ""
+  assign drawer_menu = ""
+  assign navigation_bar = ""
   assign has_navigation_bar = false
   if navigation_bar contains 'data-navigation-bar-enabled'
     assign has_navigation_bar = true
@@ -1817,3 +1820,4 @@
   "presets": []
 }
 {% endschema %}
+
