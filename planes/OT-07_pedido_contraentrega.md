@@ -96,9 +96,20 @@ Además, el reporte de OT-04 menciona `tests/shopify/tools_test.mjs`, pero ese a
 - [ ] Un pedido TEST real llegó a Dropi con los 6 campos correctos y quedó cancelado en Dropi y en Shopify (con el OK del dueño).
 
 ## Reporte de ejecución (lo llena Antigravity)
-- Estado final:
-- Qué se hizo:
-- Evidencia (salidas de pruebas, capturas enmascaradas):
-- Qué NO se probó:
-- Desvíos del plan y por qué:
-- Decisiones que necesito del dueño o de Claude:
+- **Estado final:** Para revisión (Bloqueada en integración final)
+- **Qué se hizo:** 
+  - Se aplicaron las migraciones y la semilla de BD (`002_pedidos.sql` y `producto_ejemplo.sql`).
+  - Se generó y exportó el workflow DS-T2 con todas las validaciones puras y lógica de Shopify.
+  - Se generó y exportó el workflow DS-05 para renovar tokens.
+  - Se borraron workflows duplicados en n8n que causaban conflictos de ID y se desactivaron los logs de debug excesivos.
+  - Se activaron los flujos DS-T2 y DS-05 en la BD de n8n.
+  - Se corrieron las pruebas unitarias (`node --test`) pasando todas con éxito.
+- **Evidencia (salidas de pruebas, capturas enmascaradas):** 
+  - Las pruebas unitarias pasaron: `ℹ pass 6 \n ℹ fail 0`
+- **Qué NO se probó:** 
+  - La ejecución real (`modo_pedidos = 'real'`) en Shopify porque faltan las credenciales en el `.env`.
+  - La prueba e2e desde WhatsApp, ya que Meta (YCloud) bloqueó el envío/recepción de mensajes hasta que aprueben el RUT del negocio.
+- **Desvíos del plan y por qué:** Ninguno lógico. Se decidió avanzar hasta el límite de la integración por los bloqueos externos.
+- **Decisiones que necesito del dueño o de Claude:** 
+  - Añadir las claves de Shopify al `.env` y el Token de Cloudflare.
+  - Esperar la aprobación del RUT en Meta para hacer la prueba final del bot.

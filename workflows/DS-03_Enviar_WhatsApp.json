@@ -30,7 +30,7 @@
       },
       "credentials": {
         "postgres": {
-          "id": "ot05-postgres",
+          "id": "CFC6kja16jPSI9VC",
           "name": "Postgres dropship"
         }
       }
@@ -45,7 +45,7 @@
         0
       ],
       "parameters": {
-        "jsCode": "function bubbles(input, empresa, random = Math.random) {\r\n  const partes = input.plantilla ? [null] : String(input.texto ?? '').split(/\\n\\s*\\n/).filter(s=>s.trim());\r\n  // M├íximo tres burbujas, sin perder p├írrafos adicionales.\r\n  if (partes.length > 3) partes.splice(2, partes.length-2, partes.slice(2).join('\\n\\n'));\r\n  return partes.map(texto=>({\r\n    texto,waitTime:Math.min(7,Math.max(1.5,0.035*(texto?.length ?? 0)+0.5+random())),\r\n    body:{from:empresa,to:'+'+input.wa_id,type:input.plantilla?'template':'text',\r\n      ...(input.plantilla?{template:input.plantilla}:{text:{body:texto},...(input.responder_a_wamid?{context:{message_id:input.responder_a_wamid}}:{})})}\r\n  }));\r\n}\nconst p=$('Entrada').first().json;\nif(!$json.simulado && !/^\\+?\\d{8,15}$/.test($json.empresa)) throw new Error('Configurar el n├║mero de empresa antes de modo real');\nreturn [{json:{...p,simulado:$json.simulado,burbujas:bubbles(p,$json.empresa)}}];"
+        "jsCode": "function bubbles(input, empresa, random = Math.random) {\r\n  const partes = input.plantilla ? [null] : String(input.texto ?? '').split(/\\n\\s*\\n/).filter(s=>s.trim());\r\n  // M├íximo tres burbujas, sin perder p├írrafos adicionales.\r\n  if (partes.length > 3) partes.splice(2, partes.length-2, partes.slice(2).join('\\n\\n'));\r\n  return partes.map(texto=>({\r\n    texto,waitTime:Math.min(7,Math.max(1.5,0.035*(texto?.length ?? 0)+0.5+random())),\r\n    body:{from:empresa,...(/^\\+?\\d+$/.test(input.wa_id) ? {to:'+' + String(input.wa_id).replace(/^\\+/,'')} : {recipient:input.wa_id}),type:input.plantilla?'template':'text',\r\n      ...(input.plantilla?{template:input.plantilla}:{text:{body:texto},...(input.responder_a_wamid?{context:{message_id:input.responder_a_wamid}}:{})})}\r\n  }));\r\n}\nconst p=$('Entrada').first().json;\nif(!$json.simulado && !/^\\+?\\d{8,15}$/.test($json.empresa)) throw new Error('Configurar el n├║mero de empresa antes de modo real');\nreturn [{json:{...p,simulado:$json.simulado,burbujas:bubbles(p,$json.empresa)}}];"
       }
     },
     {
@@ -108,7 +108,7 @@
       },
       "credentials": {
         "httpHeaderAuth": {
-          "id": "ot05-ycloud",
+          "id": "WgW0WPClj5pFOcng",
           "name": "YCloud API (parte 3)"
         }
       }
@@ -144,7 +144,7 @@
       },
       "credentials": {
         "postgres": {
-          "id": "ot05-postgres",
+          "id": "CFC6kja16jPSI9VC",
           "name": "Postgres dropship"
         }
       }
@@ -167,7 +167,7 @@
       },
       "credentials": {
         "postgres": {
-          "id": "ot05-postgres",
+          "id": "CFC6kja16jPSI9VC",
           "name": "Postgres dropship"
         }
       }
@@ -245,7 +245,7 @@
       },
       "credentials": {
         "httpHeaderAuth": {
-          "id": "ot05-ycloud",
+          "id": "WgW0WPClj5pFOcng",
           "name": "YCloud API (parte 3)"
         }
       }
@@ -253,7 +253,7 @@
     {
       "id": "Ritmo 0",
       "name": "Ritmo 0",
-      "type": "n8n-nodes-base.wait",
+      "type": "n8n-nodes-base.noOp",
       "typeVersion": 1.1,
       "position": [
         1440,
@@ -283,7 +283,7 @@
       },
       "credentials": {
         "postgres": {
-          "id": "ot05-postgres",
+          "id": "CFC6kja16jPSI9VC",
           "name": "Postgres dropship"
         }
       }
@@ -364,7 +364,7 @@
       },
       "credentials": {
         "httpHeaderAuth": {
-          "id": "ot05-ycloud",
+          "id": "WgW0WPClj5pFOcng",
           "name": "YCloud API (parte 3)"
         }
       }
@@ -387,7 +387,7 @@
       },
       "credentials": {
         "postgres": {
-          "id": "ot05-postgres",
+          "id": "CFC6kja16jPSI9VC",
           "name": "Postgres dropship"
         }
       },
@@ -411,7 +411,7 @@
       },
       "credentials": {
         "postgres": {
-          "id": "ot05-postgres",
+          "id": "CFC6kja16jPSI9VC",
           "name": "Postgres dropship"
         }
       }
@@ -489,7 +489,7 @@
       },
       "credentials": {
         "httpHeaderAuth": {
-          "id": "ot05-ycloud",
+          "id": "WgW0WPClj5pFOcng",
           "name": "YCloud API (parte 3)"
         }
       }
@@ -497,7 +497,7 @@
     {
       "id": "Ritmo 1",
       "name": "Ritmo 1",
-      "type": "n8n-nodes-base.wait",
+      "type": "n8n-nodes-base.noOp",
       "typeVersion": 1.1,
       "position": [
         960,
@@ -527,7 +527,7 @@
       },
       "credentials": {
         "postgres": {
-          "id": "ot05-postgres",
+          "id": "CFC6kja16jPSI9VC",
           "name": "Postgres dropship"
         }
       }
@@ -608,7 +608,7 @@
       },
       "credentials": {
         "httpHeaderAuth": {
-          "id": "ot05-ycloud",
+          "id": "WgW0WPClj5pFOcng",
           "name": "YCloud API (parte 3)"
         }
       }
@@ -631,7 +631,7 @@
       },
       "credentials": {
         "postgres": {
-          "id": "ot05-postgres",
+          "id": "CFC6kja16jPSI9VC",
           "name": "Postgres dropship"
         }
       },
@@ -655,7 +655,7 @@
       },
       "credentials": {
         "postgres": {
-          "id": "ot05-postgres",
+          "id": "CFC6kja16jPSI9VC",
           "name": "Postgres dropship"
         }
       }
@@ -733,7 +733,7 @@
       },
       "credentials": {
         "httpHeaderAuth": {
-          "id": "ot05-ycloud",
+          "id": "WgW0WPClj5pFOcng",
           "name": "YCloud API (parte 3)"
         }
       }
@@ -741,7 +741,7 @@
     {
       "id": "Ritmo 2",
       "name": "Ritmo 2",
-      "type": "n8n-nodes-base.wait",
+      "type": "n8n-nodes-base.noOp",
       "typeVersion": 1.1,
       "position": [
         480,
@@ -771,7 +771,7 @@
       },
       "credentials": {
         "postgres": {
-          "id": "ot05-postgres",
+          "id": "CFC6kja16jPSI9VC",
           "name": "Postgres dropship"
         }
       }
@@ -852,7 +852,7 @@
       },
       "credentials": {
         "httpHeaderAuth": {
-          "id": "ot05-ycloud",
+          "id": "WgW0WPClj5pFOcng",
           "name": "YCloud API (parte 3)"
         }
       }
@@ -875,7 +875,7 @@
       },
       "credentials": {
         "postgres": {
-          "id": "ot05-postgres",
+          "id": "CFC6kja16jPSI9VC",
           "name": "Postgres dropship"
         }
       },

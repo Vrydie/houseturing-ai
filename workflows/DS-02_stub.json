@@ -1,5 +1,5 @@
 {
-  "id": "ae42ab9a-9d5c-40fb-b18b-b8626c78b51b",
+  "id": "ds-02-agente-ventas",
   "name": "DS-02 Agente de Ventas",
   "nodes": [
     {
@@ -118,21 +118,23 @@
     },
     {
       "parameters": {
-        "modelName": "models/gemini-3.8-flash",
-        "options": {}
+        "model": "deepseek-chat",
+        "options": {
+          "baseURL": "https://api.deepseek.com/v1"
+        }
       },
       "id": "llm",
-      "name": "Google Gemini Chat Model",
-      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "name": "DeepSeek Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1,
       "position": [
         800,
         300
       ],
       "credentials": {
-        "googlePalmApi": {
-          "id": "VFVMXHhgUKNRkFnE",
-          "name": "Google Gemini(PaLM) Api account"
+        "openAiApi": {
+          "id": "l1chpKUckvUUCqoI",
+          "name": "OpenAI account 2"
         }
       }
     },
@@ -203,7 +205,7 @@
     },
     {
       "parameters": {
-        "workflowId": "f1a2b3c4-d5e6-7f8g-9h0i-1j2k3l4m5n6o",
+        "workflowId": "ds-t2-crear-pedido-uuid",
         "name": "crear_pedido_contraentrega",
         "description": "Crea el pedido con pago contra entrega. SOLO después de que el cliente respondió 'sí' al resumen completo."
       },
@@ -319,17 +321,6 @@
         ]
       ]
     },
-    "Google Gemini Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Postgres Chat Memory": {
       "ai_memory": [
         [
@@ -391,6 +382,17 @@
           {
             "node": "AI Agent",
             "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]

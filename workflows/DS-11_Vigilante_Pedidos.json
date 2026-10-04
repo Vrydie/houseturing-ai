@@ -1,5 +1,5 @@
 {
-  "name": "DS-11_Vigilante_Pedidos",
+  "id": "11111111-2222-3333-4444-555555555555", "name": "DS-11_Vigilante_Pedidos",
   "nodes": [
     {
       "parameters": {
@@ -34,7 +34,7 @@
       ],
       "credentials": {
         "postgres": {
-          "id": "postgres_dropship",
+          "id": "CFC6kja16jPSI9VC",
           "name": "Postgres Dropship"
         }
       }
@@ -75,7 +75,7 @@
       ],
       "credentials": {
         "telegramApi": {
-          "id": "telegram_bot",
+          "id": "T0lm7WR4FJtRzjXV",
           "name": "Telegram Bot API"
         }
       }
