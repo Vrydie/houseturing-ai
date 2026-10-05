@@ -1,0 +1,104 @@
+# OT-07 — Crear pedidos contraentrega de verdad (DS-T2 + DS-05)
+
+**Estado:** lista · **Frente:** B · **Responsable:** Vrydie · **Ejecuta:** Antigravity · **Planifica:** Claude
+**Prioridad:** alta. Con esto el agente puede cerrar una venta real. Es la Fase 5 del ROADMAP para contraentrega.
+**Depende de:** PR #9 (OT-06) unido a `main`, que trae el formato de pedido validado con Dropi. OT-04 (DS-02 y DS-T1).
+
+**Lecturas obligatorias:**
+- [AGENTS.md](../AGENTS.md), sobre todo §3 (secretos), §4 (acciones con efectos reales) y §4 bis (simular antes de ejecutar; entra con el PR #8).
+- [ROADMAP.md](../ROADMAP.md): D5, D6 y Fase 5 (DS-T2, pasos 1 a 6).
+- [schemas/salida_shopify_pedido.graphql](../schemas/salida_shopify_pedido.graphql): bloque 1, **VALIDADO CON DROPI**.
+- [schemas/interno_herramientas_agente.schema.json](../schemas/interno_herramientas_agente.schema.json): entrada y salida de `crear_pedido_contraentrega`.
+- [OT-06](OT-06_prueba_shopify_dropi.md) y [su evidencia](evidencia/OT-06/README.md): qué funcionó, qué no y por qué.
+- [tienda/scripts/prueba_pedido_dropi.mjs](../tienda/scripts/prueba_pedido_dropi.mjs): el payload exacto que llegó bien a Dropi. Úsalo como referencia, no lo modifiques (es del Frente A).
+
+---
+
+## Por qué
+El DS-T2 que hay en `main` no puede crear un pedido real:
+- No manda producto (`lineItems`), ni `countryCode`, ni `provinceCode`, ni `transactions`, así que Dropi no sabría qué despachar ni cuánto cobrar.
+- Lee el precio de `ofertas`, pero no lo usa.
+- No exige `confirmado_por_cliente`, no vuelve a comprobar la cobertura, no evita pedidos duplicados y no guarda el pedido en `pedidos`.
+- El token de Shopify está escrito como `AQUÍ_VA_TU_TOKEN`, y el nodo se llama "(Mock)".
+
+Además, el reporte de OT-04 menciona `tests/shopify/tools_test.mjs`, pero ese archivo no está en el repositorio. **Las pruebas de esta OT tienen que quedar versionadas.**
+
+## Formato validado (no cambiar sin una nueva prueba con Dropi)
+- `lineItems`: `variantId` de `productos.shopify_variant_gid`, `quantity` = `ofertas.cantidad` y `priceSet` = precio unitario (`precio_total / cantidad`). Si la división no es exacta, se detiene con error.
+- `shippingAddress` y `billingAddress`: `firstName`, `lastName`, `address1` = dirección (+ complemento), `address2` = barrio, `city` = `ciudad_oficial`, `provinceCode` = `cobertura.shopify_province_code`, `countryCode: "CO"` y `phone: "+57" + celular`.
+- `phone: "+57" + celular`.
+- `transactions`: `kind: SALE`, `status: PENDING`, `gateway: "Pago contra entrega"` y monto = `ofertas.precio_total`.
+- `tags`: `canal:whatsapp` y `wa:<wa_id>`; más `TEST` cuando `config.modo_pedidos = 'prueba'`.
+- `customAttributes`: `wa_id` y `conversacion_id`.
+- `options: { sendReceipt: false, sendFulfillmentReceipt: false }`.
+- **Sin `customer`**: Shopify rechaza el pedido entero si `customer.toUpsert` no lleva email.
+- `wa_id` y `conversacion_id` salen del contexto de la ejecución, **nunca del LLM**.
+
+## Pasos
+
+### Parte 1 — Datos y token (sin efectos externos)
+1. **Migración `db/migrations/002_pedidos.sql`**, actualizando `db/schema.sql` en el mismo PR:
+   - En `config`: `modo_pedidos` (`'simulado' | 'prueba' | 'real'`, por defecto **`'simulado'`**), `shopify_token_expira_en` y `shopify_gateway_contraentrega` (`'Pago contra entrega'`).
+   - (`pedidos` ya tiene `es_prueba`, `creado_en` y el índice `pedidos_wa_idx`: no hace falta otro para la idempotencia.)
+2. **Semilla `db/seeds/producto_ejemplo.sql`** (producto de EJEMPLO, solo para pruebas):
+   - `productos`: `CM-135`, `shopify_variant_gid = gid://shopify/ProductVariant/48848562651254`.
+   - `ofertas`: `x1` = 1 unidad, $219.900; `x2` = 2 unidades, $399.900 (de la ficha, §5).
+   - `cobertura`: que Cali exista con `shopify_province_code = 'VAC'`. Para el resto, documenta qué falta: el listado completo llega con la API de Dropi.
+3. **DS-05 Renovar token Shopify** (Schedule cada 20 h): *client credentials* con las credenciales de n8n, guarda `shopify_access_token` y `shopify_token_expira_en` en `config`. Si falla, alerta a DS-00. Nunca imprimir el token.
+
+### Parte 2 — DS-T2 completo
+4. Reescribe DS-T2 siguiendo la Fase 5 del ROADMAP, en este orden:
+   1. **Validar la entrada** contra el esquema `crear_pedido_contraentrega`: celular `^3[0-9]{9}$`, dirección y barrio no vacíos, `confirmado_por_cliente === true`. Si algo falla: `{ok:false, error:"<motivo legible>"}` y no se crea nada.
+   2. **Volver a llamar a DS-T1** con la ciudad: sin cobertura o sin contraentrega → `{ok:false}`. Usa `ciudad_oficial` y `shopify_province_code` de la respuesta, no lo que mandó el LLM.
+   3. **Producto disponible:** si `productos.disponible = false` → `{ok:false, error:"sin stock"}`.
+   4. **Idempotencia:** si el mismo `wa_id` tiene un pedido `creado` con la misma oferta en las últimas 2 h, devuelve ese pedido sin crear otro.
+   5. **Precio solo desde `ofertas`** con el `oferta_id`. Cualquier monto que mande el LLM se ignora.
+   6. **Armar el payload** con el formato validado (arriba), en un nodo Code con funciones puras, para que se puedan probar sin red.
+   7. **Según `config.modo_pedidos`:**
+      - `simulado`: **no llama a Shopify.** Guarda en `pedidos` con `es_prueba = true`, `shopify_order_name = 'SIM-<id>'`, y devuelve un número simulado.
+      - `prueba`: llama a `orderCreate` con el tag `TEST`.
+      - `real`: llama a `orderCreate` sin `TEST`. **Este modo solo lo activa el dueño.**
+   8. Revisa los `userErrors`. Si hay alguno: `{ok:false}`, alerta a DS-00 y no guarda nada en `pedidos`.
+   9. **Guarda en `pedidos`** (`modalidad 'contraentrega'`, total, `datos_envio`, `shopify_order_gid` y `name`, `es_prueba`) y devuelve `{ok:true, numero_pedido, total, moneda, dias_entrega}`.
+5. El token se lee de `config.shopify_access_token`, nunca escrito en el nodo. Quita "(Mock)" del nombre del nodo.
+
+### Parte 3 — Pruebas (sin efectos externos)
+6. **`tests/pedidos/unit.test.mjs` con `node --test`**, sin red, sobre las funciones puras del paso 4.6:
+   - El payload de `x1` es igual al de OT-06 (mismos campos y formato; datos de ejemplo).
+   - `x2` → `quantity: 2`, precio unitario 199950 y transacción 399900.
+   - Un `precio` o `total` enviado por el LLM se ignora.
+   - Celular inválido, sin barrio, `confirmado_por_cliente: false` o ciudad sin cobertura → `ok:false` sin payload.
+   - Ningún payload trae `customer`.
+   - En modo `prueba` va el tag `TEST`; en `real`, no.
+7. **Integración en n8n con `modo_pedidos = 'simulado'`:** una conversación por DS-01 → DS-02 que termine en un pedido simulado guardado en `pedidos`. Repetirla en menos de 2 h devuelve el mismo pedido (idempotencia). Evidencia en `planes/evidencia/OT-07/`.
+
+### Parte 4 — Un pedido de prueba real (gate del dueño)
+8. **Solo con el OK escrito del dueño y con él mirando el panel de Dropi** (igual que en OT-06): `modo_pedidos = 'prueba'`, una conversación de prueba desde el número del dueño que termine en **un** pedido. Debe llegar a Dropi con los 6 campos de OT-06 correctos.
+9. **El dueño lo cancela primero en Dropi**, luego se cancela en Shopify con `tienda/scripts/cancelar_pedido_prueba.mjs` (simulación → OK → `--aplicar`). Vuelve a dejar `modo_pedidos = 'simulado'`.
+
+## Fuera de esta OT (bloqueado o para después)
+- **Confirmar el pedido en Dropi automáticamente** (sale de PENDIENTE CONFIRMACION): bloqueado hasta que Dropi entregue el acceso a la API. El dueño ya lo pidió por correo el 2-oct-2026. Va en otra OT.
+- DS-T3 (link de pago): sigue simulado. El negocio arranca solo con contraentrega.
+- Stock desde la API de Dropi (D7): otra OT.
+
+## Reglas
+- `modo_pedidos` arranca en `'simulado'` y se devuelve a `'simulado'` al terminar cada prueba.
+- Nunca se crea un pedido sin tag `TEST` en esta OT.
+- Datos personales del dueño solo en `infra/.env` o en la BD local; la evidencia va enmascarada.
+- Archivos de texto en UTF-8 (AGENTS.md §10). Exporta los workflows a `workflows/` y actualiza `generate_workflows.mjs` si lo usas.
+
+## Criterios de aceptación
+- [ ] Migración 002 + `schema.sql` actualizados; semilla del producto de ejemplo.
+- [ ] DS-05 renueva el token y lo guarda en `config` (probado una vez, sin imprimir el token).
+- [ ] DS-T2 cumple los pasos 4.1 a 4.9; sin token escrito en el workflow.
+- [ ] `node --test tests/pedidos` pasa y está versionado; salida pegada en el reporte.
+- [ ] Integración en modo `simulado` con idempotencia demostrada.
+- [ ] Un pedido TEST real llegó a Dropi con los 6 campos correctos y quedó cancelado en Dropi y en Shopify (con el OK del dueño).
+
+## Reporte de ejecución (lo llena Antigravity)
+- Estado final:
+- Qué se hizo:
+- Evidencia (salidas de pruebas, capturas enmascaradas):
+- Qué NO se probó:
+- Desvíos del plan y por qué:
+- Decisiones que necesito del dueño o de Claude:
