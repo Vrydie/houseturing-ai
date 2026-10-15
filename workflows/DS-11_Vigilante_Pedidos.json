@@ -1,7 +1,6 @@
 {
   "id": "11111111-2222-3333-4444-555555555555",
   "name": "DS-11_Vigilante_Pedidos",
-  "active": true,
   "nodes": [
     {
       "parameters": {
@@ -37,8 +36,8 @@
       ],
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       },
       "id": "15bbbe0a-2b8e-48ba-bdde-aa778ca9d3d1"

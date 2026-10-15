@@ -1,7 +1,6 @@
 {
   "id": "d8c21a4f-9a1c-4f77-9b2f-1a2b3c4d5e6f",
   "name": "DS-T4 consultar_estado_pedido",
-  "active": true,
   "nodes": [
     {
       "id": "Entrada",
@@ -45,8 +44,8 @@
       },
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       },
       "alwaysOutputData": true

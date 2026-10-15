@@ -1,7 +1,6 @@
 {
   "id": "6fd4eec6-0a99-4715-9644-f7b0c8f799c3",
   "name": "DS-04 Puente humano · avisar",
-  "active": true,
   "nodes": [
     {
       "id": "Entrada",
@@ -32,8 +31,8 @@
       },
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       }
     },
@@ -113,8 +112,8 @@
       },
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       }
     },

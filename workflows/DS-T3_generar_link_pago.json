@@ -1,7 +1,6 @@
 {
   "id": "feb84b93-de63-4217-b559-3e52cd989bb1",
   "name": "DS-T3 generar_link_pago",
-  "active": true,
   "nodes": [
     {
       "id": "Entrada",

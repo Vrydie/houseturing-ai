@@ -1,7 +1,6 @@
 {
   "id": "c6918d23-a831-42b2-b67a-493b9b1c07cf",
   "name": "DS-T1 consultar_cobertura",
-  "active": true,
   "nodes": [
     {
       "parameters": {},
@@ -42,8 +41,8 @@
       "typeVersion": 2.3,
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       },
       "position": [

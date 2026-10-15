@@ -1,7 +1,6 @@
 {
   "id": "e9d32b5g-1b2d-5f88-8c3g-2b3c4d5e6f7g",
   "name": "DS-T5 escalar_a_humano",
-  "active": false,
   "nodes": [
     {
       "parameters": {},
@@ -28,8 +27,8 @@
       "typeVersion": 2.3,
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "Postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       },
       "position": [
@@ -75,5 +74,5 @@
       ]
     }
   },
-  "settings": null
+  "settings": {}
 }

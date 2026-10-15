@@ -1,7 +1,6 @@
 {
   "id": "ds10-test",
   "name": "DS-10_Eventos_Shopify",
-  "active": true,
   "nodes": [
     {
       "id": "start",
@@ -99,8 +98,8 @@
       ],
       "credentials": {
         "postgres": {
-          "id": "postgres_dropship",
-          "name": "Postgres Dropship"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       },
       "id": "92536a1a-af1a-4789-b372-e9fbeaeb6f14"
@@ -185,8 +184,8 @@
       ],
       "credentials": {
         "postgres": {
-          "id": "postgres_dropship",
-          "name": "Postgres Dropship"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       },
       "id": "a2e258bc-cf21-4c3f-a15f-14c07e6b9e71"
@@ -208,8 +207,8 @@
       ],
       "credentials": {
         "postgres": {
-          "id": "postgres_dropship",
-          "name": "Postgres Dropship"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       },
       "id": "198e468b-52d2-4b0d-9546-5c442d8cbebf"
@@ -231,8 +230,8 @@
       ],
       "credentials": {
         "postgres": {
-          "id": "postgres_dropship",
-          "name": "Postgres Dropship"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       },
       "id": "aa065fe3-9e85-4eb3-8f06-64dfdbc1a539"

@@ -1,7 +1,6 @@
 {
   "id": "ds-00-error-handler-id",
   "name": "DS-00 Manejador de errores",
-  "active": true,
   "nodes": [
     {
       "id": "Error Trigger",
@@ -45,8 +44,8 @@
       },
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       }
     },

@@ -1,7 +1,6 @@
 {
   "id": "a0c7abce-0081-4c80-aa6a-72f4200ec489",
   "name": "DS-03 Enviar WhatsApp",
-  "active": true,
   "nodes": [
     {
       "id": "Entrada",
@@ -30,8 +29,8 @@
       },
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       }
     },
@@ -153,8 +152,8 @@
       },
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       }
     },
@@ -176,8 +175,8 @@
       },
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       }
     },
@@ -246,19 +245,14 @@
       "parameters": {
         "method": "POST",
         "url": "={{ 'https://api.ycloud.com/v2/whatsapp/inboundMessages/'+encodeURIComponent($('Burbuja 0').first().json.proveedor_id)+'/typingIndicator' }}",
-        "authentication": "genericCredentialType",
+        "authentication": "none",
         "genericAuthType": "httpHeaderAuth",
         "options": {
           "timeout": 15000,
           "continueOnFail": true
         }
       },
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "QGCYuY8sQ2W13q5n",
-          "name": "YCloud API (parte 3)"
-        }
-      }
+      "onError": "continueRegularOutput"
     },
     {
       "id": "Ritmo 0",
@@ -293,8 +287,8 @@
       },
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       }
     },
@@ -403,8 +397,8 @@
       },
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       },
       "alwaysOutputData": true
@@ -427,8 +421,8 @@
       },
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       }
     },
@@ -497,19 +491,14 @@
       "parameters": {
         "method": "POST",
         "url": "={{ 'https://api.ycloud.com/v2/whatsapp/inboundMessages/'+encodeURIComponent($('Burbuja 1').first().json.proveedor_id)+'/typingIndicator' }}",
-        "authentication": "genericCredentialType",
+        "authentication": "none",
         "genericAuthType": "httpHeaderAuth",
         "options": {
           "timeout": 15000,
           "continueOnFail": true
         }
       },
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "QGCYuY8sQ2W13q5n",
-          "name": "YCloud API (parte 3)"
-        }
-      }
+      "onError": "continueRegularOutput"
     },
     {
       "id": "Ritmo 1",
@@ -544,8 +533,8 @@
       },
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       }
     },
@@ -654,8 +643,8 @@
       },
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       },
       "alwaysOutputData": true
@@ -678,8 +667,8 @@
       },
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       }
     },
@@ -748,19 +737,14 @@
       "parameters": {
         "method": "POST",
         "url": "={{ 'https://api.ycloud.com/v2/whatsapp/inboundMessages/'+encodeURIComponent($('Burbuja 2').first().json.proveedor_id)+'/typingIndicator' }}",
-        "authentication": "genericCredentialType",
+        "authentication": "none",
         "genericAuthType": "httpHeaderAuth",
         "options": {
           "timeout": 15000,
           "continueOnFail": true
         }
       },
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "QGCYuY8sQ2W13q5n",
-          "name": "YCloud API (parte 3)"
-        }
-      }
+      "onError": "continueRegularOutput"
     },
     {
       "id": "Ritmo 2",
@@ -795,8 +779,8 @@
       },
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       }
     },
@@ -905,8 +889,8 @@
       },
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       },
       "alwaysOutputData": true

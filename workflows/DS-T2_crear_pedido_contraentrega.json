@@ -1,7 +1,6 @@
 {
   "id": "ds-t2-crear-pedido-uuid",
   "name": "DS-T2 crear_pedido_contraentrega",
-  "active": true,
   "nodes": [
     {
       "parameters": {},
@@ -62,8 +61,8 @@
       ],
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       },
       "id": "b2ced641-4624-43d2-be9b-fda7a418843f"
@@ -148,8 +147,8 @@
       ],
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       },
       "id": "2d9a85d3-af73-463d-be69-bd208821818f"
@@ -169,8 +168,8 @@
       ],
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       },
       "id": "af87e7fd-fc96-44df-900a-d170e8d5e898"
@@ -276,8 +275,8 @@
       ],
       "credentials": {
         "postgres": {
-          "id": "CFC6kja16jPSI9VC",
-          "name": "ot05-postgres"
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       },
       "id": "cb5d7924-b734-4891-8ff6-9bfbe6217942"
