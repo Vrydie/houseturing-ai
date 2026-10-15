@@ -188,7 +188,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1800,
+        1950,
         -300
       ],
       "id": "40501838-13ad-4017-9208-6ea0416e6df3"
@@ -301,6 +301,56 @@
         -100
       ],
       "id": "c0c3ea3d-4df4-41c5-9f0c-0cdf2551851c"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot8657757427:AAEQEDZAR9RAuJvqCKhH_7eb_7JYOlVnSi8/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": \"5926139023\",\n  \"text\": \"🎉 *¡NUEVA VENTA CONCRETADA!* 🛒\\n\\n🆔 *Pedido:* `\" + $json.shopify_order_name + \"`\\n👤 *Cliente:* \" + $('Construir Payload').first().json.input.nombre + \" \" + ($('Construir Payload').first().json.input.apellido || \"\") + \"\\n📱 *Celular:* [\" + $('Construir Payload').first().json.input.celular + \"](https://wa.me/57\" + $('Construir Payload').first().json.input.celular + \")\\n📍 *Ciudad:* \" + $('Construir Payload').first().json.db.ciudad_oficial + \" (\" + $('Construir Payload').first().json.db.shopify_province_code + \")\\n🏠 *Dirección:* \" + $('Construir Payload').first().json.input.direccion + \"\\n🏘️ *Barrio:* \" + $('Construir Payload').first().json.input.barrio + ($('Construir Payload').first().json.input.complemento ? \" - \" + $('Construir Payload').first().json.input.complemento : \"\") + \"\\n📦 *Producto:* 1 Combo Taladro Percutor Inalámbrico\\n💰 *Total a Cobrar:* $\" + $('Construir Payload').first().json.db.precio_total + \" COP (Contraentrega)\\n🚚 *Tiempo Entrega:* \" + $('Construir Payload').first().json.db.dias_entrega_min + \" a \" + $('Construir Payload').first().json.db.dias_entrega_max + \" días hábiles\",\n  \"parse_mode\": \"Markdown\"\n}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "notificar-telegram-id",
+      "name": "Notificar Telegram",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1750,
+        -300
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {}
+        },
+        "options": {}
+      },
+      "id": "google-sheets-append-id",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1750,
+        -150
+      ],
+      "onError": "continueRegularOutput"
     }
   ],
   "connections": {
@@ -405,7 +455,12 @@
       "main": [
         [
           {
-            "node": "Result Simulado",
+            "node": "Notificar Telegram",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets",
             "type": "main",
             "index": 0
           }
@@ -451,6 +506,17 @@
         [
           {
             "node": "Result Real",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notificar Telegram": {
+      "main": [
+        [
+          {
+            "node": "Result Simulado",
             "type": "main",
             "index": 0
           }
