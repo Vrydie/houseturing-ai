@@ -349,15 +349,17 @@ BEGIN
  SELECT * INTO c FROM conversaciones WHERE wa_id=cliente ORDER BY creada_en DESC,id DESC LIMIT 1 FOR UPDATE;
  SELECT max(creado_en) INTO ultimo FROM mensajes WHERE conversacion_id=c.id;
  IF c.id IS NULL OR c.estado IN ('pedido','perdida') OR COALESCE(ultimo,c.creada_en)<now()-interval '7 days' THEN
-  INSERT INTO conversaciones(wa_id,origen,ctwa_clid,ad_id,ad_headline)
-  VALUES(cliente,p#>>'{origen,tipo}',p#>>'{origen,ctwa_clid}',p#>>'{origen,ad_id}',p#>>'{origen,ad_headline}') RETURNING * INTO c;
+  INSERT INTO conversaciones(wa_id,origen,ctwa_clid,ad_id,ad_headline,sku)
+  VALUES(cliente,p#>>'{origen,tipo}',p#>>'{origen,ctwa_clid}',p#>>'{origen,ad_id}',p#>>'{origen,ad_headline}',p#>>'{origen,sku}') RETURNING * INTO c;
  ELSIF p#>>'{origen,tipo}'='ctwa' THEN
   UPDATE conversaciones SET origen='ctwa',ctwa_clid=p#>>'{origen,ctwa_clid}',
-   ad_id=p#>>'{origen,ad_id}',ad_headline=p#>>'{origen,ad_headline}' WHERE id=c.id RETURNING * INTO c;
+   ad_id=p#>>'{origen,ad_id}',ad_headline=p#>>'{origen,ad_headline}',sku=COALESCE(p#>>'{origen,sku}',sku) WHERE id=c.id RETURNING * INTO c;
+ ELSIF p#>>'{origen,sku}' IS NOT NULL AND c.sku IS NULL THEN
+  UPDATE conversaciones SET sku=p#>>'{origen,sku}' WHERE id=c.id RETURNING * INTO c;
  END IF;
  n=jsonb_build_object('wa_id',cliente,'nombre_perfil',p->'nombre_perfil','conversacion_id',c.id,
    'wamids',jsonb_build_array(p->>'wamid'),'texto',p->>'texto','tipos',jsonb_build_array(p->>'tipo'),
-   'origen',jsonb_build_object('tipo',c.origen,'ctwa_clid',c.ctwa_clid,'ad_id',c.ad_id,'ad_headline',c.ad_headline),
+   'origen',jsonb_build_object('tipo',c.origen,'ctwa_clid',c.ctwa_clid,'ad_id',c.ad_id,'ad_headline',c.ad_headline,'sku',c.sku),
    'recibido_en',p->>'recibido_en');
  IF p ? 'ubicacion' THEN n=n||jsonb_build_object('ubicacion',p->'ubicacion'); END IF;
  INSERT INTO mensajes(wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,proveedor_id,waba_id,autor,normalizado,procesado)

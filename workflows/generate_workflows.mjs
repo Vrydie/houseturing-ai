@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -131,10 +131,11 @@ export function normalizeYcloud(event) {
     default: texto = '[mensaje no compatible]';
   }
   const r = m.referral;
+  const match = texto.match(/\((web|tt|ig|fb|st|gr)-([^)]+)\)/);
   return [{json:{accion:'mensaje',wa_id,nombre_perfil:m.customerProfile?.name ?? null,
     wamid:m.wamid,proveedor_id:m.id,waba_id:m.wabaId ?? null,autor:human?'humano':'cliente',
     tipo,texto,estado:human?(m.status ?? 'sent'):null,recibido_en:new Date(m.sendTime).toISOString(),
-    origen:{tipo:r?'ctwa':(/\(web-[^)]+\)/.test(texto)?'web':'organico'),
+    origen:{tipo:r?'ctwa':(match?match[1]:'organico'), sku:match?match[2]:null,
       ctwa_clid:r?.ctwa_clid ?? null,ad_id:r?.source_id ?? null,ad_headline:r?.headline ?? null},
     ...(ubicacion?{ubicacion}:{})}}];
 }
@@ -174,7 +175,7 @@ const unwrap=(w,n)=>code(w,n,'return [{json:$json.data}];');
 
 
 const stubWorkflow = JSON.parse(fs.readFileSync(new URL('./DS-02_stub.json', import.meta.url)));
-const crearPedidoWorkflow = JSON.parse(fs.readFileSync(new URL('./DS-T2_crear_pedido.json', import.meta.url)));
+const crearPedidoWorkflow = JSON.parse(fs.readFileSync(new URL('./DS-T2_crear_pedido_contraentrega.json', import.meta.url)));
 const generarLinkWorkflow = JSON.parse(fs.readFileSync(new URL('./DS-T3_generar_link_pago.json', import.meta.url)));
 const consultarEstadoWorkflow = JSON.parse(fs.readFileSync(new URL('./DS-T4_consultar_estado.json', import.meta.url)));
 const escalarHumanoWorkflow = JSON.parse(fs.readFileSync(new URL('./DS-T5_escalar_a_humano.json', import.meta.url)));

@@ -41,6 +41,7 @@ services:
       - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
       - N8N_LOG_LEVEL=info
       - EXECUTIONS_DATA_SAVE_ON_PROGRESS=false
+      - LLM_MODEL_AGENTE=${LLM_MODEL_AGENTE:-gemini-1.5-flash}
     volumes:
       - ./data/n8n:/home/node/.n8n
       - ../workflows:/workflows

@@ -1,0 +1,443 @@
+{
+  "id": "ds-t2-crear-pedido-uuid",
+  "name": "DS-T2 crear_pedido_contraentrega",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst logic = {\n\nfunction normalizeCity(city) {\n  if (!city) return '';\n  return city.toLowerCase().normalize(\"NFD\").replace(/[\\u0300-\\u036f]/g, \"\").trim();\n}\n\nfunction validarEntrada(input) {\n  if (input.confirmado_por_cliente !== true) return { ok: false, error: 'Pedido no confirmado explícitamente' };\n  if (!input.datos_envio) return { ok: false, error: 'Faltan datos de envío' };\n  \n  const env = input.datos_envio;\n  if (!env.celular || !/^3[0-9]{9}$/.test(env.celular.toString().trim())) return { ok: false, error: 'Celular inválido' };\n  if (!env.direccion || env.direccion.trim().length < 5) return { ok: false, error: 'Dirección inválida' };\n  if (!env.barrio || env.barrio.trim().length < 2) return { ok: false, error: 'Barrio inválido' };\n  if (!env.ciudad || env.ciudad.trim().length < 2) return { ok: false, error: 'Ciudad inválida' };\n  \n  return { ok: true, env, cityNorm: normalizeCity(env.ciudad) };\n}\n\nfunction armarPayload(env, db, wa_id, conversacion_id, esPrueba) {\n  const address2 = env.complemento ? env.barrio + ' - ' + env.complemento : env.barrio;\n  const tags = [\"canal:whatsapp\", \"wa:\" + wa_id];\n  if (esPrueba) tags.push(\"TEST\");\n\n  // Si la división no es exacta, fallamos.\n  const price = Math.floor(db.precio_total / db.cantidad);\n  if (price * db.cantidad !== parseFloat(db.precio_total)) {\n    throw new Error(\"División de precio no es exacta\");\n  }\n\n  return {\n    query: \"mutation CrearPedidoContraentrega($order: OrderCreateOrderInput!) { orderCreate(order: $order) { order { id name } userErrors { message } } }\",\n    variables: {\n      order: {\n        currency: \"COP\",\n        financialStatus: \"PENDING\",\n        phone: \"+57\" + env.celular.toString().trim(),\n        shippingAddress: {\n          firstName: env.nombre,\n          lastName: env.apellido,\n          address1: env.direccion,\n          address2: address2,\n          city: db.ciudad_oficial,\n          provinceCode: db.shopify_province_code,\n          countryCode: \"CO\",\n          phone: \"+57\" + env.celular.toString().trim()\n        },\n        billingAddress: {\n          firstName: env.nombre,\n          lastName: env.apellido,\n          address1: env.direccion,\n          address2: address2,\n          city: db.ciudad_oficial,\n          provinceCode: db.shopify_province_code,\n          countryCode: \"CO\",\n          phone: \"+57\" + env.celular.toString().trim()\n        },\n        lineItems: [\n          {\n            variantId: db.shopify_variant_gid,\n            quantity: db.cantidad,\n            priceSet: { shopMoney: { amount: price.toString(), currencyCode: \"COP\" } }\n          }\n        ],\n        transactions: [\n          {\n            kind: \"SALE\",\n            status: \"PENDING\",\n            gateway: \"Pago contra entrega\",\n            amountSet: { shopMoney: { amount: db.precio_total.toString(), currencyCode: \"COP\" } }\n          }\n        ],\n        tags: tags,\n        customAttributes: [\n          { key: \"wa_id\", value: wa_id },\n          { key: \"conversacion_id\", value: conversacion_id ? conversacion_id.toString() : \"\" }\n        ],\n        options: { sendReceipt: false, sendFulfillmentReceipt: false }\n      }\n    }\n  };\n}\n\n// Export for unit tests\n\n};\nconst input = $input.first().json;\nconst val = logic.validarEntrada(input);\nif (!val.ok) {\n  return [{ json: { ok: false, error: val.error, action: 'end' } }];\n}\nconst wa_id = input.wa_id || input.sessionId; // depending on how DS-02 passes it\nconst conversacion_id = input.conversacion_id;\nreturn [{ json: { ok: true, input: val.env, cityNorm: val.cityNorm, wa_id, conversacion_id, oferta_id: input.oferta_id } }];\n"
+      },
+      "name": "Validar Entrada",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.ok }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "Check Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "\n          WITH cfg AS (\n            SELECT \n              (SELECT valor FROM config WHERE clave = 'modo_pedidos') AS modo_pedidos,\n              (SELECT valor FROM config WHERE clave = 'shopify_access_token') AS shopify_access_token,\n              (SELECT valor FROM config WHERE clave = 'shopify_gateway_contraentrega') AS gateway\n          ),\n          oferta AS (SELECT precio_total, cantidad, sku FROM ofertas WHERE id = $1),\n          prod AS (SELECT disponible, shopify_variant_gid FROM productos WHERE sku = (SELECT sku FROM oferta)),\n          idem AS (SELECT id AS pedido_id, shopify_order_name FROM pedidos WHERE wa_id = $2 AND oferta_id = $1 AND estado = 'creado' AND creado_en > NOW() - INTERVAL '2 HOURS' LIMIT 1),\n          cob AS (SELECT shopify_province_code, acepta_contraentrega, ciudad_oficial, dias_entrega_min, dias_entrega_max FROM cobertura WHERE ciudad_norm = $3 LIMIT 1)\n          SELECT \n            cfg.*, oferta.*, prod.*, idem.pedido_id AS pedido_id_existente, idem.shopify_order_name, cob.* \n          FROM cfg\n          LEFT JOIN oferta ON true\n          LEFT JOIN prod ON true\n          LEFT JOIN idem ON true\n          LEFT JOIN cob ON true;\n        ",
+        "queryParameters": "={{ $json.oferta_id }}, {{ $json.wa_id }}, {{ $json.cityNorm }}"
+      },
+      "name": "DB Fetch",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [
+        600,
+        -100
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "postgres_dropship",
+          "name": "Postgres Dropship"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const json = $input.first().json; return [{json: { ...$('Validar Entrada').first().json, db: json }}];"
+      },
+      "name": "Merge DB and Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst logic = {\n\nfunction normalizeCity(city) {\n  if (!city) return '';\n  return city.toLowerCase().normalize(\"NFD\").replace(/[\\u0300-\\u036f]/g, \"\").trim();\n}\n\nfunction validarEntrada(input) {\n  if (input.confirmado_por_cliente !== true) return { ok: false, error: 'Pedido no confirmado explícitamente' };\n  if (!input.datos_envio) return { ok: false, error: 'Faltan datos de envío' };\n  \n  const env = input.datos_envio;\n  if (!env.celular || !/^3[0-9]{9}$/.test(env.celular.toString().trim())) return { ok: false, error: 'Celular inválido' };\n  if (!env.direccion || env.direccion.trim().length < 5) return { ok: false, error: 'Dirección inválida' };\n  if (!env.barrio || env.barrio.trim().length < 2) return { ok: false, error: 'Barrio inválido' };\n  if (!env.ciudad || env.ciudad.trim().length < 2) return { ok: false, error: 'Ciudad inválida' };\n  \n  return { ok: true, env, cityNorm: normalizeCity(env.ciudad) };\n}\n\nfunction armarPayload(env, db, wa_id, conversacion_id, esPrueba) {\n  const address2 = env.complemento ? env.barrio + ' - ' + env.complemento : env.barrio;\n  const tags = [\"canal:whatsapp\", \"wa:\" + wa_id];\n  if (esPrueba) tags.push(\"TEST\");\n\n  // Si la división no es exacta, fallamos.\n  const price = Math.floor(db.precio_total / db.cantidad);\n  if (price * db.cantidad !== parseFloat(db.precio_total)) {\n    throw new Error(\"División de precio no es exacta\");\n  }\n\n  return {\n    query: \"mutation CrearPedidoContraentrega($order: OrderCreateOrderInput!) { orderCreate(order: $order) { order { id name } userErrors { message } } }\",\n    variables: {\n      order: {\n        currency: \"COP\",\n        financialStatus: \"PENDING\",\n        phone: \"+57\" + env.celular.toString().trim(),\n        shippingAddress: {\n          firstName: env.nombre,\n          lastName: env.apellido,\n          address1: env.direccion,\n          address2: address2,\n          city: db.ciudad_oficial,\n          provinceCode: db.shopify_province_code,\n          countryCode: \"CO\",\n          phone: \"+57\" + env.celular.toString().trim()\n        },\n        billingAddress: {\n          firstName: env.nombre,\n          lastName: env.apellido,\n          address1: env.direccion,\n          address2: address2,\n          city: db.ciudad_oficial,\n          provinceCode: db.shopify_province_code,\n          countryCode: \"CO\",\n          phone: \"+57\" + env.celular.toString().trim()\n        },\n        lineItems: [\n          {\n            variantId: db.shopify_variant_gid,\n            quantity: db.cantidad,\n            priceSet: { shopMoney: { amount: price.toString(), currencyCode: \"COP\" } }\n          }\n        ],\n        transactions: [\n          {\n            kind: \"SALE\",\n            status: \"PENDING\",\n            gateway: \"Pago contra entrega\",\n            amountSet: { shopMoney: { amount: db.precio_total.toString(), currencyCode: \"COP\" } }\n          }\n        ],\n        tags: tags,\n        customAttributes: [\n          { key: \"wa_id\", value: wa_id },\n          { key: \"conversacion_id\", value: conversacion_id ? conversacion_id.toString() : \"\" }\n        ],\n        options: { sendReceipt: false, sendFulfillmentReceipt: false }\n      }\n    }\n  };\n}\n\n// Export for unit tests\n\n};\nconst data = $input.first().json;\nif (!data.ok) return [{ json: data }];\n\nconst db = data.db; // From Postgres node\nif (db.pedido_id_existente) {\n  return [{ json: { ok: true, action: 'end_idempotent', numero_pedido: db.shopify_order_name || ('SIM-' + db.pedido_id_existente), total: db.precio_total, moneda: 'COP', dias_entrega: db.dias_entrega_min + ' a ' + db.dias_entrega_max + ' días hábiles' } }];\n}\nif (!db.disponible) return [{ json: { ok: false, action: 'end', error: 'sin stock' } }];\nif (!db.acepta_contraentrega) return [{ json: { ok: false, action: 'end', error: 'ciudad sin cobertura' } }];\n\nconst esPrueba = db.modo_pedidos === 'prueba' || db.modo_pedidos === 'simulado';\nlet payload;\ntry {\n  payload = logic.armarPayload(data.input, db, data.wa_id, data.conversacion_id, esPrueba);\n} catch(e) {\n  return [{ json: { ok: false, action: 'end', error: 'Error interno: ' + e.message } }];\n}\n\nreturn [{ json: { ok: true, action: db.modo_pedidos, payload, db, input: data.input, wa_id: data.wa_id, conversacion_id: data.conversacion_id, oferta_id: data.oferta_id } }];\n"
+      },
+      "name": "Construir Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.action }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "simulado",
+              "output": 0
+            },
+            {
+              "value2": "prueba",
+              "output": 1
+            },
+            {
+              "value2": "real",
+              "output": 1
+            },
+            {
+              "value2": "end",
+              "output": 2
+            },
+            {
+              "value2": "end_idempotent",
+              "output": 2
+            }
+          ]
+        },
+        "fallbackOutput": 2
+      },
+      "name": "Switch Modo",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "\n          INSERT INTO pedidos (conversacion_id, wa_id, modalidad, oferta_id, total, moneda, datos_envio, es_prueba, shopify_order_name)\n          VALUES ($1, $2, 'contraentrega', $3, $4, 'COP', $5::jsonb, true, 'SIM-PENDING')\n          RETURNING id;\n        ",
+        "queryParameters": "={{ $json.conversacion_id }}, {{ $json.wa_id }}, {{ $json.oferta_id }}, {{ $json.db.precio_total }}, {{ JSON.stringify($json.input) }}"
+      },
+      "name": "DB Insert Simulado",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [
+        1400,
+        -300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "postgres_dropship",
+          "name": "Postgres Dropship"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE pedidos SET shopify_order_name = 'SIM-' || id WHERE id = $1 RETURNING id, shopify_order_name;",
+        "queryParameters": "={{ $json.id }}"
+      },
+      "name": "DB Update Simulado Name",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [
+        1600,
+        -300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "postgres_dropship",
+          "name": "Postgres Dropship"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\n        const data = $('Construir Payload').first().json;\n        const dbId = $json.shopify_order_name;\n        return [{ json: { ok: true, numero_pedido: dbId, total: data.db.precio_total, moneda: 'COP', dias_entrega: data.db.dias_entrega_min + ' a ' + data.db.dias_entrega_max + ' días hábiles' } }];\n        "
+      },
+      "name": "Result Simulado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1800,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ \"https://\" + $env[\"SHOPIFY_STORE_DOMAIN\"] + \"/admin/api/2026-07/graphql.json\" }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Shopify-Access-Token",
+              "value": "={{ $json.db.shopify_access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ $json.payload.query }}"
+            },
+            {
+              "name": "variables",
+              "value": "={{ JSON.stringify($json.payload.variables) }}"
+            }
+          ]
+        }
+      },
+      "name": "Shopify API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1400,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\n        const res = $input.first().json;\n        const orderData = res.data?.orderCreate;\n        if (orderData?.userErrors && orderData.userErrors.length > 0) {\n          return [{ json: { ok: false, error: 'Shopify error: ' + orderData.userErrors.map(e => e.message).join(', ') } }];\n        }\n        if (!orderData?.order?.id) {\n          return [{ json: { ok: false, error: 'Shopify API no retornó ID' } }];\n        }\n        return [{ json: { ok: true, shopify_order_gid: orderData.order.id, shopify_order_name: orderData.order.name } }];\n        "
+      },
+      "name": "Parse Shopify Res",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.ok }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "Shopify OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "\n          INSERT INTO pedidos (conversacion_id, wa_id, modalidad, oferta_id, total, moneda, datos_envio, es_prueba, shopify_order_gid, shopify_order_name)\n          VALUES ($1, $2, 'contraentrega', $3, $4, 'COP', $5::jsonb, $6, $7, $8)\n          RETURNING id;\n        ",
+        "queryParameters": "={{ $('Construir Payload').first().json.conversacion_id }}, {{ $('Construir Payload').first().json.wa_id }}, {{ $('Construir Payload').first().json.oferta_id }}, {{ $('Construir Payload').first().json.db.precio_total }}, {{ JSON.stringify($('Construir Payload').first().json.input) }}, {{ $('Construir Payload').first().json.action === 'prueba' }}, {{ $json.shopify_order_gid }}, {{ $json.shopify_order_name }}"
+      },
+      "name": "DB Insert Real",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [
+        2000,
+        -100
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "postgres_dropship",
+          "name": "Postgres Dropship"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\n        const data = $('Construir Payload').first().json;\n        const shopifyRes = $('Parse Shopify Res').first().json;\n        return [{ json: { ok: true, numero_pedido: shopifyRes.shopify_order_name, total: data.db.precio_total, moneda: 'COP', dias_entrega: data.db.dias_entrega_min + ' a ' + data.db.dias_entrega_max + ' días hábiles' } }];\n        "
+      },
+      "name": "Result Real",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        -100
+      ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Validar Entrada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar Entrada": {
+      "main": [
+        [
+          {
+            "node": "Check Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Valid?": {
+      "main": [
+        [
+          {
+            "node": "DB Fetch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "DB Fetch": {
+      "main": [
+        [
+          {
+            "node": "Merge DB and Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge DB and Input": {
+      "main": [
+        [
+          {
+            "node": "Construir Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Construir Payload": {
+      "main": [
+        [
+          {
+            "node": "Switch Modo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Modo": {
+      "main": [
+        [
+          {
+            "node": "DB Insert Simulado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Shopify API",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "DB Insert Simulado": {
+      "main": [
+        [
+          {
+            "node": "DB Update Simulado Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB Update Simulado Name": {
+      "main": [
+        [
+          {
+            "node": "Result Simulado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shopify API": {
+      "main": [
+        [
+          {
+            "node": "Parse Shopify Res",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Shopify Res": {
+      "main": [
+        [
+          {
+            "node": "Shopify OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shopify OK?": {
+      "main": [
+        [
+          {
+            "node": "DB Insert Real",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "DB Insert Real": {
+      "main": [
+        [
+          {
+            "node": "Result Real",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "none",
+    "errorWorkflow": "DS-00_Manejador_Errores"
+  }
+}
