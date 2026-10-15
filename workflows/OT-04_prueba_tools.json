@@ -1,0 +1,201 @@
+{
+  "id": "ot04-test-tools",
+  "name": "OT-04 prueba tools",
+  "active": true,
+  "nodes": [
+    {
+      "id": "start",
+      "name": "Inicio",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "cases",
+      "name": "Casos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\n            return [\n              { json: { test: 'T2_Success', email: 'test@test.com', telefono: '3000000000', direccion: 'Calle 1', ciudad: 'Bogotá', departamento: 'Bogotá', nombre: 'Test', apellido: 'Test', wa_id: '573000000000', variant_id: 'gid://shopify/ProductVariant/1', cantidad: 1 } },\n              { json: { test: 'T2_Error', email: 'error@test.com', telefono: '3000000000', direccion: 'Calle 1', ciudad: 'Bogotá', departamento: 'Bogotá', nombre: 'Test', apellido: 'Test', wa_id: '573000000000', variant_id: 'gid://shopify/ProductVariant/1', cantidad: 1 } },\n              { json: { test: 'T3_Success', email: 'test@test.com', telefono: '3000000000', direccion: 'Calle 1', ciudad: 'Bogotá', departamento: 'Bogotá', nombre: 'Test', apellido: 'Test', wa_id: '573000000000', variant_id: 'gid://shopify/ProductVariant/1', cantidad: 1 } },\n              { json: { test: 'T3_Error', email: 'error@test.com', telefono: '3000000000', direccion: 'Calle 1', ciudad: 'Bogotá', departamento: 'Bogotá', nombre: 'Test', apellido: 'Test', wa_id: '573000000000', variant_id: 'gid://shopify/ProductVariant/1', cantidad: 1 } },\n              { json: { test: 'T4_Success', wa_id: '573000000000' } },\n              { json: { test: 'T4_Error', wa_id: '999999999' } },\n              { json: { test: 'T5_Success', wa_id: '573000000000', motivo_cliente: 'Enojado' } }\n            ];\n          "
+      }
+    },
+    {
+      "id": "router",
+      "name": "Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        400,
+        0
+      ],
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.test }}",
+        "rules": {
+          "rules": [
+            {
+              "operation": "startsWith",
+              "value2": "T2",
+              "output": 0
+            },
+            {
+              "operation": "startsWith",
+              "value2": "T3",
+              "output": 1
+            },
+            {
+              "operation": "startsWith",
+              "value2": "T4",
+              "output": 2
+            },
+            {
+              "operation": "startsWith",
+              "value2": "T5",
+              "output": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "t2",
+      "name": "DS-T2",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        600,
+        -200
+      ],
+      "parameters": {
+        "source": "parameter",
+        "workflowJson": "{\n  \"id\": \"22222222-2222-2222-2222-222222222222\",\n  \"name\": \"DS-T2 crear_pedido_contraentrega\",\n  \"active\": true,\n  \"nodes\": [\n    {\n      \"parameters\": {},\n      \"id\": \"trigger\",\n      \"name\": \"Execute Workflow Trigger\",\n      \"type\": \"n8n-nodes-base.executeWorkflowTrigger\",\n      \"typeVersion\": 1,\n      \"position\": [\n        0,\n        0\n      ]\n    },\n    {\n      \"parameters\": {\n        \"method\": \"POST\",\n        \"url\": \"={{ ($env.SHOPIFY_STORE_DOMAIN.includes('host.docker') ? 'http://' : 'https://') + $env.SHOPIFY_STORE_DOMAIN + '/admin/api/' + $env.SHOPIFY_API_VERSION + '/graphql.json' }}\",\n        \"sendHeaders\": true,\n        \"headerParameters\": {\n          \"parameters\": [\n            {\n              \"name\": \"X-Shopify-Access-Token\",\n              \"value\": \"={{ $env.SHOPIFY_API_KEY }}\"\n            }\n          ]\n        },\n        \"sendBody\": true,\n        \"specifyBody\": \"json\",\n        \"jsonBody\": \"={{ JSON.stringify({ query: 'mutation orderCreate($order: OrderCreateOrderInput!) { orderCreate(order: $order) { order { id name } userErrors { field message } } }', variables: { order: { email: $json.email, phone: $json.telefono, lineItems: [{ variantId: $json.variant_id, quantity: $json.cantidad }], shippingAddress: { address1: $json.direccion, city: $json.ciudad, province: $json.departamento, countryCode: 'CO', firstName: $json.nombre, lastName: $json.apellido }, financialStatus: 'PENDING', tags: ['wa:' + $json.wa_id, 'contraentrega'] } } }) }}\"\n      },\n      \"id\": \"Node1\",\n      \"name\": \"Shopify API\",\n      \"type\": \"n8n-nodes-base.httpRequest\",\n      \"typeVersion\": 4.2,\n      \"position\": [\n        200,\n        0\n      ]\n    },\n    {\n      \"parameters\": {\n        \"jsCode\": \"\\nconst res = $input.first().json;\\nif (res.data && res.data.orderCreate && res.data.orderCreate.order) {\\n  return [{ json: { exito: true, order_id: res.data.orderCreate.order.id, order_name: res.data.orderCreate.order.name } }];\\n}\\nreturn [{ json: { exito: false, error: res.data?.orderCreate?.userErrors || 'Error desconocido' } }];\\n      \"\n      },\n      \"id\": \"Node2\",\n      \"name\": \"Response\",\n      \"type\": \"n8n-nodes-base.code\",\n      \"typeVersion\": 2,\n      \"position\": [\n        400,\n        0\n      ]\n    }\n  ],\n  \"connections\": {\n    \"Execute Workflow Trigger\": {\n      \"main\": [\n        [\n          {\n            \"node\": \"Shopify API\",\n            \"type\": \"main\",\n            \"index\": 0\n          }\n        ]\n      ]\n    },\n    \"Shopify API\": {\n      \"main\": [\n        [\n          {\n            \"node\": \"Response\",\n            \"type\": \"main\",\n            \"index\": 0\n          }\n        ]\n      ]\n    }\n  },\n  \"settings\": {\n    \"executionOrder\": \"v1\",\n    \"saveDataSuccessExecution\": \"none\",\n    \"saveDataErrorExecution\": \"all\"\n  }\n}\n",
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      }
+    },
+    {
+      "id": "t3",
+      "name": "DS-T3",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        600,
+        0
+      ],
+      "parameters": {
+        "source": "parameter",
+        "workflowJson": "{\n  \"id\": \"33333333-3333-3333-3333-333333333333\",\n  \"name\": \"DS-T3 generar_link_pago\",\n  \"active\": true,\n  \"nodes\": [\n    {\n      \"parameters\": {},\n      \"id\": \"trigger\",\n      \"name\": \"Execute Workflow Trigger\",\n      \"type\": \"n8n-nodes-base.executeWorkflowTrigger\",\n      \"typeVersion\": 1,\n      \"position\": [\n        0,\n        0\n      ]\n    },\n    {\n      \"parameters\": {\n        \"method\": \"POST\",\n        \"url\": \"={{ ($env.SHOPIFY_STORE_DOMAIN.includes('host.docker') ? 'http://' : 'https://') + $env.SHOPIFY_STORE_DOMAIN + '/admin/api/' + $env.SHOPIFY_API_VERSION + '/graphql.json' }}\",\n        \"sendHeaders\": true,\n        \"headerParameters\": {\n          \"parameters\": [\n            {\n              \"name\": \"X-Shopify-Access-Token\",\n              \"value\": \"={{ $env.SHOPIFY_API_KEY }}\"\n            }\n          ]\n        },\n        \"sendBody\": true,\n        \"specifyBody\": \"json\",\n        \"jsonBody\": \"={{ JSON.stringify({ query: 'mutation draftOrderCreate($input: DraftOrderInput!) { draftOrderCreate(input: $input) { draftOrder { id invoiceUrl } userErrors { field message } } }', variables: { input: { email: $json.email, phone: $json.telefono, lineItems: [{ variantId: $json.variant_id, quantity: $json.cantidad }], shippingAddress: { address1: $json.direccion, city: $json.ciudad, province: $json.departamento, countryCode: 'CO', firstName: $json.nombre, lastName: $json.apellido }, tags: ['wa:' + $json.wa_id, 'link_pago'] } } }) }}\"\n      },\n      \"id\": \"Node1\",\n      \"name\": \"Shopify API Draft\",\n      \"type\": \"n8n-nodes-base.httpRequest\",\n      \"typeVersion\": 4.2,\n      \"position\": [\n        200,\n        0\n      ]\n    },\n    {\n      \"parameters\": {\n        \"jsCode\": \"\\nconst res = $input.first().json;\\nif (res.data && res.data.draftOrderCreate && res.data.draftOrderCreate.draftOrder) {\\n  return [{ json: { exito: true, invoice_url: res.data.draftOrderCreate.draftOrder.invoiceUrl } }];\\n}\\nreturn [{ json: { exito: false, error: res.data?.draftOrderCreate?.userErrors || 'Error desconocido' } }];\\n      \"\n      },\n      \"id\": \"Node2\",\n      \"name\": \"Response\",\n      \"type\": \"n8n-nodes-base.code\",\n      \"typeVersion\": 2,\n      \"position\": [\n        400,\n        0\n      ]\n    }\n  ],\n  \"connections\": {\n    \"Execute Workflow Trigger\": {\n      \"main\": [\n        [\n          {\n            \"node\": \"Shopify API Draft\",\n            \"type\": \"main\",\n            \"index\": 0\n          }\n        ]\n      ]\n    },\n    \"Shopify API Draft\": {\n      \"main\": [\n        [\n          {\n            \"node\": \"Response\",\n            \"type\": \"main\",\n            \"index\": 0\n          }\n        ]\n      ]\n    }\n  },\n  \"settings\": {\n    \"executionOrder\": \"v1\",\n    \"saveDataSuccessExecution\": \"none\",\n    \"saveDataErrorExecution\": \"all\"\n  }\n}\n",
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      }
+    },
+    {
+      "id": "t4",
+      "name": "DS-T4",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        600,
+        200
+      ],
+      "parameters": {
+        "source": "parameter",
+        "workflowJson": "{\n  \"id\": \"44444444-4444-4444-4444-444444444444\",\n  \"name\": \"DS-T4 consultar_estado_pedido\",\n  \"active\": true,\n  \"nodes\": [\n    {\n      \"parameters\": {},\n      \"id\": \"trigger\",\n      \"name\": \"Execute Workflow Trigger\",\n      \"type\": \"n8n-nodes-base.executeWorkflowTrigger\",\n      \"typeVersion\": 1,\n      \"position\": [\n        0,\n        0\n      ]\n    },\n    {\n      \"parameters\": {\n        \"operation\": \"executeQuery\",\n        \"query\": \"SELECT estado, transportadora, guia, url_rastreo FROM pedidos WHERE wa_id = $1 ORDER BY creado_en DESC LIMIT 1\",\n        \"options\": {\n          \"queryReplacement\": \"={{ [$json.wa_id] }}\"\n        }\n      },\n      \"id\": \"Node1\",\n      \"name\": \"Postgres Estado\",\n      \"type\": \"n8n-nodes-base.postgres\",\n      \"typeVersion\": 2.3,\n      \"credentials\": {\n        \"postgres\": {\n          \"id\": \"CFC6kja16jPSI9VC\",\n          \"name\": \"Postgres\"\n        }\n      },\n      \"position\": [\n        200,\n        0\n      ]\n    },\n    {\n      \"parameters\": {\n        \"jsCode\": \"\\nconst items = $input.all().map(i => i.json);\\nif (items.length === 0 || !items[0].estado) return [{ json: { exito: false, error: \\\"No se encontró ningún pedido reciente o sin estado.\\\" } }];\\nreturn [{ json: { exito: true, ...items[0] } }];\\n      \"\n      },\n      \"id\": \"Node2\",\n      \"name\": \"Response\",\n      \"type\": \"n8n-nodes-base.code\",\n      \"typeVersion\": 2,\n      \"position\": [\n        400,\n        0\n      ]\n    }\n  ],\n  \"connections\": {\n    \"Execute Workflow Trigger\": {\n      \"main\": [\n        [\n          {\n            \"node\": \"Postgres Estado\",\n            \"type\": \"main\",\n            \"index\": 0\n          }\n        ]\n      ]\n    },\n    \"Postgres Estado\": {\n      \"main\": [\n        [\n          {\n            \"node\": \"Response\",\n            \"type\": \"main\",\n            \"index\": 0\n          }\n        ]\n      ]\n    }\n  },\n  \"settings\": {\n    \"executionOrder\": \"v1\",\n    \"saveDataSuccessExecution\": \"none\",\n    \"saveDataErrorExecution\": \"all\"\n  }\n}\n",
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      }
+    },
+    {
+      "id": "t5",
+      "name": "DS-T5",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        600,
+        400
+      ],
+      "parameters": {
+        "source": "parameter",
+        "workflowJson": "{\n  \"id\": \"55555555-5555-5555-5555-555555555555\",\n  \"name\": \"DS-T5 escalar_a_humano\",\n  \"active\": true,\n  \"nodes\": [\n    {\n      \"parameters\": {},\n      \"id\": \"trigger\",\n      \"name\": \"Execute Workflow Trigger\",\n      \"type\": \"n8n-nodes-base.executeWorkflowTrigger\",\n      \"typeVersion\": 1,\n      \"position\": [\n        0,\n        0\n      ]\n    },\n    {\n      \"parameters\": {\n        \"operation\": \"executeQuery\",\n        \"query\": \"UPDATE conversaciones SET bot_activo = false, motivo_escalamiento = 'humano_requerido' WHERE wa_id = $1 RETURNING id\",\n        \"options\": {\n          \"queryReplacement\": \"={{ [$json.wa_id] }}\"\n        }\n      },\n      \"id\": \"Node1\",\n      \"name\": \"Disable Bot\",\n      \"type\": \"n8n-nodes-base.postgres\",\n      \"typeVersion\": 2.3,\n      \"credentials\": {\n        \"postgres\": {\n          \"id\": \"CFC6kja16jPSI9VC\",\n          \"name\": \"Postgres\"\n        }\n      },\n      \"position\": [\n        200,\n        0\n      ]\n    },\n    {\n      \"parameters\": {\n        \"chatId\": \"={{ $env.TELEGRAM_CHAT_ID_OPERADOR }}\",\n        \"text\": \"={{ '⚠️ *Cliente requiere atención humana*\\\\n\\\\n*Teléfono:* +' + $('Execute Workflow Trigger').first().json.wa_id + '\\\\n*Motivo:* ' + $('Execute Workflow Trigger').first().json.motivo_cliente }}\",\n        \"additionalFields\": {\n          \"parse_mode\": \"Markdown\"\n        }\n      },\n      \"id\": \"Node2\",\n      \"name\": \"Telegram Alert\",\n      \"type\": \"n8n-nodes-base.code\",\n      \"typeVersion\": 2,\n      \"parameters\": { \"jsCode\": \"return [{json:{success:true}}];\" },\n      \"position\": [\n        400,\n        0\n      ]\n    },\n    {\n      \"parameters\": {\n        \"jsCode\": \"\\nreturn [{ json: { exito: true, mensaje: \\\"El bot ha sido pausado y un agente humano te contactará pronto.\\\" } }];\\n      \"\n      },\n      \"id\": \"Node3\",\n      \"name\": \"Response\",\n      \"type\": \"n8n-nodes-base.code\",\n      \"typeVersion\": 2,\n      \"position\": [\n        600,\n        0\n      ]\n    }\n  ],\n  \"connections\": {\n    \"Execute Workflow Trigger\": {\n      \"main\": [\n        [\n          {\n            \"node\": \"Disable Bot\",\n            \"type\": \"main\",\n            \"index\": 0\n          }\n        ]\n      ]\n    },\n    \"Disable Bot\": {\n      \"main\": [\n        [\n          {\n            \"node\": \"Telegram Alert\",\n            \"type\": \"main\",\n            \"index\": 0\n          }\n        ]\n      ]\n    },\n    \"Telegram Alert\": {\n      \"main\": [\n        [\n          {\n            \"node\": \"Response\",\n            \"type\": \"main\",\n            \"index\": 0\n          }\n        ]\n      ]\n    }\n  },\n  \"settings\": {\n    \"executionOrder\": \"v1\",\n    \"saveDataSuccessExecution\": \"none\",\n    \"saveDataErrorExecution\": \"all\"\n  }\n}\n",
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Inicio": {
+      "main": [
+        [
+          {
+            "node": "Casos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Casos": {
+      "main": [
+        [
+          {
+            "node": "Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Router": {
+      "main": [
+        [
+          {
+            "node": "DS-T2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DS-T3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DS-T4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DS-T5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none"
+  }
+}

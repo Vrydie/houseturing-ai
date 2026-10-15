@@ -1,5 +1,7 @@
 {
-  "id": "11111111-2222-3333-4444-555555555555", "name": "DS-11_Vigilante_Pedidos",
+  "id": "11111111-2222-3333-4444-555555555555",
+  "name": "DS-11_Vigilante_Pedidos",
+  "active": true,
   "nodes": [
     {
       "parameters": {
@@ -18,7 +20,8 @@
       "position": [
         0,
         0
-      ]
+      ],
+      "id": "f3500b71-6fc9-4376-8167-f81ad6dcb5f6"
     },
     {
       "parameters": {
@@ -35,9 +38,10 @@
       "credentials": {
         "postgres": {
           "id": "CFC6kja16jPSI9VC",
-          "name": "Postgres Dropship"
+          "name": "ot05-postgres"
         }
-      }
+      },
+      "id": "15bbbe0a-2b8e-48ba-bdde-aa778ca9d3d1"
     },
     {
       "parameters": {
@@ -56,7 +60,8 @@
       "position": [
         400,
         0
-      ]
+      ],
+      "id": "2c622635-8a20-48dd-ad10-fe7604a1ddf9"
     },
     {
       "parameters": {
@@ -78,7 +83,8 @@
           "id": "T0lm7WR4FJtRzjXV",
           "name": "Telegram Bot API"
         }
-      }
+      },
+      "id": "385b5f94-b794-4767-bfec-f5206e22183a"
     }
   ],
   "connections": {

@@ -1,0 +1,548 @@
+{
+  "id": "f3cce69f-938a-4293-b194-b63b94a55446",
+  "name": "DS-04 Puente humano · receptor",
+  "active": false,
+  "nodes": [
+    {
+      "id": "Telegram Trigger",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "T0lm7WR4FJtRzjXV",
+          "name": "Telegram Bot API"
+        }
+      },
+      "webhookId": "ot10-telegram-operador"
+    },
+    {
+      "id": "Operador",
+      "name": "Operador",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT COALESCE((SELECT valor FROM config WHERE clave='telegram_chat_operador'),'') AS chat,\n COALESCE((SELECT valor FROM config WHERE clave='whatsapp_modo_simulado'),'true')='true' AS simulado,\n COALESCE((SELECT valor FROM config WHERE clave='ycloud_numero_empresa'),'') AS empresa",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "id": "CFC6kja16jPSI9VC",
+          "name": "ot05-postgres"
+        }
+      }
+    },
+    {
+      "id": "Interpretar",
+      "name": "Interpretar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "jsCode": "function interpretarComando(texto) {\n  const t = String(texto ?? '').trim();\n  const m = t.match(/^\\/(bot_on|bot_off|estado)(?:@\\w+)?(?:\\s+(.*))?$/i);\n  if (!m) return t.startsWith('/') ? { tipo: 'ayuda' } : { tipo: 'texto' };\n  const tipo = m[1].toLowerCase();\n  const wa = String(m[2] ?? '').replace(/[\\s+\\-()]/g, '');\n  if (!wa) return { tipo, error: 'Falta el número. Ejemplo: /' + tipo + ' 573001234567' };\n  if (!/^\\d{8,15}$/.test(wa)) return { tipo, error: 'Número inválido: usa solo dígitos con indicativo, p. ej. 573001234567' };\n  return { tipo, wa_id: wa };\n}\nfunction esChatOperador(chatId, operador) {\n  return String(operador ?? '').trim() !== '' && String(chatId ?? '') === String(operador).trim();\n}\nconst m=$('Telegram Trigger').first().json.message ?? {};\nif(!esChatOperador(m.chat?.id,$json.chat))return [];\nconst c=interpretarComando(m.text);\nconst resp=m.reply_to_message?.message_id;\nconst accion=c.tipo==='texto' ? (resp ? 'responder' : 'ayuda') : (c.error ? 'error' : c.tipo);\nreturn [{json:{accion,chat:$json.chat,simulado:$json.simulado,empresa:$json.empresa,message_id:m.message_id,\n  responde_a:resp ?? null,texto:m.text ?? '',wa_id:c.wa_id ?? null,error:c.error ?? null}}];"
+      }
+    },
+    {
+      "id": "Es respuesta",
+      "name": "Es respuesta",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.accion === 'responder' }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Es comando",
+      "name": "Es comando",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        960,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ ['bot_on','bot_off','estado'].includes($json.accion) }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Buscar aviso",
+      "name": "Buscar aviso",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1200,
+        0
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT t.conversacion_id, t.wa_id, c.ultimo_mensaje_cliente_en\nFROM telegram_mensajes t JOIN conversaciones c ON c.id=t.conversacion_id WHERE t.chat_id=$1 AND t.message_id=$2",
+        "options": {
+          "queryReplacement": "={{ [$json.chat,$json.responde_a] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "CFC6kja16jPSI9VC",
+          "name": "ot05-postgres"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "Validar envío",
+      "name": "Validar envío",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        0
+      ],
+      "parameters": {
+        "jsCode": "function dentroVentana24h(ultimoMensajeCliente, ahora) {\n  const t = Date.parse(ultimoMensajeCliente);\n  return Number.isFinite(t) && ahora - t < 24 * 3600 * 1000;\n}\nconst i=$('Interpretar').first().json;\nif(!$json.conversacion_id)return [{json:{...i,enviar:false,respuesta:'No encontré a qué conversación pertenece ese aviso.'}}];\nif(!dentroVentana24h($json.ultimo_mensaje_cliente_en,Date.now()))\n  return [{json:{...i,enviar:false,respuesta:'No se envió: pasaron más de 24 h desde el último mensaje del cliente. WhatsApp exige una plantilla aprobada.'}}];\nreturn [{json:{...i,enviar:true,conversacion_id:$json.conversacion_id,wa_id:$json.wa_id,\n  body:{from:i.empresa,to:'+'+$json.wa_id,type:'text',text:{body:i.texto}}}}];"
+      }
+    },
+    {
+      "id": "Enviar",
+      "name": "Enviar",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        0,
+        240
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.enviar === true }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Envío simulado",
+      "name": "Envío simulado",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        240,
+        240
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.simulado }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Respuesta simulada",
+      "name": "Respuesta simulada",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        240
+      ],
+      "parameters": {
+        "jsCode": "return [{json:{id:'sim-op-'+$execution.id,status:'simulado'}}];"
+      }
+    },
+    {
+      "id": "HTTP enviar operador",
+      "name": "HTTP enviar operador",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        240
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.ycloud.com/v2/whatsapp/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Validar envío').first().json.body }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "QGCYuY8sQ2W13q5n",
+          "name": "YCloud API (parte 3)"
+        }
+      }
+    },
+    {
+      "id": "Guardar salida",
+      "name": "Guardar salida",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        960,
+        240
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO mensajes(wamid,wa_id,conversacion_id,direccion,tipo,texto,estado,proveedor_id,autor,procesado,normalizado)\nVALUES(COALESCE($1,'ycloud:'||$2),$3,$4,'out','text',$5,$6,$2,'humano',true,$7::jsonb) ON CONFLICT(wamid) DO NOTHING RETURNING wamid",
+        "options": {
+          "queryReplacement": "={{ [$json.wamid ?? null,$json.id,$('Validar envío').first().json.wa_id,$('Validar envío').first().json.conversacion_id,$('Validar envío').first().json.texto,$json.status,JSON.stringify({origen:'operador_telegram'})] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "CFC6kja16jPSI9VC",
+          "name": "ot05-postgres"
+        }
+      }
+    },
+    {
+      "id": "Confirmación",
+      "name": "Confirmación",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        240
+      ],
+      "parameters": {
+        "jsCode": "return [{json:{respuesta:$('Validar envío').first().json.simulado ? 'Guardado (modo simulado: no salió por WhatsApp).' : 'Enviado al cliente.'}}];"
+      }
+    },
+    {
+      "id": "Comando",
+      "name": "Comando",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1440,
+        240
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH c AS (SELECT id FROM conversaciones WHERE wa_id=$2 ORDER BY creada_en DESC,id DESC LIMIT 1)\nUPDATE conversaciones SET\n bot_activo=CASE WHEN $1='bot_on' THEN true WHEN $1='bot_off' THEN false ELSE bot_activo END,\n estado=CASE WHEN $1='bot_on' THEN 'abierta' WHEN $1='bot_off' THEN 'escalada' ELSE estado END,\n motivo_escalamiento=CASE WHEN $1='bot_on' THEN NULL WHEN $1='bot_off' THEN 'operador' ELSE motivo_escalamiento END,\n turnos_agente=CASE WHEN $1='bot_on' THEN 0 ELSE turnos_agente END\nWHERE id=(SELECT id FROM c) RETURNING wa_id,bot_activo,estado,motivo_escalamiento,turnos_agente",
+        "options": {
+          "queryReplacement": "={{ [$json.accion,$json.wa_id] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "CFC6kja16jPSI9VC",
+          "name": "ot05-postgres"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "Texto comando",
+      "name": "Texto comando",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        480
+      ],
+      "parameters": {
+        "jsCode": "const i=$('Interpretar').first().json;\nif(!$json.wa_id)return [{json:{respuesta:'No encontré conversaciones de '+i.wa_id+'.'}}];\nreturn [{json:{respuesta:(i.accion==='bot_on'?'Bot reactivado. ':i.accion==='bot_off'?'Bot pausado. ':'')+'+'+$json.wa_id+': bot '+($json.bot_activo?'activo':'pausado')+\n  ' · estado '+$json.estado+($json.motivo_escalamiento?' ('+$json.motivo_escalamiento+')':'')+' · turnos '+$json.turnos_agente}}];"
+      }
+    },
+    {
+      "id": "Ayuda o error",
+      "name": "Ayuda o error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        480
+      ],
+      "parameters": {
+        "jsCode": "return [{json:{respuesta:$json.accion==='error' ? $json.error : \"Comandos:\\n/bot_on 573001234567 · reactiva el bot\\n/bot_off 573001234567 · lo pausa\\n/estado 573001234567 · muestra el estado\\nPara contestarle a un cliente, responde (reply) al aviso de su conversación.\"}}];"
+      }
+    },
+    {
+      "id": "Responder al operador",
+      "name": "Responder al operador",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        480
+      ],
+      "parameters": {
+        "chatId": "={{ $('Interpretar').first().json.chat }}",
+        "text": "={{ String($json.respuesta ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML",
+          "reply_to_message_id": "={{ $('Interpretar').first().json.message_id }}"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "T0lm7WR4FJtRzjXV",
+          "name": "Telegram Bot API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Operador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Operador": {
+      "main": [
+        [
+          {
+            "node": "Interpretar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Interpretar": {
+      "main": [
+        [
+          {
+            "node": "Es respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Es respuesta": {
+      "main": [
+        [
+          {
+            "node": "Buscar aviso",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Es comando",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar aviso": {
+      "main": [
+        [
+          {
+            "node": "Validar envío",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar envío": {
+      "main": [
+        [
+          {
+            "node": "Enviar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar": {
+      "main": [
+        [
+          {
+            "node": "Envío simulado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder al operador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envío simulado": {
+      "main": [
+        [
+          {
+            "node": "Respuesta simulada",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP enviar operador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respuesta simulada": {
+      "main": [
+        [
+          {
+            "node": "Guardar salida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP enviar operador": {
+      "main": [
+        [
+          {
+            "node": "Guardar salida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar salida": {
+      "main": [
+        [
+          {
+            "node": "Confirmación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmación": {
+      "main": [
+        [
+          {
+            "node": "Responder al operador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Es comando": {
+      "main": [
+        [
+          {
+            "node": "Comando",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ayuda o error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Comando": {
+      "main": [
+        [
+          {
+            "node": "Texto comando",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Texto comando": {
+      "main": [
+        [
+          {
+            "node": "Responder al operador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ayuda o error": {
+      "main": [
+        [
+          {
+            "node": "Responder al operador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false,
+    "errorWorkflow": "ds-00-error-handler-id"
+  }
+}

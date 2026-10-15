@@ -1,0 +1,46 @@
+{
+  "id": "test-param",
+  "name": "Test Param",
+  "active": true,
+  "nodes": [
+    {
+      "id": "start",
+      "name": "Inicio",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "exec",
+      "name": "Exec",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        200,
+        0
+      ],
+      "parameters": {
+        "source": "parameter",
+        "workflowJson": "{\"nodes\":[{\"parameters\":{},\"id\":\"trigger\",\"name\":\"Execute Workflow Trigger\",\"type\":\"n8n-nodes-base.executeWorkflowTrigger\",\"typeVersion\":1,\"position\":[0,0]},{\"parameters\":{\"jsCode\":\"return [{json:{success:true}}];\"},\"id\":\"code\",\"name\":\"Code\",\"type\":\"n8n-nodes-base.code\",\"typeVersion\":2,\"position\":[200,0]}],\"connections\":{\"Execute Workflow Trigger\":{\"main\":[[{\"node\":\"Code\",\"type\":\"main\",\"index\":0}]]}}}"
+      }
+    }
+  ],
+  "connections": {
+    "Inicio": {
+      "main": [
+        [
+          {
+            "node": "Exec",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": null
+}

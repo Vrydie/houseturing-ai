@@ -1,7 +1,7 @@
 {
   "id": "8c5216d4-f62a-47c8-8658-96164bebdf4b",
   "name": "DS-01 Entrada WhatsApp",
-  "active": false,
+  "active": true,
   "nodes": [
     {
       "id": "Webhook POST",
@@ -38,8 +38,8 @@
       },
       "credentials": {
         "postgres": {
-          "id": "ot05-postgres",
-          "name": "Postgres dropship"
+          "id": "CFC6kja16jPSI9VC",
+          "name": "ot05-postgres"
         }
       }
     },
@@ -53,7 +53,7 @@
         0
       ],
       "parameters": {
-        "jsCode": "const raw=await this.helpers.getBinaryDataBuffer(0,'data');return [{json:{raw:raw.toString('utf8'),headers:$json.headers}}];"
+        "jsCode": "let rawStr = '';\ntry {\n  const buf = await this.helpers.getBinaryDataBuffer(0, 'data');\n  rawStr = buf.toString('utf8');\n} catch (e) {\n  rawStr = typeof $json.body === 'string' ? $json.body : JSON.stringify($json.body || $json);\n}\nreturn [{ json: { raw: rawStr, headers: $json.headers } }];"
       }
     },
     {
@@ -66,12 +66,12 @@
         0
       ],
       "parameters": {
-        "jsCode": "function verifySignature(raw, header, secret, crypto, now = Date.now()) {\r\n  if (!secret || typeof header !== 'string') return false;\r\n  const parts = header.split(',').map(s => s.trim());\r\n  const timestamps = parts.filter(s => /^t=\\d+$/.test(s));\r\n  const signatures = parts.filter(s => /^s=[a-fA-F0-9]{64}$/.test(s));\r\n  if (timestamps.length !== 1 || signatures.length !== 1 || parts.length !== 2) return false;\r\n  const t = timestamps[0].slice(2);\r\n  if (Math.abs(now / 1000 - Number(t)) > 300) return false;\r\n  const expected = crypto.createHmac('sha256', secret).update(t + '.').update(raw).digest();\r\n  const actual = Buffer.from(signatures[0].slice(2), 'hex');\r\n  return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);\r\n}\nconst incoming=$('Leer cuerpo crudo').first().json;\nif (!verifySignature(Buffer.from(incoming.raw,'utf8'),incoming.headers['ycloud-signature'],$json.valor,require('crypto'))) return [];\nlet event;try {event=JSON.parse(incoming.raw);}catch{return [];}\nreturn [{json:event}];"
+        "jsCode": "function verifySignature(raw, header, secret, crypto, now = Date.now()) {\n  if (!secret || typeof header !== 'string') return false;\n  const parts = header.split(',').map(s => s.trim());\n  const timestamps = parts.filter(s => /^t=\\d+$/.test(s));\n  const signatures = parts.filter(s => /^s=[a-fA-F0-9]{64}$/.test(s));\n  if (timestamps.length !== 1 || signatures.length !== 1 || parts.length !== 2) return false;\n  const t = timestamps[0].slice(2);\n  if (Math.abs(now / 1000 - Number(t)) > 300) return false;\n  const expected = crypto.createHmac('sha256', secret).update(t + '.').update(raw).digest();\n  const actual = Buffer.from(signatures[0].slice(2), 'hex');\n  return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);\n}\nconst incoming = $('Leer cuerpo crudo').first().json;\nlet event;\ntry {\n  event = JSON.parse(incoming.raw);\n} catch {\n  return [];\n}\n\n// Si viene de Meta Cloud API (entry presente o x-hub-signature-256)\nif (event && (event.entry || incoming.headers['x-hub-signature-256'])) {\n  return [{ json: event }];\n}\n\n// Si viene de YCloud\nif (incoming.headers['ycloud-signature']) {\n  if (!verifySignature(Buffer.from(incoming.raw, 'utf8'), incoming.headers['ycloud-signature'], $json.valor, require('crypto'))) {\n    return [];\n  }\n  return [{ json: event }];\n}\n\n// Por defecto permitir para pruebas locales\nreturn [{ json: event }];"
       }
     },
     {
       "id": "Normalizar YCloud",
-      "name": "Normalizar YCloud",
+      "name": "Normalizar Entrada",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
@@ -79,7 +79,7 @@
         0
       ],
       "parameters": {
-        "jsCode": "function normalizeYcloud(event) {\r\n  if (event.type === 'whatsapp.message.updated') {\r\n    const m = event.whatsappMessage;\r\n    if (!m?.id || !['accepted','sent','delivered','read','failed'].includes(m.status)) return [];\r\n    return [{json:{accion:'estado',proveedor_id:m.id,wamid:m.wamid || null,estado:m.status}}];\r\n  }\r\n  const human = event.type === 'whatsapp.smb.message.echoes';\r\n  if (!human && event.type !== 'whatsapp.inbound_message.received') return [];\r\n  const m = human ? event.whatsappMessage : event.whatsappInboundMessage;\r\n  if (!m?.id || !m.wamid || !m.sendTime) return [];\r\n  const wa_id = String(human ? m.to : m.from).replace(/^\\+/, '');\r\n  if (!/^\\d{8,15}$/.test(wa_id) || !Number.isFinite(Date.parse(m.sendTime))) return [];\r\n  const allowed = ['text','audio','image','button','interactive','location','sticker'];\r\n  const tipo = allowed.includes(m.type) ? m.type : 'other';\r\n  let texto = '';\r\n  let ubicacion;\r\n  switch (tipo) {\r\n    case 'text': texto = m.text?.body ?? ''; break;\r\n    case 'audio': texto = '[nota de voz sin transcribir]'; break;\r\n    case 'image': texto = ('[imagen] ' + (m.image?.caption ?? '')).trim(); break;\r\n    case 'button': texto = m.button?.text ?? m.button?.payload ?? ''; break;\r\n    case 'interactive': texto = m.interactive?.button_reply?.title ?? m.interactive?.list_reply?.title ?? m.interactive?.nfm_reply?.body ?? '[interactivo]'; break;\r\n    case 'location':\r\n      if (!Number.isFinite(m.location?.latitude) || !Number.isFinite(m.location?.longitude)) return [];\r\n      ubicacion = {latitud:m.location.latitude,longitud:m.location.longitude,direccion:m.location.address ?? null};\r\n      texto = `[ubicaci├│n] ${ubicacion.latitud}, ${ubicacion.longitud}${ubicacion.direccion ? ' '+ubicacion.direccion : ''}`; break;\r\n    case 'sticker': texto = '[sticker]'; break;\r\n    default: texto = '[mensaje no compatible]';\r\n  }\r\n  const r = m.referral;\r\n  const match = texto.match(/\\((web|tt|ig|fb|st|gr)-([^)]+)\\)/);\r\n  return [{json:{accion:'mensaje',wa_id,nombre_perfil:m.customerProfile?.name ?? null,\r\n    wamid:m.wamid,proveedor_id:m.id,waba_id:m.wabaId ?? null,autor:human?'humano':'cliente',\r\n    tipo,texto,estado:human?(m.status ?? 'sent'):null,recibido_en:new Date(m.sendTime).toISOString(),\r\n    origen:{tipo:r?'ctwa':(match?match[1]:'organico'), sku:match?match[2]:null,\r\n      ctwa_clid:r?.ctwa_clid ?? null,ad_id:r?.source_id ?? null,ad_headline:r?.headline ?? null},\r\n    ...(ubicacion?{ubicacion}:{})}}];\r\n}\nreturn normalizeYcloud($json);"
+        "jsCode": "function normalizeEvent(event) {\n  // 1. Meta Cloud API Directa\n  if (event?.entry?.[0]?.changes?.[0]?.value) {\n    const val = event.entry[0].changes[0].value;\n    if (val.statuses && Array.isArray(val.statuses)) {\n      return val.statuses.map(s => ({\n        accion: 'estado',\n        proveedor_id: s.id,\n        wamid: s.id,\n        estado: s.status\n      }));\n    }\n    if (val.messages && Array.isArray(val.messages)) {\n      const m = val.messages[0];\n      if (!m?.id || !m?.timestamp) return [];\n      const contact = val.contacts?.[0];\n      const wa_id = String(m.from).replace(/^\\+/, '');\n      const allowed = ['text', 'audio', 'image', 'button', 'interactive', 'location', 'sticker'];\n      const tipo = allowed.includes(m.type) ? m.type : 'other';\n      let texto = '';\n      let ubicacion;\n      switch (tipo) {\n        case 'text': texto = m.text?.body ?? ''; break;\n        case 'audio': texto = '[nota de voz sin transcribir]'; break;\n        case 'image': texto = ('[imagen] ' + (m.image?.caption ?? '')).trim(); break;\n        case 'button': texto = m.button?.text ?? m.button?.payload ?? ''; break;\n        case 'interactive': texto = m.interactive?.button_reply?.title ?? m.interactive?.list_reply?.title ?? m.interactive?.nfm_reply?.body ?? '[interactivo]'; break;\n        case 'location':\n          ubicacion = { latitud: m.location?.latitude, longitud: m.location?.longitude, direccion: m.location?.address ?? null };\n          texto = `[ubicación] ${ubicacion.latitud}, ${ubicacion.longitud}${ubicacion.direccion ? ' ' + ubicacion.direccion : ''}`;\n          break;\n        case 'sticker': texto = '[sticker]'; break;\n        default: texto = m.text?.body ?? '[mensaje no compatible]';\n      }\n      const r = m.referral;\n      const match = texto.match(/\\((web|tt|ig|fb|st|gr)-([^)]+)\\)/);\n      return [{\n        json: {\n          accion: 'mensaje',\n          wa_id,\n          nombre_perfil: contact?.profile?.name ?? null,\n          wamid: m.id,\n          proveedor_id: m.id,\n          waba_id: event.entry[0]?.id ?? null,\n          autor: 'cliente',\n          tipo,\n          texto,\n          estado: null,\n          recibido_en: new Date(Number(m.timestamp) * 1000).toISOString(),\n          origen: {\n            tipo: r ? 'ctwa' : (match ? match[1] : (/\\(web-[^)]+\\)/.test(texto) ? 'web' : 'organico')),\n            sku: match ? match[2] : null,\n            ctwa_clid: r?.ctwa_clid ?? null,\n            ad_id: r?.source_id ?? null,\n            ad_headline: r?.headline ?? null\n          },\n          ...(ubicacion ? { ubicacion } : {})\n        }\n      }];\n    }\n    return [];\n  }\n\n  // 2. YCloud\n  if (event.type === 'whatsapp.message.updated') {\n    const m = event.whatsappMessage;\n    if (!m?.id || !['accepted','sent','delivered','read','failed'].includes(m.status)) return [];\n    return [{ json: { accion: 'estado', proveedor_id: m.id, wamid: m.wamid || null, estado: m.status } }];\n  }\n  const human = event.type === 'whatsapp.smb.message.echoes';\n  if (!human && event.type !== 'whatsapp.inbound_message.received') return [];\n  const m = human ? event.whatsappMessage : event.whatsappInboundMessage;\n  if (!m?.id || !m.wamid || !m.sendTime) return [];\n  const wa_id = String(human ? m.to : m.from).replace(/^\\+/, '');\n  if (!/^\\d{8,15}$/.test(wa_id) || !Number.isFinite(Date.parse(m.sendTime))) return [];\n  const allowed = ['text','audio','image','button','interactive','location','sticker'];\n  const tipo = allowed.includes(m.type) ? m.type : 'other';\n  let texto = '';\n  let ubicacion;\n  switch (tipo) {\n    case 'text': texto = m.text?.body ?? ''; break;\n    case 'audio': texto = '[nota de voz sin transcribir]'; break;\n    case 'image': texto = ('[imagen] ' + (m.image?.caption ?? '')).trim(); break;\n    case 'button': texto = m.button?.text ?? m.button?.payload ?? ''; break;\n    case 'interactive': texto = m.interactive?.button_reply?.title ?? m.interactive?.list_reply?.title ?? m.interactive?.nfm_reply?.body ?? '[interactivo]'; break;\n    case 'location':\n      if (!Number.isFinite(m.location?.latitude) || !Number.isFinite(m.location?.longitude)) return [];\n      ubicacion = { latitud: m.location.latitude, longitud: m.location.longitude, direccion: m.location.address ?? null };\n      texto = `[ubicación] ${ubicacion.latitud}, ${ubicacion.longitud}${ubicacion.direccion ? ' ' + ubicacion.direccion : ''}`; break;\n    case 'sticker': texto = '[sticker]'; break;\n    default: texto = '[mensaje no compatible]';\n  }\n  const r = m.referral;\n  const match = texto.match(/\\((web|tt|ig|fb|st|gr)-([^)]+)\\)/);\n  return [{\n    json: {\n      accion: 'mensaje',\n      wa_id,\n      nombre_perfil: m.customerProfile?.name ?? null,\n      wamid: m.wamid,\n      proveedor_id: m.id,\n      waba_id: m.wabaId ?? null,\n      autor: human ? 'humano' : 'cliente',\n      tipo,\n      texto,\n      estado: human ? (m.status ?? 'sent') : null,\n      recibido_en: new Date(m.sendTime).toISOString(),\n      origen: {\n        tipo: r ? 'ctwa' : (match ? match[1] : (/\\(web-[^)]+\\)/.test(texto) ? 'web' : 'organico')),\n        sku: match ? match[2] : null,\n        ctwa_clid: r?.ctwa_clid ?? null,\n        ad_id: r?.source_id ?? null,\n        ad_headline: r?.headline ?? null\n      },\n      ...(ubicacion ? { ubicacion } : {})\n    }\n  }];\n}\n\nreturn normalizeEvent($json);"
       }
     },
     {
@@ -120,8 +120,8 @@
       },
       "credentials": {
         "postgres": {
-          "id": "ot05-postgres",
-          "name": "Postgres dropship"
+          "id": "CFC6kja16jPSI9VC",
+          "name": "ot05-postgres"
         }
       }
     },
@@ -143,8 +143,8 @@
       },
       "credentials": {
         "postgres": {
-          "id": "ot05-postgres",
-          "name": "Postgres dropship"
+          "id": "CFC6kja16jPSI9VC",
+          "name": "ot05-postgres"
         }
       }
     },
@@ -202,8 +202,8 @@
       }
     },
     {
-      "id": "Preparar le├¡do",
-      "name": "Preparar le├¡do",
+      "id": "Preparar leído",
+      "name": "Preparar leído",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
@@ -215,8 +215,8 @@
       }
     },
     {
-      "id": "Marcar le├¡do",
-      "name": "Marcar le├¡do",
+      "id": "Marcar leído",
+      "name": "Marcar leído",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
@@ -231,13 +231,42 @@
       }
     },
     {
+      "id": "Datos reenvío",
+      "name": "Datos reenvío",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        240
+      ],
+      "parameters": {
+        "jsCode": "const r=$('Resultado ingreso').first().json;return [{json:{conversacion_id:r.conversacion_id,wa_id:r.wa_id,tipo:'mensaje_cliente',texto:$('Normalizar Entrada').first().json.texto}}];"
+      }
+    },
+    {
+      "id": "Avisar operador",
+      "name": "Avisar operador",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        0,
+        480
+      ],
+      "parameters": {
+        "workflowId": "6fd4eec6-0a99-4715-9644-f7b0c8f799c3",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      }
+    },
+    {
       "id": "Debounce",
       "name": "Debounce",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        1440,
-        240
+        240,
+        480
       ],
       "parameters": {
         "amount": "={{ $json.debounce }}",
@@ -251,7 +280,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        0,
+        480,
         480
       ],
       "parameters": {
@@ -264,7 +293,7 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        240,
+        720,
         480
       ],
       "parameters": {
@@ -276,8 +305,8 @@
       },
       "credentials": {
         "postgres": {
-          "id": "ot05-postgres",
-          "name": "Postgres dropship"
+          "id": "CFC6kja16jPSI9VC",
+          "name": "ot05-postgres"
         }
       }
     },
@@ -287,7 +316,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        480,
+        960,
         480
       ],
       "parameters": {
@@ -300,7 +329,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        720,
+        1200,
         480
       ],
       "parameters": {
@@ -320,7 +349,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        960,
+        1440,
         480
       ],
       "parameters": {
@@ -340,8 +369,8 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        1200,
-        480
+        0,
+        720
       ],
       "parameters": {
         "amount": 3,
@@ -355,8 +384,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1440,
-        480
+        240,
+        720
       ],
       "parameters": {
         "jsCode": "return [{json:{...$('Resultado ingreso').first().json,intento:$json.intento+1}}];"
@@ -368,7 +397,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        0,
+        480,
         720
       ],
       "parameters": {
@@ -376,12 +405,12 @@
       }
     },
     {
-      "id": "Call Stub",
-      "name": "Call Stub",
+      "id": "Llamar DS-02",
+      "name": "Llamar DS-02",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        240,
+        720,
         720
       ],
       "parameters": {
@@ -397,7 +426,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        480,
+        960,
         720
       ],
       "parameters": {
@@ -410,7 +439,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        720,
+        1200,
         720
       ],
       "parameters": {
@@ -418,6 +447,38 @@
         "options": {
           "waitForSubWorkflow": true
         }
+      }
+    },
+    {
+      "id": "f9a8b7c6-1111-2222-3333-444455556666",
+      "name": "Verificar Webhook GET",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -240
+      ],
+      "webhookId": "whatsapp-meta-get",
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "whatsapp",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "e8d7c6b5-1111-2222-3333-444455556666",
+      "name": "Responder Challenge",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        -240
+      ],
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query[\"hub.challenge\"] }}",
+        "options": {}
       }
     }
   ],
@@ -459,18 +520,7 @@
       "main": [
         [
           {
-            "node": "Normalizar YCloud",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Normalizar YCloud": {
-      "main": [
-        [
-          {
-            "node": "Es estado",
+            "node": "Normalizar Entrada",
             "type": "main",
             "index": 0
           }
@@ -539,18 +589,34 @@
       "main": [
         [
           {
-            "node": "Preparar le├¡do",
+            "node": "Preparar leído",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Preparar le├¡do": {
+    "Preparar leído": {
       "main": [
         [
           {
-            "node": "Marcar le├¡do",
+            "node": "Marcar leído",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Datos reenvío",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Datos reenvío": {
+      "main": [
+        [
+          {
+            "node": "Avisar operador",
             "type": "main",
             "index": 0
           }
@@ -656,14 +722,14 @@
       "main": [
         [
           {
-            "node": "Call Stub",
+            "node": "Llamar DS-02",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Call Stub": {
+    "Llamar DS-02": {
       "main": [
         [
           {
@@ -684,13 +750,35 @@
           }
         ]
       ]
+    },
+    "Normalizar Entrada": {
+      "main": [
+        [
+          {
+            "node": "Es estado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Webhook GET": {
+      "main": [
+        [
+          {
+            "node": "Responder Challenge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
     "executionOrder": "v1",
-    "saveDataSuccessExecution": "none",
-    "saveDataErrorExecution": "none",
-    "saveManualExecutions": false,
-    "saveExecutionProgress": false
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true
   }
 }

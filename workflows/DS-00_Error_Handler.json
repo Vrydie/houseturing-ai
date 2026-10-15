@@ -1,0 +1,176 @@
+{
+  "id": "ds-00-error-handler-id",
+  "name": "DS-00 Manejador de errores",
+  "active": true,
+  "nodes": [
+    {
+      "id": "Error Trigger",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "Preparar alerta",
+      "name": "Preparar alerta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "jsCode": "function enmascararNumeros(texto) {\n  return String(texto ?? '').replace(/\\d{6,}/g, d => d.slice(0, 3) + '***' + d.slice(-4));\n}\nfunction armarAlertaError(ev, repetidasAntes, fechaTexto) {\n  const ex = ev?.execution ?? {}, tr = ev?.trigger ?? {};\n  const wf = ev?.workflow?.name ?? ex.workflow?.name ?? '(workflow desconocido)';\n  const wfId = ev?.workflow?.id ?? ex.workflow?.id ?? '';\n  const nodo = ex.error?.node?.name ?? ex.lastNodeExecuted ?? tr.error?.node?.name ?? '(nodo desconocido)';\n  let msg = enmascararNumeros(ex.error?.message ?? tr.error?.message ?? 'sin mensaje');\n  if (msg.length > 500) msg = msg.slice(0, 497) + '...';\n  const lineas = ['[Error] ' + wf, 'Nodo: ' + nodo, 'Hora: ' + fechaTexto, 'Error: ' + msg];\n  if (ex.id) lineas.push('Ejecución: ' + ex.id);\n  if (Number(repetidasAntes) > 0) lineas.push('(se repitió ' + repetidasAntes + ' veces en los últimos minutos sin aviso)');\n  return { clave: wfId + ':' + nodo, texto: lineas.join('\\n') };\n}\nconst fecha=new Intl.DateTimeFormat('es-CO',{timeZone:'America/Bogota',dateStyle:'short',timeStyle:'medium'}).format(new Date());\nreturn [{json:armarAlertaError($json,0,fecha)}];"
+      }
+    },
+    {
+      "id": "Anti-ráfaga",
+      "name": "Anti-ráfaga",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH prev AS (SELECT repeticiones FROM alertas_error WHERE clave=$1),\nup AS (INSERT INTO alertas_error(clave,ultima_en,repeticiones) VALUES($1,now(),0)\n  ON CONFLICT (clave) DO UPDATE SET\n   ultima_en=CASE WHEN alertas_error.ultima_en<now()-interval '10 minutes' THEN now() ELSE alertas_error.ultima_en END,\n   repeticiones=CASE WHEN alertas_error.ultima_en<now()-interval '10 minutes' THEN 0 ELSE alertas_error.repeticiones+1 END\n  RETURNING ultima_en)\nSELECT (SELECT ultima_en FROM up)=now() AS enviar, COALESCE((SELECT repeticiones FROM prev),0) AS repetidas_antes, COALESCE((SELECT valor FROM config WHERE clave='telegram_chat_operador'),'') AS chat",
+        "options": {
+          "queryReplacement": "={{ [$json.clave] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "CFC6kja16jPSI9VC",
+          "name": "ot05-postgres"
+        }
+      }
+    },
+    {
+      "id": "Enviar alerta",
+      "name": "Enviar alerta",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.enviar === true && $json.chat !== '' }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Texto alerta",
+      "name": "Texto alerta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        0
+      ],
+      "parameters": {
+        "jsCode": "function enmascararNumeros(texto) {\n  return String(texto ?? '').replace(/\\d{6,}/g, d => d.slice(0, 3) + '***' + d.slice(-4));\n}\nfunction armarAlertaError(ev, repetidasAntes, fechaTexto) {\n  const ex = ev?.execution ?? {}, tr = ev?.trigger ?? {};\n  const wf = ev?.workflow?.name ?? ex.workflow?.name ?? '(workflow desconocido)';\n  const wfId = ev?.workflow?.id ?? ex.workflow?.id ?? '';\n  const nodo = ex.error?.node?.name ?? ex.lastNodeExecuted ?? tr.error?.node?.name ?? '(nodo desconocido)';\n  let msg = enmascararNumeros(ex.error?.message ?? tr.error?.message ?? 'sin mensaje');\n  if (msg.length > 500) msg = msg.slice(0, 497) + '...';\n  const lineas = ['[Error] ' + wf, 'Nodo: ' + nodo, 'Hora: ' + fechaTexto, 'Error: ' + msg];\n  if (ex.id) lineas.push('Ejecución: ' + ex.id);\n  if (Number(repetidasAntes) > 0) lineas.push('(se repitió ' + repetidasAntes + ' veces en los últimos minutos sin aviso)');\n  return { clave: wfId + ':' + nodo, texto: lineas.join('\\n') };\n}\nconst fecha=new Intl.DateTimeFormat('es-CO',{timeZone:'America/Bogota',dateStyle:'short',timeStyle:'medium'}).format(new Date());\nreturn [{json:{chat:$json.chat,texto:armarAlertaError($('Error Trigger').first().json,$json.repetidas_antes,fecha).texto}}];"
+      }
+    },
+    {
+      "id": "Alerta Telegram",
+      "name": "Alerta Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1200,
+        0
+      ],
+      "parameters": {
+        "chatId": "={{ $json.chat }}",
+        "text": "={{ String($json.texto ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "T0lm7WR4FJtRzjXV",
+          "name": "Telegram Bot API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Preparar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar alerta": {
+      "main": [
+        [
+          {
+            "node": "Anti-ráfaga",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anti-ráfaga": {
+      "main": [
+        [
+          {
+            "node": "Enviar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar alerta": {
+      "main": [
+        [
+          {
+            "node": "Texto alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Texto alerta": {
+      "main": [
+        [
+          {
+            "node": "Alerta Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false
+  }
+}

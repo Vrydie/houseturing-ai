@@ -20,3 +20,6 @@ tienda/.shopify/
 .DS_Store
 Thumbs.db
 tienda/respaldos/
+scratch/
+infra/test_sig*.js
+infra/query.sql

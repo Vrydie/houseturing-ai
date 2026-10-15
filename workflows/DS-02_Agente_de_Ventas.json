@@ -1,0 +1,408 @@
+{
+  "id": "ds-02-agente-ventas",
+  "name": "DS-02 Agente de Ventas",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst wa_id = $('Execute Workflow Trigger').first().json.wa_id;\nreturn [{ json: { wa_id } }];\n        "
+      },
+      "id": "code_count",
+      "name": "Get wa_id",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT COUNT(*) as turnos FROM mensajes WHERE wa_id = $1",
+        "options": {
+          "queryReplacement": "={{ [$json.wa_id] }}"
+        }
+      },
+      "id": "pg_count",
+      "name": "Count Turns",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [
+        304,
+        0
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "b1b2JJ18qDVF2dWp",
+          "name": "Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.turnos }}",
+              "operation": "larger",
+              "value2": 60
+            }
+          ]
+        }
+      },
+      "id": "if_limite",
+      "name": "IF > 60 Turnos",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        512,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { texto: 'Escalado por límite de turnos', bot_activo: false } }];"
+      },
+      "id": "code_escalar",
+      "name": "Escalar a Humano",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        704,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst wa_id = $('Execute Workflow Trigger').first().json.wa_id;\nconst texto = $('Execute Workflow Trigger').first().json.texto;\nreturn [{ json: { sessionId: wa_id, chatInput: texto } }];\n        "
+      },
+      "id": "code_format",
+      "name": "Format Agent Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Execute Workflow Trigger').first().json.texto }}",
+        "options": {
+          "systemMessage": "Eres un asesor de ventas de una tienda virtual."
+        }
+      },
+      "id": "agent",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        800,
+        112
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "model": "deepseek-flash",
+        "options": {
+          "baseURL": "https://api.deepseek.com/v1"
+        }
+      },
+      "id": "llm",
+      "name": "DeepSeek Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        800,
+        304
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "IWmvZofPhCRjAoXs",
+          "name": "LLM DeepSeek"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionKey": "={{ $('Execute Workflow Trigger').first().json.wa_id }}"
+      },
+      "id": "memory",
+      "name": "Postgres Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.2,
+      "position": [
+        960,
+        304
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "b1b2JJ18qDVF2dWp",
+          "name": "Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "consultar_cobertura",
+        "description": "Llama a esta herramienta para consultar si hay envíos a una ciudad específica.",
+        "workflowId": "c6918d23-a831-42b2-b67a-493b9b1c07cf"
+      },
+      "id": "tool_cobertura",
+      "name": "Call Workflow Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1008,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "name": "consultar_estado_pedido",
+        "description": "Devuelve los pedidos del cliente actual (estado, transportadora, guía).",
+        "workflowId": "d8c21a4f-9a1c-4f77-9b2f-1a2b3c4d5e6f"
+      },
+      "id": "tool_estado",
+      "name": "Call Tool Estado",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1008,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "name": "escalar_a_humano",
+        "description": "Pausa el bot en esta conversación y avisa al operador. Llama si el cliente está molesto, pide humano, u otras razones de la ficha.",
+        "workflowId": "e9d32b5g-1b2d-5f88-8c3g-2b3c4d5e6f7g"
+      },
+      "id": "tool_escalar",
+      "name": "Call Tool Escalar",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1008,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "name": "crear_pedido_contraentrega",
+        "description": "Crea el pedido con pago contra entrega. SOLO después de que el cliente respondió 'sí' al resumen completo.",
+        "workflowId": "ds-t2-crear-pedido-uuid"
+      },
+      "id": "tool_pedido",
+      "name": "Call Tool Pedido",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1008,
+        752
+      ]
+    },
+    {
+      "parameters": {
+        "name": "generar_link_pago",
+        "description": "Genera un enlace de pago en línea para quien prefiere pagar por adelantado.",
+        "workflowId": "a1b2c3d4-e5f6-7g8h-9i0j-1k2l3m4n5o6p"
+      },
+      "id": "tool_link",
+      "name": "Call Tool Link",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1008,
+        912
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst output = $input.first().json.output || \"\";\nconst prohibidas = [\"soy una ia\", \"soy un modelo\", \"openai\", \"precio de 10000\"];\nconst isBlocked = prohibidas.some(p => output.toLowerCase().includes(p));\n\nreturn [{\n  json: {\n    wa_id: $('Execute Workflow Trigger').first().json.wa_id,\n    texto: isBlocked ? \"Hubo un error de estilo. Regenerando...\" : output\n  }\n}];\n        "
+      },
+      "id": "code_filter",
+      "name": "Filtro de Estilo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        112
+      ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get wa_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get wa_id": {
+      "main": [
+        [
+          {
+            "node": "Count Turns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Count Turns": {
+      "main": [
+        [
+          {
+            "node": "IF > 60 Turnos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF > 60 Turnos": {
+      "main": [
+        [
+          {
+            "node": "Escalar a Humano",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Agent Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Agent Input": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Filtro de Estilo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Workflow Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Tool Estado": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Tool Escalar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Tool Pedido": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Tool Link": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "all",
+    "binaryMode": "separate"
+  }
+}

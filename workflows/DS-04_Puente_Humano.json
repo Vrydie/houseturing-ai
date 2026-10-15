@@ -1,0 +1,269 @@
+{
+  "id": "6fd4eec6-0a99-4715-9644-f7b0c8f799c3",
+  "name": "DS-04 Puente humano · avisar",
+  "active": true,
+  "nodes": [
+    {
+      "id": "Entrada",
+      "name": "Entrada",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "Datos aviso",
+      "name": "Datos aviso",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT COALESCE((SELECT valor FROM config WHERE clave='telegram_chat_operador'),'') AS chat, k.nombre_perfil,\n (SELECT COALESCE(json_agg(m ORDER BY m.creado_en),'[]'::json) FROM (SELECT autor,texto,creado_en FROM mensajes\n   WHERE conversacion_id=$1 ORDER BY creado_en DESC LIMIT 5) m) AS ultimos\nFROM (SELECT 1) uno LEFT JOIN contactos k ON k.wa_id=$2",
+        "options": {
+          "queryReplacement": "={{ [$json.conversacion_id,$json.wa_id] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "CFC6kja16jPSI9VC",
+          "name": "ot05-postgres"
+        }
+      }
+    },
+    {
+      "id": "Armar aviso",
+      "name": "Armar aviso",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "jsCode": "function armarAviso(d) {\n  const quien = (d.nombre_perfil ? d.nombre_perfil + ' · ' : '') + '+' + d.wa_id;\n  if (d.tipo === 'mensaje_cliente')\n    return ['[Cliente escribió con el bot pausado] ' + quien, '', String(d.texto ?? '').slice(0, 1500), '',\n      'Responde a este mensaje para contestarle. /bot_on ' + d.wa_id + ' reactiva el bot.', 'https://wa.me/' + d.wa_id].join('\\n');\n  const ultimos = (d.ultimos ?? []).map(m => (m.autor === 'cliente' ? 'Cliente: ' : m.autor === 'humano' ? 'Tú: ' : 'Bot: ') + String(m.texto ?? '').slice(0, 200));\n  return [(d.urgencia === 'alta' ? '[URGENTE] ' : '') + '[Escalado: ' + (d.motivo ?? 'otro') + '] ' + quien,\n    d.resumen ? 'Resumen: ' + String(d.resumen).slice(0, 500) : null,\n    ultimos.length ? '\\nÚltimos mensajes:\\n' + ultimos.join('\\n') : null, '',\n    'Responde a este mensaje para contestarle por WhatsApp. /bot_on ' + d.wa_id + ' reactiva el bot.', 'https://wa.me/' + d.wa_id]\n    .filter(x => x !== null).join('\\n');\n}\nconst d={...$('Entrada').first().json,...$json};\nreturn [{json:{chat:$json.chat,texto:armarAviso(d)}}];"
+      }
+    },
+    {
+      "id": "Hay chat",
+      "name": "Hay chat",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.chat !== '' }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Enviar aviso",
+      "name": "Enviar aviso",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        960,
+        0
+      ],
+      "parameters": {
+        "chatId": "={{ $json.chat }}",
+        "text": "={{ String($json.texto ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "T0lm7WR4FJtRzjXV",
+          "name": "Telegram Bot API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "Guardar relación",
+      "name": "Guardar relación",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1200,
+        0
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO telegram_mensajes(chat_id,message_id,conversacion_id,wa_id) VALUES($1,$2,$3,$4)\nON CONFLICT DO NOTHING RETURNING message_id",
+        "options": {
+          "queryReplacement": "={{ [$json.result?.chat?.id ?? $json.chat?.id ?? $('Armar aviso').first().json.chat, $json.result?.message_id ?? $json.message_id, $('Entrada').first().json.conversacion_id, $('Entrada').first().json.wa_id] }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "CFC6kja16jPSI9VC",
+          "name": "ot05-postgres"
+        }
+      }
+    },
+    {
+      "id": "Enviado",
+      "name": "Enviado",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ !$json.error && ($json.result?.message_id ?? $json.message_id) !== undefined }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Avisado",
+      "name": "Avisado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        240
+      ],
+      "parameters": {
+        "jsCode": "return [{json:{avisado:true}}];"
+      }
+    },
+    {
+      "id": "Sin aviso",
+      "name": "Sin aviso",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        240
+      ],
+      "parameters": {
+        "jsCode": "return [{json:{avisado:false,motivo:$json.chat==='' ? 'sin chat de operador' : 'Telegram falló'}}];"
+      }
+    }
+  ],
+  "connections": {
+    "Entrada": {
+      "main": [
+        [
+          {
+            "node": "Datos aviso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Datos aviso": {
+      "main": [
+        [
+          {
+            "node": "Armar aviso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar aviso": {
+      "main": [
+        [
+          {
+            "node": "Hay chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hay chat": {
+      "main": [
+        [
+          {
+            "node": "Enviar aviso",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sin aviso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar aviso": {
+      "main": [
+        [
+          {
+            "node": "Enviado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviado": {
+      "main": [
+        [
+          {
+            "node": "Guardar relación",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sin aviso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar relación": {
+      "main": [
+        [
+          {
+            "node": "Avisado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false,
+    "errorWorkflow": "ds-00-error-handler-id"
+  }
+}

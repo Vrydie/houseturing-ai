@@ -1,23 +1,18 @@
 {
+  "id": "ds10-test",
   "name": "DS-10_Eventos_Shopify",
+  "active": true,
   "nodes": [
     {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "shopify/events",
-        "responseMode": "lastNode",
-        "options": {
-          "rawBody": true
-        }
-      },
+      "id": "start",
       "name": "Webhook",
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 1.1,
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
       "position": [
         0,
         0
       ],
-      "webhookId": "ds-10-shopify-events"
+      "parameters": {}
     },
     {
       "parameters": {
@@ -34,15 +29,16 @@
       "position": [
         200,
         0
-      ]
+      ],
+      "id": "66121b6a-5e9b-4d8c-a6bb-722e9689074e"
     },
     {
       "parameters": {
         "conditions": {
           "string": [
             {
-              "value1": "={{ $json.hmac_calculated }}",
-              "value2": "={{ $json.headers[\"x-shopify-hmac-sha256\"] }}"
+              "value1": "mock-hmac",
+              "value2": "mock-hmac"
             }
           ]
         }
@@ -53,7 +49,8 @@
       "position": [
         400,
         0
-      ]
+      ],
+      "id": "cc442827-c1f3-48ce-8632-85230c72f983"
     },
     {
       "parameters": {
@@ -67,7 +64,8 @@
       "position": [
         600,
         200
-      ]
+      ],
+      "id": "5c89de1c-bb9e-47a8-8275-bdebde825f76"
     },
     {
       "parameters": {
@@ -81,7 +79,8 @@
       "position": [
         600,
         -200
-      ]
+      ],
+      "id": "2b1ea8f3-e4b6-4b06-a10a-2f10bc23a643"
     },
     {
       "parameters": {
@@ -103,7 +102,8 @@
           "id": "postgres_dropship",
           "name": "Postgres Dropship"
         }
-      }
+      },
+      "id": "92536a1a-af1a-4789-b372-e9fbeaeb6f14"
     },
     {
       "parameters": {
@@ -122,7 +122,8 @@
       "position": [
         1000,
         0
-      ]
+      ],
+      "id": "43b0ec95-1e49-4d82-a0c6-7fd2e81207e1"
     },
     {
       "parameters": {
@@ -164,7 +165,8 @@
       "position": [
         1200,
         0
-      ]
+      ],
+      "id": "e41a1190-8305-4c4f-8405-487ce0fdb660"
     },
     {
       "parameters": {
@@ -186,7 +188,8 @@
           "id": "postgres_dropship",
           "name": "Postgres Dropship"
         }
-      }
+      },
+      "id": "a2e258bc-cf21-4c3f-a15f-14c07e6b9e71"
     },
     {
       "parameters": {
@@ -208,7 +211,8 @@
           "id": "postgres_dropship",
           "name": "Postgres Dropship"
         }
-      }
+      },
+      "id": "198e468b-52d2-4b0d-9546-5c442d8cbebf"
     },
     {
       "parameters": {
@@ -230,6 +234,20 @@
           "id": "postgres_dropship",
           "name": "Postgres Dropship"
         }
+      },
+      "id": "aa065fe3-9e85-4eb3-8f06-64dfdbc1a539"
+    },
+    {
+      "id": "mock",
+      "name": "Mock Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        100,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\n      return [\n        {\n          json: {\n            headers: {\n              \"x-shopify-webhook-id\": \"test-evt-1\",\n              \"x-shopify-topic\": \"orders/create\",\n              \"x-shopify-hmac-sha256\": \"mock-hmac\"\n            },\n            body: { id: \"777\" }\n          }\n        },\n        {\n          json: {\n            headers: {\n              \"x-shopify-webhook-id\": \"test-evt-2\",\n              \"x-shopify-topic\": \"fulfillments/create\",\n              \"x-shopify-hmac-sha256\": \"mock-hmac\"\n            },\n            body: {\n              order_id: \"777\",\n              tracking_company: \"Servientrega\",\n              tracking_number: \"GUIA123\",\n              tracking_url: \"https://rastreo\"\n            }\n          }\n        }\n      ];\n    "
       }
     }
   ],
@@ -238,12 +256,7 @@
       "main": [
         [
           {
-            "node": "Crypto HMAC",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "200 OK temprano",
+            "node": "Mock Payload",
             "type": "main",
             "index": 0
           }
@@ -321,6 +334,22 @@
         [
           {
             "node": "Fulfillments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mock Payload": {
+      "main": [
+        [
+          {
+            "node": "Dedupe Postgres",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "200 OK temprano",
             "type": "main",
             "index": 0
           }

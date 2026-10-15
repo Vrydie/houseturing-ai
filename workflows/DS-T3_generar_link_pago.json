@@ -1,43 +1,52 @@
 {
-  "id": "a1b2c3d4-e5f6-7g8h-9i0j-1k2l3m4n5o6p",
+  "id": "feb84b93-de63-4217-b559-3e52cd989bb1",
   "name": "DS-T3 generar_link_pago",
+  "active": true,
   "nodes": [
     {
-      "parameters": {},
-      "id": "trigger",
-      "name": "Execute Workflow Trigger",
+      "id": "Entrada",
+      "name": "Entrada",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1,
       "position": [
         0,
         0
-      ]
+      ],
+      "parameters": {}
     },
     {
-      "parameters": {
-        "jsCode": "return [{ json: { url: 'https://tu-tienda.com/checkout/test' } }];"
-      },
-      "id": "code_link",
-      "name": "Mock Link",
+      "id": "No disponible",
+      "name": "No disponible",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        200,
+        240,
         0
-      ]
+      ],
+      "parameters": {
+        "jsCode": "return [{json:{ok:false,error:'El pago en línea todavía no está disponible. Ofrece pago contra entrega o, si el cliente no puede, usa escalar_a_humano.'}}];"
+      }
     }
   ],
   "connections": {
-    "Execute Workflow Trigger": {
+    "Entrada": {
       "main": [
         [
           {
-            "node": "Mock Link",
+            "node": "No disponible",
             "type": "main",
             "index": 0
           }
         ]
       ]
     }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false,
+    "errorWorkflow": "ds-00-error-handler-id"
   }
 }

@@ -1,6 +1,7 @@
 {
   "id": "ds-t2-crear-pedido-uuid",
   "name": "DS-T2 crear_pedido_contraentrega",
+  "active": true,
   "nodes": [
     {
       "parameters": {},
@@ -10,11 +11,12 @@
       "position": [
         0,
         0
-      ]
+      ],
+      "id": "785ce83e-c1da-48a7-8831-9af2bcfd7169"
     },
     {
       "parameters": {
-        "jsCode": "\nconst logic = {\n\nfunction normalizeCity(city) {\n  if (!city) return '';\n  return city.toLowerCase().normalize(\"NFD\").replace(/[\\u0300-\\u036f]/g, \"\").trim();\n}\n\nfunction validarEntrada(input) {\n  if (input.confirmado_por_cliente !== true) return { ok: false, error: 'Pedido no confirmado explícitamente' };\n  if (!input.datos_envio) return { ok: false, error: 'Faltan datos de envío' };\n  \n  const env = input.datos_envio;\n  if (!env.celular || !/^3[0-9]{9}$/.test(env.celular.toString().trim())) return { ok: false, error: 'Celular inválido' };\n  if (!env.direccion || env.direccion.trim().length < 5) return { ok: false, error: 'Dirección inválida' };\n  if (!env.barrio || env.barrio.trim().length < 2) return { ok: false, error: 'Barrio inválido' };\n  if (!env.ciudad || env.ciudad.trim().length < 2) return { ok: false, error: 'Ciudad inválida' };\n  \n  return { ok: true, env, cityNorm: normalizeCity(env.ciudad) };\n}\n\nfunction armarPayload(env, db, wa_id, conversacion_id, esPrueba) {\n  const address2 = env.complemento ? env.barrio + ' - ' + env.complemento : env.barrio;\n  const tags = [\"canal:whatsapp\", \"wa:\" + wa_id];\n  if (esPrueba) tags.push(\"TEST\");\n\n  // Si la división no es exacta, fallamos.\n  const price = Math.floor(db.precio_total / db.cantidad);\n  if (price * db.cantidad !== parseFloat(db.precio_total)) {\n    throw new Error(\"División de precio no es exacta\");\n  }\n\n  return {\n    query: \"mutation CrearPedidoContraentrega($order: OrderCreateOrderInput!) { orderCreate(order: $order) { order { id name } userErrors { message } } }\",\n    variables: {\n      order: {\n        currency: \"COP\",\n        financialStatus: \"PENDING\",\n        phone: \"+57\" + env.celular.toString().trim(),\n        shippingAddress: {\n          firstName: env.nombre,\n          lastName: env.apellido,\n          address1: env.direccion,\n          address2: address2,\n          city: db.ciudad_oficial,\n          provinceCode: db.shopify_province_code,\n          countryCode: \"CO\",\n          phone: \"+57\" + env.celular.toString().trim()\n        },\n        billingAddress: {\n          firstName: env.nombre,\n          lastName: env.apellido,\n          address1: env.direccion,\n          address2: address2,\n          city: db.ciudad_oficial,\n          provinceCode: db.shopify_province_code,\n          countryCode: \"CO\",\n          phone: \"+57\" + env.celular.toString().trim()\n        },\n        lineItems: [\n          {\n            variantId: db.shopify_variant_gid,\n            quantity: db.cantidad,\n            priceSet: { shopMoney: { amount: price.toString(), currencyCode: \"COP\" } }\n          }\n        ],\n        transactions: [\n          {\n            kind: \"SALE\",\n            status: \"PENDING\",\n            gateway: \"Pago contra entrega\",\n            amountSet: { shopMoney: { amount: db.precio_total.toString(), currencyCode: \"COP\" } }\n          }\n        ],\n        tags: tags,\n        customAttributes: [\n          { key: \"wa_id\", value: wa_id },\n          { key: \"conversacion_id\", value: conversacion_id ? conversacion_id.toString() : \"\" }\n        ],\n        options: { sendReceipt: false, sendFulfillmentReceipt: false }\n      }\n    }\n  };\n}\n\n// Export for unit tests\n\n};\nconst input = $input.first().json;\nconst val = logic.validarEntrada(input);\nif (!val.ok) {\n  return [{ json: { ok: false, error: val.error, action: 'end' } }];\n}\nconst wa_id = input.wa_id || input.sessionId; // depending on how DS-02 passes it\nconst conversacion_id = input.conversacion_id;\nreturn [{ json: { ok: true, input: val.env, cityNorm: val.cityNorm, wa_id, conversacion_id, oferta_id: input.oferta_id } }];\n"
+        "jsCode": "\nconst logic = {\n\nfunction normalizeCity(city) {\n  if (!city) return '';\n  return city.toLowerCase().normalize(\"NFD\").replace(/[\\u0300-\\u036f]/g, \"\").trim();\n}\n\nfunction validarEntrada(input) {\n  if (input.confirmado_por_cliente !== true) return { ok: false, error: 'Pedido no confirmado explícitamente' };\n  if (!input.datos_envio) return { ok: false, error: 'Faltan datos de envío' };\n  \n  const env = input.datos_envio;\n  if (!env.celular || !/^3[0-9]{9}$/.test(env.celular.toString().trim())) return { ok: false, error: 'Celular inválido' };\n  if (!env.direccion || env.direccion.trim().length < 5) return { ok: false, error: 'Dirección inválida' };\n  if (!env.barrio || env.barrio.trim().length < 2) return { ok: false, error: 'Barrio inválido' };\n  if (!env.ciudad || env.ciudad.trim().length < 2) return { ok: false, error: 'Ciudad inválida' };\n  \n  return { ok: true, env, cityNorm: normalizeCity(env.ciudad) };\n}\n\nfunction armarPayload(env, db, wa_id, conversacion_id, esPrueba) {\n  const address2 = env.complemento ? env.barrio + ' - ' + env.complemento : env.barrio;\n  const tags = [\"canal:whatsapp\", \"wa:\" + wa_id];\n  if (esPrueba) tags.push(\"TEST\");\n\n  // Si la división no es exacta, fallamos.\n  const price = Math.floor(db.precio_total / db.cantidad);\n  if (price * db.cantidad !== parseFloat(db.precio_total)) {\n    throw new Error(\"División de precio no es exacta\");\n  }\n\n  return {\n    query: \"mutation CrearPedidoContraentrega($order: OrderCreateOrderInput!) { orderCreate(order: $order) { order { id name } userErrors { message } } }\",\n    variables: {\n      order: {\n        currency: \"COP\",\n        financialStatus: \"PENDING\",\n        phone: \"+57\" + env.celular.toString().trim(),\n        shippingAddress: {\n          firstName: env.nombre,\n          lastName: env.apellido,\n          address1: env.direccion,\n          address2: address2,\n          city: db.ciudad_oficial,\n          provinceCode: db.shopify_province_code,\n          countryCode: \"CO\",\n          phone: \"+57\" + env.celular.toString().trim()\n        },\n        billingAddress: {\n          firstName: env.nombre,\n          lastName: env.apellido,\n          address1: env.direccion,\n          address2: address2,\n          city: db.ciudad_oficial,\n          provinceCode: db.shopify_province_code,\n          countryCode: \"CO\",\n          phone: \"+57\" + env.celular.toString().trim()\n        },\n        lineItems: [\n          {\n            variantId: db.shopify_variant_gid,\n            quantity: db.cantidad,\n            priceSet: { shopMoney: { amount: price.toString(), currencyCode: \"COP\" } }\n          }\n        ],\n        transactions: [\n          {\n            kind: \"SALE\",\n            status: \"PENDING\",\n            gateway: \"Pago contra entrega\",\n            amountSet: { shopMoney: { amount: db.precio_total.toString(), currencyCode: \"COP\" } }\n          }\n        ],\n        tags: tags,\n        customAttributes: [\n          { key: \"wa_id\", value: wa_id },\n          { key: \"conversacion_id\", value: conversacion_id ? conversacion_id.toString() : \"\" }\n        ],\n        options: { sendReceipt: false, sendFulfillmentReceipt: false }\n      }\n    }\n  };\n}\n\n// Export for unit tests\n\n};\nfunction aplanarEntradaHerramienta(j) {\n  const q = j?.query;\n  if (!q || typeof q !== 'object' || Array.isArray(q)) return j;\n  const { query, ...contexto } = j;\n  return { ...q, ...contexto };\n}\nconst input = aplanarEntradaHerramienta($input.first().json);\nconst val = logic.validarEntrada(input);\nif (!val.ok) {\n  return [{ json: { ok: false, error: val.error, action: 'end' } }];\n}\nconst wa_id = input.wa_id || input.sessionId; // depending on how DS-02 passes it\nconst conversacion_id = input.conversacion_id;\nreturn [{ json: { ok: true, input: val.env, cityNorm: val.cityNorm, wa_id, conversacion_id, oferta_id: input.oferta_id } }];\n"
       },
       "name": "Validar Entrada",
       "type": "n8n-nodes-base.code",
@@ -22,7 +24,8 @@
       "position": [
         200,
         0
-      ]
+      ],
+      "id": "b261de51-5cd3-40f8-83c3-9c23fde631e0"
     },
     {
       "parameters": {
@@ -41,7 +44,8 @@
       "position": [
         400,
         0
-      ]
+      ],
+      "id": "4ef742b0-9692-49da-bcc5-a8a155781d10"
     },
     {
       "parameters": {
@@ -58,10 +62,11 @@
       ],
       "credentials": {
         "postgres": {
-          "id": "postgres_dropship",
-          "name": "Postgres Dropship"
+          "id": "CFC6kja16jPSI9VC",
+          "name": "ot05-postgres"
         }
-      }
+      },
+      "id": "b2ced641-4624-43d2-be9b-fda7a418843f"
     },
     {
       "parameters": {
@@ -73,7 +78,8 @@
       "position": [
         800,
         -100
-      ]
+      ],
+      "id": "e90172ce-b7c0-4110-b8a5-afa829659812"
     },
     {
       "parameters": {
@@ -85,7 +91,8 @@
       "position": [
         1000,
         -100
-      ]
+      ],
+      "id": "e79d2793-d4bd-4db3-8401-8634bef95f39"
     },
     {
       "parameters": {
@@ -123,7 +130,8 @@
       "position": [
         1200,
         -100
-      ]
+      ],
+      "id": "ef93ee52-3b8d-4cd9-87ef-f189ec7bb5e6"
     },
     {
       "parameters": {
@@ -140,10 +148,11 @@
       ],
       "credentials": {
         "postgres": {
-          "id": "postgres_dropship",
-          "name": "Postgres Dropship"
+          "id": "CFC6kja16jPSI9VC",
+          "name": "ot05-postgres"
         }
-      }
+      },
+      "id": "2d9a85d3-af73-463d-be69-bd208821818f"
     },
     {
       "parameters": {
@@ -160,10 +169,11 @@
       ],
       "credentials": {
         "postgres": {
-          "id": "postgres_dropship",
-          "name": "Postgres Dropship"
+          "id": "CFC6kja16jPSI9VC",
+          "name": "ot05-postgres"
         }
-      }
+      },
+      "id": "af87e7fd-fc96-44df-900a-d170e8d5e898"
     },
     {
       "parameters": {
@@ -175,7 +185,8 @@
       "position": [
         1800,
         -300
-      ]
+      ],
+      "id": "40501838-13ad-4017-9208-6ea0416e6df3"
     },
     {
       "parameters": {
@@ -214,7 +225,8 @@
       "position": [
         1400,
         -100
-      ]
+      ],
+      "id": "0174f283-a3aa-4ae2-8c7f-4eeb73df305e"
     },
     {
       "parameters": {
@@ -226,7 +238,8 @@
       "position": [
         1600,
         -100
-      ]
+      ],
+      "id": "ddc61fff-ed82-4a4c-873a-76e58ebfa96d"
     },
     {
       "parameters": {
@@ -245,7 +258,8 @@
       "position": [
         1800,
         -100
-      ]
+      ],
+      "id": "cfc83845-493e-41ee-8941-40b18f70d0e6"
     },
     {
       "parameters": {
@@ -262,10 +276,11 @@
       ],
       "credentials": {
         "postgres": {
-          "id": "postgres_dropship",
-          "name": "Postgres Dropship"
+          "id": "CFC6kja16jPSI9VC",
+          "name": "ot05-postgres"
         }
-      }
+      },
+      "id": "cb5d7924-b734-4891-8ff6-9bfbe6217942"
     },
     {
       "parameters": {
@@ -277,7 +292,8 @@
       "position": [
         2200,
         -100
-      ]
+      ],
+      "id": "c0c3ea3d-4df4-41c5-9f0c-0cdf2551851c"
     }
   ],
   "connections": {
@@ -438,6 +454,6 @@
   "settings": {
     "saveDataErrorExecution": "all",
     "saveDataSuccessExecution": "none",
-    "errorWorkflow": "DS-00_Manejador_Errores"
+    "errorWorkflow": "ds-00-error-handler-id"
   }
 }

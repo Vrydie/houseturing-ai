@@ -1,6 +1,7 @@
 {
   "id": "ds-05-renovar-token-uuid-1234",
   "name": "DS-05_Renovar_token",
+  "active": true,
   "nodes": [
     {
       "parameters": {
@@ -19,7 +20,8 @@
       "position": [
         0,
         0
-      ]
+      ],
+      "id": "1714dbdf-4019-49fb-b0ac-7db7dba3a80b"
     },
     {
       "parameters": {
@@ -49,7 +51,8 @@
       "position": [
         200,
         0
-      ]
+      ],
+      "id": "451196ab-3272-4c69-b14e-1a1b19fdd407"
     },
     {
       "parameters": {
@@ -69,7 +72,8 @@
           "id": "postgres_dropship",
           "name": "Postgres Dropship"
         }
-      }
+      },
+      "id": "fa0a3c92-666c-496f-abd7-5835ce9a4f22"
     }
   ],
   "connections": {
