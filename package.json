@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "flatted": "^3.4.4",
     "pg": "^8.23.1"
   }
 }
