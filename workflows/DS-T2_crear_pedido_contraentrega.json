@@ -322,6 +322,47 @@
         -300
       ],
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID_Pedido": "={{ $('DB Update Simulado Name').first().json.shopify_order_name }}",
+            "Fecha": "={{ $now.setZone('America/Bogota').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+            "Cliente": "={{ $('Validar Entrada').first().json.env.nombre }} {{ $('Validar Entrada').first().json.env.apellido || '' }}",
+            "Celular": "={{ $('Validar Entrada').first().json.env.celular }}",
+            "Ciudad": "={{ $('Construir Payload').first().json.db.ciudad_oficial }}",
+            "Departamento": "={{ $('Validar Entrada').first().json.env.departamento || $('Construir Payload').first().json.db.shopify_province_code }}",
+            "Direccion": "={{ $('Validar Entrada').first().json.env.direccion }}",
+            "Barrio": "={{ $('Validar Entrada').first().json.env.barrio }}{{ $('Validar Entrada').first().json.env.complemento ? ' - ' + $('Validar Entrada').first().json.env.complemento : '' }}",
+            "Producto": "Combo Taladro Percutor Inalámbrico",
+            "Total_COP": "={{ $('Construir Payload').first().json.db.precio_total }}",
+            "Metodo_Pago": "Contraentrega"
+          }
+        },
+        "options": {}
+      },
+      "id": "google-sheets-append-id",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1950,
+        -300
+      ],
+      "onError": "continueRegularOutput"
     }
   ],
   "connections": {
@@ -479,6 +520,17 @@
       ]
     },
     "Notificar Telegram": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
       "main": [
         [
           {
