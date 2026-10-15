@@ -479,6 +479,78 @@
         "responseBody": "={{ $json.query[\"hub.challenge\"] }}",
         "options": {}
       }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ String($('Normalizar Entrada').first().json.texto ?? '').trim().toLowerCase().startsWith('/reset') }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "es-comando-reset-id",
+      "name": "Es Comando Reset?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        600,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "\n        DELETE FROM n8n_chat_histories WHERE session_id = $1;\n        DELETE FROM pedidos WHERE wa_id = $1 AND es_prueba = true;\n        UPDATE conversaciones \n        SET bot_activo = true, motivo_escalamiento = NULL, turnos_agente = 0, agente_ocupado_hasta = NULL \n        WHERE wa_id = $1;\n        UPDATE mensajes SET procesado = true WHERE wa_id = $1;\n        SELECT 1 AS reset_ok;\n      ",
+        "options": {
+          "queryReplacement": "={{ [$('Normalizar Entrada').first().json.wa_id] }}"
+        }
+      },
+      "id": "ejecutar-reset-db-id",
+      "name": "Ejecutar Reset DB",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        800,
+        100
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst norm = $('Normalizar Entrada').first().json;\nconst r = $('Resultado ingreso').first().json;\nreturn [{\n  json: {\n    wa_id: norm.wa_id,\n    conversacion_id: r.conversacion_id,\n    texto: \"🔄 *Conversación y memoria reiniciadas con éxito.*\\n\\nSe ha borrado el historial y los pedidos de prueba. ¡Puedes volver a escribir como si fueras un cliente nuevo!\"\n  }\n}];\n"
+      },
+      "id": "preparar-respuesta-reset-id",
+      "name": "Preparar Respuesta Reset",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "a0c7abce-0081-4c80-aa6a-72f4200ec489",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "enviar-whatsapp-reset-id",
+      "name": "Enviar WhatsApp Reset",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        100
+      ]
     }
   ],
   "connections": {
@@ -570,7 +642,7 @@
       "main": [
         [
           {
-            "node": "Debounce",
+            "node": "Es Comando Reset?",
             "type": "main",
             "index": 0
           }
@@ -766,6 +838,46 @@
         [
           {
             "node": "Responder Challenge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Es Comando Reset?": {
+      "main": [
+        [
+          {
+            "node": "Ejecutar Reset DB",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Debounce",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ejecutar Reset DB": {
+      "main": [
+        [
+          {
+            "node": "Preparar Respuesta Reset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Respuesta Reset": {
+      "main": [
+        [
+          {
+            "node": "Enviar WhatsApp Reset",
             "type": "main",
             "index": 0
           }
