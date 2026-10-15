@@ -72,24 +72,20 @@
     {
       "id": "Enviar aviso",
       "name": "Enviar aviso",
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         960,
         0
       ],
       "parameters": {
-        "chatId": "={{ $json.chat }}",
-        "text": "={{ String($json.texto ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }}",
-        "additionalFields": {
-          "appendAttribution": false,
-          "parse_mode": "HTML"
-        }
-      },
-      "credentials": {
-        "telegramApi": {
-          "id": "T0lm7WR4FJtRzjXV",
-          "name": "Telegram Bot API"
+        "method": "POST",
+        "url": "https://api.telegram.org/bot8657757427:AAEQEDZAR9RAuJvqCKhH_7eb_7JYOlVnSi8/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": \"{{ $json.chat }}\",\n  \"text\": \"{{ String($json.texto ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }}\",\n  \"parse_mode\": \"HTML\"\n}",
+        "options": {
+          "timeout": 10000
         }
       },
       "onError": "continueRegularOutput"

@@ -322,35 +322,6 @@
         -300
       ],
       "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "operation": "append",
-        "documentId": {
-          "__rl": true,
-          "mode": "list",
-          "value": ""
-        },
-        "sheetName": {
-          "__rl": true,
-          "mode": "list",
-          "value": ""
-        },
-        "columns": {
-          "mappingMode": "autoMapInputData",
-          "value": {}
-        },
-        "options": {}
-      },
-      "id": "google-sheets-append-id",
-      "name": "Google Sheets",
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.5,
-      "position": [
-        1750,
-        -150
-      ],
-      "onError": "continueRegularOutput"
     }
   ],
   "connections": {
@@ -456,11 +427,6 @@
         [
           {
             "node": "Notificar Telegram",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Google Sheets",
             "type": "main",
             "index": 0
           }
