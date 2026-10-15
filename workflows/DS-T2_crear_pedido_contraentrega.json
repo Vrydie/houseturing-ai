@@ -50,7 +50,9 @@
       "parameters": {
         "operation": "executeQuery",
         "query": "\n          WITH cfg AS (\n            SELECT \n              (SELECT valor FROM config WHERE clave = 'modo_pedidos') AS modo_pedidos,\n              (SELECT valor FROM config WHERE clave = 'shopify_access_token') AS shopify_access_token,\n              (SELECT valor FROM config WHERE clave = 'shopify_gateway_contraentrega') AS gateway\n          ),\n          oferta AS (SELECT precio_total, cantidad, sku FROM ofertas WHERE id = $1),\n          prod AS (SELECT disponible, shopify_variant_gid FROM productos WHERE sku = (SELECT sku FROM oferta)),\n          idem AS (SELECT id AS pedido_id, shopify_order_name FROM pedidos WHERE wa_id = $2 AND oferta_id = $1 AND estado = 'creado' AND creado_en > NOW() - INTERVAL '2 HOURS' LIMIT 1),\n          cob AS (SELECT shopify_province_code, acepta_contraentrega, ciudad_oficial, dias_entrega_min, dias_entrega_max FROM cobertura WHERE ciudad_norm = $3 LIMIT 1)\n          SELECT \n            cfg.*, oferta.*, prod.*, idem.pedido_id AS pedido_id_existente, idem.shopify_order_name, cob.* \n          FROM cfg\n          LEFT JOIN oferta ON true\n          LEFT JOIN prod ON true\n          LEFT JOIN idem ON true\n          LEFT JOIN cob ON true;\n        ",
-        "queryParameters": "={{ $json.oferta_id }}, {{ $json.wa_id }}, {{ $json.cityNorm }}"
+        "options": {
+          "queryReplacement": "={{ [$json.oferta_id, $json.wa_id, $json.cityNorm] }}"
+        }
       },
       "name": "DB Fetch",
       "type": "n8n-nodes-base.postgres",
@@ -136,7 +138,9 @@
       "parameters": {
         "operation": "executeQuery",
         "query": "\n          INSERT INTO pedidos (conversacion_id, wa_id, modalidad, oferta_id, total, moneda, datos_envio, es_prueba, shopify_order_name)\n          VALUES ($1, $2, 'contraentrega', $3, $4, 'COP', $5::jsonb, true, 'SIM-PENDING')\n          RETURNING id;\n        ",
-        "queryParameters": "={{ $json.conversacion_id }}, {{ $json.wa_id }}, {{ $json.oferta_id }}, {{ $json.db.precio_total }}, {{ JSON.stringify($json.input) }}"
+        "options": {
+          "queryReplacement": "={{ [$json.conversacion_id, $json.wa_id, $json.oferta_id, $json.db.precio_total, JSON.stringify($json.input)] }}"
+        }
       },
       "name": "DB Insert Simulado",
       "type": "n8n-nodes-base.postgres",
@@ -157,7 +161,9 @@
       "parameters": {
         "operation": "executeQuery",
         "query": "UPDATE pedidos SET shopify_order_name = 'SIM-' || id WHERE id = $1 RETURNING id, shopify_order_name;",
-        "queryParameters": "={{ $json.id }}"
+        "options": {
+          "queryReplacement": "={{ [$json.id] }}"
+        }
       },
       "name": "DB Update Simulado Name",
       "type": "n8n-nodes-base.postgres",
@@ -264,7 +270,9 @@
       "parameters": {
         "operation": "executeQuery",
         "query": "\n          INSERT INTO pedidos (conversacion_id, wa_id, modalidad, oferta_id, total, moneda, datos_envio, es_prueba, shopify_order_gid, shopify_order_name)\n          VALUES ($1, $2, 'contraentrega', $3, $4, 'COP', $5::jsonb, $6, $7, $8)\n          RETURNING id;\n        ",
-        "queryParameters": "={{ $('Construir Payload').first().json.conversacion_id }}, {{ $('Construir Payload').first().json.wa_id }}, {{ $('Construir Payload').first().json.oferta_id }}, {{ $('Construir Payload').first().json.db.precio_total }}, {{ JSON.stringify($('Construir Payload').first().json.input) }}, {{ $('Construir Payload').first().json.action === 'prueba' }}, {{ $json.shopify_order_gid }}, {{ $json.shopify_order_name }}"
+        "options": {
+          "queryReplacement": "={{ [$('Construir Payload').first().json.conversacion_id, $('Construir Payload').first().json.wa_id, $('Construir Payload').first().json.oferta_id, $('Construir Payload').first().json.db.precio_total, JSON.stringify($('Construir Payload').first().json.input), $('Construir Payload').first().json.action === 'prueba', $json.shopify_order_gid, $json.shopify_order_name] }}"
+        }
       },
       "name": "DB Insert Real",
       "type": "n8n-nodes-base.postgres",
