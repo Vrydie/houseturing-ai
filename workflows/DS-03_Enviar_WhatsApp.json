@@ -119,7 +119,8 @@
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ $json.proveedor === 'meta' ? { messaging_product: 'whatsapp', status: 'read', message_id: $json.proveedor_id } : {} }}"
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "id": "Leído sin red",
