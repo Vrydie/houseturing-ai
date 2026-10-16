@@ -1,0 +1,400 @@
+{
+  "id": "ds06-admin-telegram-uuid",
+  "name": "DS-06 Gestión de Pedidos por Telegram",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "telegram-operador",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook-telegram",
+      "name": "Webhook Telegram",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "telegram-operador-post"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT valor FROM config WHERE clave = 'groq_api_key' LIMIT 1;",
+        "options": {}
+      },
+      "id": "get-groq-key",
+      "name": "Obtener Groq Key",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        240,
+        0
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst botToken = '8657757427:AAEQEDZAR9RAuJvqCKhH_7eb_7JYOlVnSi8';\nconst operadorChatId = '5926139023';\nconst groqKey = $json.valor || '';\n\nconst body = $('Webhook Telegram').first().json.body || $('Webhook Telegram').first().json;\n\n// 1. Filtrar si no es del operador autorizado\nconst fromChat = String(body.message?.chat?.id || body.callback_query?.message?.chat?.id || body.callback_query?.from?.id || '');\nif (fromChat !== operadorChatId) {\n  return [];\n}\n\n// 2. Manejo de Callback Queries (Botones Inline)\nif (body.callback_query) {\n  const cb = body.callback_query;\n  const cbId = cb.id;\n  const data = String(cb.data || '');\n\n  // Agradecer/quitar reloj de arena en Telegram de inmediato\n  try {\n    await fetch(`https://api.telegram.org/bot${botToken}/answerCallbackQuery`, {\n      method: 'POST',\n      headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify({ callback_query_id: cbId })\n    });\n  } catch (e) {}\n\n  if (data === 'pedidos_pendientes' || data === 'listar') {\n    return [{ json: { accion: 'listar', chat_id: fromChat } }];\n  }\n  if (data === 'ayuda') {\n    return [{ json: { accion: 'ayuda', chat_id: fromChat } }];\n  }\n  if (data.startsWith('ver_')) {\n    const pid = parseInt(data.replace('ver_', ''), 10);\n    return [{ json: { accion: 'ver', pedido_id: pid, chat_id: fromChat } }];\n  }\n  if (data.startsWith('estado_')) {\n    const parts = data.split('_'); // estado_ID_nuevo\n    const pid = parseInt(parts[1], 10);\n    const nuevo = parts[2] || 'despachado';\n    return [{ json: { accion: 'cambiar_estado', pedido_id: pid, nuevo_estado: nuevo, chat_id: fromChat } }];\n  }\n  if (data.startsWith('cancelar_')) {\n    const pid = parseInt(data.replace('cancelar_', ''), 10);\n    return [{ json: { accion: 'cambiar_estado', pedido_id: pid, nuevo_estado: 'cancelado', chat_id: fromChat } }];\n  }\n  if (data.startsWith('borrar_')) {\n    const pid = parseInt(data.replace('borrar_', ''), 10);\n    return [{ json: { accion: 'borrar', pedido_id: pid, chat_id: fromChat } }];\n  }\n  return [{ json: { accion: 'listar', chat_id: fromChat } }];\n}\n\n// 3. Manejo de Nota de Voz (Audio)\nlet textoMensaje = '';\nif (body.message?.voice) {\n  const voice = body.message.voice;\n  const fileId = voice.file_id;\n  try {\n    const fileRes = await fetch(`https://api.telegram.org/bot${botToken}/getFile?file_id=${fileId}`);\n    const fileData = await fileRes.json();\n    if (fileData.ok && fileData.result?.file_path) {\n      const audioUrl = `https://api.telegram.org/file/bot${botToken}/${fileData.result.file_path}`;\n      const audioBufferRes = await fetch(audioUrl);\n      const audioBlob = await audioBufferRes.blob();\n\n      const form = new FormData();\n      form.append('file', audioBlob, 'voice.oga');\n      form.append('model', 'whisper-large-v3-turbo');\n      form.append('language', 'es');\n      form.append('prompt', 'Colombiano, pedidos dropshipping, taladro, despacho, cancelar, enviar, direccion');\n\n      const groqWhisper = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {\n        method: 'POST',\n        headers: { 'Authorization': 'Bearer ' + groqKey },\n        body: form\n      });\n      const whisperData = await groqWhisper.json();\n      textoMensaje = String(whisperData.text || '').trim();\n    }\n  } catch (err) {\n    textoMensaje = '';\n  }\n} else if (body.message?.text) {\n  textoMensaje = String(body.message.text).trim();\n}\n\nif (!textoMensaje) {\n  return [{ json: { accion: 'ayuda', chat_id: fromChat } }];\n}\n\n// 4. Comandos rápidos por texto\nif (textoMensaje.startsWith('/')) {\n  const t = textoMensaje.toLowerCase();\n  if (t === '/pedidos' || t === '/pendientes' || t === '/start') {\n    return [{ json: { accion: 'listar', chat_id: fromChat } }];\n  }\n  if (t.startsWith('/ver ')) {\n    const pid = parseInt(t.replace('/ver ', '').trim(), 10);\n    return [{ json: { accion: 'ver', pedido_id: pid, chat_id: fromChat } }];\n  }\n  if (t.startsWith('/despachar ') || t.startsWith('/enviar ')) {\n    const pid = parseInt(t.split(' ')[1], 10);\n    return [{ json: { accion: 'cambiar_estado', pedido_id: pid, nuevo_estado: 'despachado', chat_id: fromChat } }];\n  }\n  if (t.startsWith('/cancelar ')) {\n    const pid = parseInt(t.replace('/cancelar ', '').trim(), 10);\n    return [{ json: { accion: 'cambiar_estado', pedido_id: pid, nuevo_estado: 'cancelado', chat_id: fromChat } }];\n  }\n  if (t.startsWith('/borrar ')) {\n    const pid = parseInt(t.replace('/borrar ', '').trim(), 10);\n    return [{ json: { accion: 'borrar', pedido_id: pid, chat_id: fromChat } }];\n  }\n  return [{ json: { accion: 'ayuda', chat_id: fromChat } }];\n}\n\n// 5. Lenguaje Hablado / Natural (Procesado con Groq Qwen)\nconst promptNLP = `Eres el asistente administrativo de HouseTuring para el operador. Extrae la intención sobre la base de datos de pedidos:\nMensaje u orden hablada: \"${textoMensaje}\"\n\nResponde ÚNICAMENTE un JSON con:\n{\n  \"accion\": \"listar\" | \"ver\" | \"cambiar_estado\" | \"cambiar_direccion\" | \"cancelar\" | \"borrar\" | \"ayuda\",\n  \"pedido_id\": número_entero o null,\n  \"nuevo_estado\": \"creado\" | \"despachado\" | \"entregado\" | \"cancelado\" | null,\n  \"nueva_direccion\": string o null\n}`;\n\ntry {\n  const nlpRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {\n    method: 'POST',\n    headers: {\n      'Authorization': 'Bearer ' + groqKey,\n      'Content-Type': 'application/json'\n    },\n    body: JSON.stringify({\n      model: 'qwen/qwen3.8-27b',\n      messages: [{ role: 'user', content: promptNLP }],\n      temperature: 0.1\n    })\n  });\n  const nlpData = await nlpRes.json();\n  const rawContent = nlpData.choices?.[0]?.message?.content || '{}';\n  const cleanJson = rawContent.substring(rawContent.indexOf('{'), rawContent.lastIndexOf('}') + 1);\n  const parsed = JSON.parse(cleanJson);\n\n  let accion = parsed.accion || 'listar';\n  let pid = parsed.pedido_id ? parseInt(parsed.pedido_id, 10) : null;\n  let estado = parsed.nuevo_estado || null;\n  if (accion === 'cancelar') {\n    accion = 'cambiar_estado';\n    estado = 'cancelado';\n  } else if (accion === 'cambiar_estado' && (!estado || estado === 'enviado')) {\n    estado = 'despachado';\n  }\n\n  return [{\n    json: {\n      accion,\n      pedido_id: pid,\n      nuevo_estado: estado,\n      nueva_direccion: parsed.nueva_direccion || null,\n      texto_origen: textoMensaje,\n      chat_id: fromChat\n    }\n  }];\n} catch (err) {\n  return [{ json: { accion: 'listar', chat_id: fromChat, texto_origen: textoMensaje } }];\n}\n"
+      },
+      "id": "parse-input",
+      "name": "Interpretar Input y Audio",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.accion }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "listar",
+              "output": 0
+            },
+            {
+              "value2": "ver",
+              "output": 1
+            },
+            {
+              "value2": "cambiar_estado",
+              "output": 2
+            },
+            {
+              "value2": "cambiar_direccion",
+              "output": 3
+            },
+            {
+              "value2": "borrar",
+              "output": 4
+            },
+            {
+              "value2": "ayuda",
+              "output": 5
+            }
+          ]
+        },
+        "fallbackOutput": 0
+      },
+      "id": "switch-accion",
+      "name": "Enrutar Acción",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        720,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "\n          SELECT id, shopify_order_name, total, estado,\n                 datos_envio->>'nombre' AS cliente,\n                 datos_envio->>'ciudad' AS ciudad,\n                 creado_en\n          FROM pedidos\n          ORDER BY id DESC\n          LIMIT 6;\n        ",
+        "options": {}
+      },
+      "id": "db-listar",
+      "name": "DB Listar",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        960,
+        -200
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM pedidos WHERE id = $1 LIMIT 1;",
+        "options": {
+          "queryReplacement": "={{ [$json.pedido_id] }}"
+        }
+      },
+      "id": "db-ver",
+      "name": "DB Ver",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        960,
+        -80
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE pedidos SET estado = $2, actualizado_en = NOW() WHERE id = $1 RETURNING *;",
+        "options": {
+          "queryReplacement": "={{ [$json.pedido_id, $json.nuevo_estado] }}"
+        }
+      },
+      "id": "db-estado",
+      "name": "DB Cambiar Estado",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        960,
+        40
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE pedidos SET datos_envio = jsonb_set(datos_envio, '{direccion}', to_jsonb($2::text)), actualizado_en = NOW() WHERE id = $1 RETURNING *;",
+        "options": {
+          "queryReplacement": "={{ [$json.pedido_id, $json.nueva_direccion] }}"
+        }
+      },
+      "id": "db-direccion",
+      "name": "DB Cambiar Dirección",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        960,
+        160
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM pedidos WHERE id = $1 RETURNING id, shopify_order_name;",
+        "options": {
+          "queryReplacement": "={{ [$json.pedido_id] }}"
+        }
+      },
+      "id": "db-borrar",
+      "name": "DB Borrar",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        960,
+        280
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst accion = $('Interpretar Input y Audio').first().json.accion;\nconst chatId = '5926139023';\nconst textoOrigen = $('Interpretar Input y Audio').first().json.texto_origen;\n\nlet msg = '';\nlet keyboard = [];\n\nif (textoOrigen) {\n  msg += '🗣️ _Entendido: \"' + textoOrigen + '\"_\\n\\n';\n}\n\nif (accion === 'listar') {\n  const rows = $input.all().map(i => i.json).filter(r => r.id);\n  if (rows.length === 0) {\n    msg += '📭 *No hay pedidos registrados en la base de datos todavía.*';\n    keyboard = [[{ text: '🔄 Actualizar Lista', callback_data: 'pedidos_pendientes' }]];\n  } else {\n    msg += '📋 *ÚLTIMOS PEDIDOS REGISTRADOS:*\\n\\n';\n    let rowBtns = [];\n    for (const p of rows) {\n      const estadoIcon = p.estado === 'despachado' ? '🚚' : p.estado === 'cancelado' ? '❌' : p.estado === 'entregado' ? '✅' : '⏳';\n      const fecha = new Date(p.creado_en).toLocaleString('es-CO', { timeZone: 'America/Bogota', dateStyle: 'short', timeStyle: 'short' });\n      msg += '🔹 *ID #' + p.id + '* (' + (p.shopify_order_name || 'SIM-' + p.id) + ')\\n';\n      msg += '   👤 ' + (p.cliente || 'Sin nombre') + ' · 📍 ' + (p.ciudad || 'Colombia') + '\\n';\n      msg += '   💰 $' + Number(p.total).toLocaleString('es-CO') + ' COP · ' + estadoIcon + ' `' + (p.estado || 'creado') + '`\\n';\n      msg += '   🕒 ' + fecha + '\\n\\n';\n\n      rowBtns.push({ text: '📦 Ver #' + p.id, callback_data: 'ver_' + p.id });\n      if (rowBtns.length === 2) {\n        keyboard.push(rowBtns);\n        rowBtns = [];\n      }\n    }\n    if (rowBtns.length > 0) keyboard.push(rowBtns);\n    keyboard.push([{ text: '🔄 Actualizar Lista', callback_data: 'pedidos_pendientes' }]);\n  }\n} else if (accion === 'ver') {\n  const p = $input.first()?.json;\n  if (!p || !p.id) {\n    msg += '❌ *No se encontró el pedido solicitado en Postgres.*';\n    keyboard = [[{ text: '⬅️ Volver a Lista', callback_data: 'pedidos_pendientes' }]];\n  } else {\n    const env = p.datos_envio || {};\n    const estadoIcon = p.estado === 'despachado' ? '🚚' : p.estado === 'cancelado' ? '❌' : p.estado === 'entregado' ? '✅' : '⏳';\n    const fecha = new Date(p.creado_en).toLocaleString('es-CO', { timeZone: 'America/Bogota' });\n\n    msg += '📦 *DETALLE DEL PEDIDO #' + p.id + '*\\n';\n    msg += '🆔 *Código:* `' + (p.shopify_order_name || 'SIM-' + p.id) + '`\\n';\n    msg += '📊 *Estado:* ' + estadoIcon + ' *' + (p.estado || 'creado').toUpperCase() + '*\\n';\n    msg += '══════════════════════\\n';\n    msg += '👤 *Cliente:* ' + (env.nombre || '') + ' ' + (env.apellido || '') + '\\n';\n    msg += '📱 *Celular:* [' + (env.celular || p.wa_id) + '](https://wa.me/' + (env.celular || p.wa_id) + ')\\n';\n    msg += '📍 *Ciudad:* ' + (env.ciudad || '') + ' (' + (env.departamento || '') + ')\\n';\n    msg += '🏠 *Dirección:* ' + (env.direccion || 'Sin dirección') + '\\n';\n    if (env.barrio) msg += '🏘️ *Barrio:* ' + env.barrio + (env.complemento ? ' · ' + env.complemento : '') + '\\n';\n    msg += '💰 *Total:* $' + Number(p.total).toLocaleString('es-CO') + ' COP\\n';\n    msg += '🕒 *Creado:* ' + fecha + '\\n';\n\n    keyboard = [\n      [\n        { text: '🚚 Marcar Despachado', callback_data: 'estado_' + p.id + '_despachado' },\n        { text: '⏳ Marcar Creado', callback_data: 'estado_' + p.id + '_creado' }\n      ],\n      [\n        { text: '❌ Cancelar Pedido', callback_data: 'cancelar_' + p.id },\n        { text: '🗑️ Borrar de DB', callback_data: 'borrar_' + p.id }\n      ],\n      [\n        { text: '⬅️ Volver a Lista', callback_data: 'pedidos_pendientes' }\n      ]\n    ];\n  }\n} else if (accion === 'cambiar_estado') {\n  const p = $input.first()?.json;\n  if (!p || !p.id) {\n    msg += '❌ *No se pudo actualizar el estado (pedido no encontrado).*';\n  } else {\n    const icon = p.estado === 'despachado' ? '🚚' : p.estado === 'cancelado' ? '❌' : '✅';\n    msg += icon + ' *¡Estado del pedido #' + p.id + ' actualizado a:* `' + (p.estado || '').toUpperCase() + '`*!*';\n    keyboard = [\n      [{ text: '📦 Ver Ficha Pedido #' + p.id, callback_data: 'ver_' + p.id }],\n      [{ text: '📋 Ver Todos los Pedidos', callback_data: 'pedidos_pendientes' }]\n    ];\n  }\n} else if (accion === 'cambiar_direccion') {\n  const p = $input.first()?.json;\n  if (!p || !p.id) {\n    msg += '❌ *No se pudo actualizar la dirección.*';\n  } else {\n    msg += '✅ *Dirección del pedido #' + p.id + ' actualizada a:*\\n🏠 `' + (p.datos_envio?.direccion || '') + '`';\n    keyboard = [\n      [{ text: '📦 Ver Ficha Pedido #' + p.id, callback_data: 'ver_' + p.id }],\n      [{ text: '📋 Ver Todos los Pedidos', callback_data: 'pedidos_pendientes' }]\n    ];\n  }\n} else if (accion === 'borrar') {\n  const p = $input.first()?.json;\n  msg += '🗑️ *El pedido ha sido eliminado definitivamente de PostgreSQL.*';\n  keyboard = [[{ text: '📋 Ver Lista de Pedidos', callback_data: 'pedidos_pendientes' }]];\n} else {\n  // Ayuda\n  msg += '🤖 *GUÍA DEL ASISTENTE DE PEDIDOS (HouseTuring)*\\n\\n';\n  msg += 'Puedes tocar los botones o escribirme/hablarme por nota de voz:\\n\\n';\n  msg += '🎙️ *Ejemplos por voz o texto natural:*\\n';\n  msg += '• \"Muéstrame los pedidos pendientes\"\\n';\n  msg += '• \"Ver pedido 3\"\\n';\n  msg += '• \"Marca el pedido 2 como despachado\"\\n';\n  msg += '• \"Cancela el pedido 5\"\\n';\n  msg += '• \"Cambia la dirección del pedido 2 a Carrera 15 # 40-10\"\\n';\n  msg += '• \"Borra el pedido 1 de prueba\"\\n\\n';\n  msg += '⌨️ *Comandos rápidos:*\\n';\n  msg += '• `/pedidos` - Ver lista reciente\\n';\n  msg += '• `/ver <id>` - Ver ficha completa\\n';\n  msg += '• `/despachar <id>` - Marcar despachado\\n';\n  msg += '• `/cancelar <id>` - Cancelar pedido\\n';\n  msg += '• `/borrar <id>` - Borrar registro de DB';\n  keyboard = [[{ text: '📋 Ver Pedidos Actuales', callback_data: 'pedidos_pendientes' }]];\n}\n\nreturn [{\n  json: {\n    chat_id: chatId,\n    text: msg,\n    reply_markup: { inline_keyboard: keyboard }\n  }\n}];\n"
+      },
+      "id": "armar-respuesta",
+      "name": "Armar Respuesta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot8657757427:AAEQEDZAR9RAuJvqCKhH_7eb_7JYOlVnSi8/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": \"{{ $json.chat_id }}\",\n  \"text\": \"{{ $json.text }}\",\n  \"parse_mode\": \"Markdown\",\n  \"reply_markup\": {{ JSON.stringify($json.reply_markup) }}\n}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "send-telegram",
+      "name": "Enviar Telegram",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1500,
+        0
+      ],
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Webhook Telegram": {
+      "main": [
+        [
+          {
+            "node": "Obtener Groq Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener Groq Key": {
+      "main": [
+        [
+          {
+            "node": "Interpretar Input y Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Interpretar Input y Audio": {
+      "main": [
+        [
+          {
+            "node": "Enrutar Acción",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enrutar Acción": {
+      "main": [
+        [
+          {
+            "node": "DB Listar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB Ver",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB Cambiar Estado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB Cambiar Dirección",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DB Borrar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Armar Respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB Listar": {
+      "main": [
+        [
+          {
+            "node": "Armar Respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB Ver": {
+      "main": [
+        [
+          {
+            "node": "Armar Respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB Cambiar Estado": {
+      "main": [
+        [
+          {
+            "node": "Armar Respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB Cambiar Dirección": {
+      "main": [
+        [
+          {
+            "node": "Armar Respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB Borrar": {
+      "main": [
+        [
+          {
+            "node": "Armar Respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar Respuesta": {
+      "main": [
+        [
+          {
+            "node": "Enviar Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all"
+  }
+}
