@@ -1,6 +1,6 @@
 # OT-07 — Crear pedidos contraentrega de verdad (DS-T2 + DS-05)
 
-**Estado:** lista · **Frente:** B · **Responsable:** Vrydie · **Ejecuta:** Antigravity · **Planifica:** Claude
+**Estado:** **reabierta** (correcciones C1-C5 de la revisión de Claude, 5-oct-2026; ver más abajo) · **Frente:** B · **Responsable:** Vrydie · **Ejecuta:** Antigravity · **Planifica:** Claude
 **Prioridad:** alta. Con esto el agente puede cerrar una venta real. Es la Fase 5 del ROADMAP para contraentrega.
 **Depende de:** PR #9 (OT-06) unido a `main`, que trae el formato de pedido validado con Dropi. OT-04 (DS-02 y DS-T1).
 
@@ -94,6 +94,34 @@ Además, el reporte de OT-04 menciona `tests/shopify/tools_test.mjs`, pero ese a
 - [ ] `node --test tests/pedidos` pasa y está versionado; salida pegada en el reporte.
 - [ ] Integración en modo `simulado` con idempotencia demostrada.
 - [ ] Un pedido TEST real llegó a Dropi con los 6 campos correctos y quedó cancelado en Dropi y en Shopify (con el OK del dueño).
+
+## Correcciones de la revisión de Claude (5-oct-2026)
+
+**Por qué se reabre.** El PR #13 se unió a `main` antes de la revisión. Lo que está bien: las 6 pruebas `node --test` pasan, `modo_pedidos` arranca en `simulado`, el precio sale de `ofertas`, el token sale de `config`, hay idempotencia de 2 h y no hay secretos en el repositorio (barrido hecho el 5-oct). Pero la revisión contra el esquema real de Shopify y contra `infra/docker-compose.yml` encontró defectos que las pruebas actuales no pueden ver: solo comparan `armarPayload` consigo mismo, y el modo `simulado` nunca llama a Shopify. **Ninguno crea un pedido por error:** todos harían fallar la primera prueba real (parte 4). Se corrigen antes de esa prueba.
+
+- [ ] **C1. `options` está en el lugar equivocado** (verificado el 5-oct-2026 contra la API `2026-07`). `OrderCreateOrderInput` no tiene un campo `options`; `orderCreate` lo recibe como argumento aparte (`OrderCreateOptionsInput`: `inventoryBehaviour`, `sendReceipt`, `sendFulfillmentReceipt`). `workflows/dst2_logic.js:78` (y `workflows/generate_dst2.mjs:80`, que genera el nodo "Construir Payload") lo meten **dentro de `order`**, y la mutación de `dst2_logic.js:32` solo declara `$order`. Shopify rechazará la variable (campo no definido en el tipo) y no creará el pedido. Corrección: declarar `$options: OrderCreateOptionsInput`, llamar `orderCreate(order: $order, options: $options)` y enviar `variables: { order, options }`, igual que en `tienda/scripts/prueba_pedido_dropi.mjs` y en `schemas/salida_shopify_pedido.graphql`. Regenerar y volver a exportar el workflow.
+- [ ] **C2. Variables de entorno que n8n no ve.** Cuatro workflows leen `$env[...]`: DS-05 (`SHOPIFY_STORE_DOMAIN`, `SHOPIFY_CLIENT_ID`, `SHOPIFY_CLIENT_SECRET`), DS-T2 (`SHOPIFY_STORE_DOMAIN`), DS-10 (`SHOPIFY_API_SECRET`) y DS-11 (`TELEGRAM_CHAT_ID`). Pero:
+  1. `infra/docker-compose.yml` solo pasa `TELEGRAM_CHAT_ID` al contenedor de n8n; ninguna de las de Shopify.
+  2. n8n 2.x bloquea por defecto el acceso a variables de entorno desde los nodos (`N8N_BLOCK_ENV_ACCESS_IN_NODE=true`, [lista de cambios de n8n 2.0](https://docs.n8n.io/2-0-breaking-changes/)), y `infra/README.md` dice que se dejó el valor por defecto.
+  3. Los nombres no coinciden con `.env.example`: DS-10 usa `SHOPIFY_API_SECRET` (allí es `SHOPIFY_CLIENT_SECRET`) y el compose usa `TELEGRAM_CHAT_ID` (allí es `TELEGRAM_CHAT_ID_OPERADOR`).
+
+  Consecuencia: DS-05 no puede renovar el token, DS-T2 arma la URL de Shopify sin dominio y DS-10 no puede verificar la firma de los webhooks. El reporte atribuye el bloqueo a que "faltan las claves de Shopify en el `.env`"; en el `.env` del dueño ya están (comprobado el 1-oct), así que aunque se copien a otro equipo el flujo seguiría fallando. Corrección, a elegir y dejar documentada:
+  - **(a) Recomendada:** lo que no es secreto (dominio de la tienda, `TELEGRAM_CHAT_ID`) va a la tabla `config`, como `modo_pedidos` y el token; los secretos (`client_id`/`client_secret` de Shopify y el secreto de los webhooks) van en una **credencial de n8n** (AGENTS.md §3).
+  - **(b)** pasar las variables en el compose y poner `N8N_BLOCK_ENV_ACCESS_IN_NODE=false`. Es más simple, pero deja todas las variables del contenedor legibles desde cualquier nodo Code; si se elige, pasar solo las imprescindibles.
+  - Unificar los nombres con `.env.example` y comprobar en n8n 2.15.0 que cada workflow lee su valor.
+- [ ] **C3. Una prueba que sí atrape C1.** Añadir a `tests/pedidos/` un test que compare las claves de `variables.order` con los campos reales de `OrderCreateOrderInput` (lista guardada en `tests/pedidos/fixtures/`, generada por una consulta de introspección de solo lectura y anotando la versión de la API y la fecha) y compruebe que `variables` solo trae `order` y `options`. Así, un cambio de formato falla en `node --test` y no con un pedido real.
+- [ ] **C4. Menores.** (a) `gateway: "Pago contra entrega"` está escrito a mano en `dst2_logic.js:69`, pero "DB Fetch" ya lee `config.shopify_gateway_contraentrega`: usarla. (b) `workflows/DS-02_stub.json` contiene el agente completo ("DS-02 Agente de Ventas", 15 nodos): renombrarlo a `DS-02_Agente_Ventas.json`, que es como lo llama OT-09.
+- [ ] **C5. El agente de IA exportado no coincide con lo que dicen OT-04 y OT-09.**
+  - Usa el modelo **`deepseek-chat`** (`https://api.deepseek.com/v1`, credencial "OpenAI account 2"), no Gemini.
+  - Su mensaje de sistema es una sola línea ("Eres un asesor de ventas de una tienda virtual."): no carga `prompts/agente_ventas_system.md` ni la ficha del producto, que según su propio encabezado es la única fuente de verdad del agente.
+
+  Confirmar si existe una versión más completa que no se exportó. Si no, exportarla o construirla antes de que el agente hable con clientes. **El proveedor de IA lo decide el dueño** (siguiente apartado).
+
+**Decisiones del dueño (no las toma Antigravity):**
+1. **Proveedor del modelo de IA.** Cada conversación envía a ese proveedor el nombre, el celular, la dirección y el barrio del cliente. DeepSeek es de una empresa china, y en el nivel gratis de Gemini Google puede usar y revisar lo que se envía. En ambos casos hay que consultar con un abogado si basta con informarlo en la política de tratamiento de datos o si se necesita autorización por la transferencia internacional de datos (Ley 1581 de 2012, art. 26). Mientras tanto, solo conversaciones de prueba con datos falsos.
+2. **Política de tratamiento de datos.** Hoy dice que los datos se usan "exclusivamente" para procesar el pedido. Si un asistente automático los procesa, hay que decirlo.
+
+**Criterios de aceptación de esta ronda:** C1 a C4 hechos y `node --test` pasando, incluido el test de C3. En n8n, DS-05 guarda un token en `config` (sin imprimirlo) y una ejecución en modo `simulado` sigue guardando el pedido simulado. La parte 4 (pedido `TEST` real con el dueño mirando Dropi) solo se hace después de esto y con el OK del dueño.
 
 ## Reporte de ejecución (lo llena Antigravity)
 - **Estado final:** Para revisión (Bloqueada en integración final)

@@ -48,17 +48,31 @@ Proveedor $64.000, flete $16.365 y comisión de Dropi 4,5987 % (la del pedido de
 
 Otra opción: deshumidificador absorbente (ID 330852). Los de 500 ml se ven en MercadoLibre desde ~$99.800 hasta $180.000, con envío gratis, así que $179.900 queda en el tope del mercado; además, el flete es alto (~$23.100, bodega en Antioquia) y el efecto es poco visible en video.
 
+### Decisión del dueño (5-oct-2026): precio aprobado
+- **1 unidad: $139.900. 2 unidades: $229.900** (ahorro de $49.900 frente a 2 × $139.900; es una comparación con nuestro propio precio real, no un precio tachado).
+- **El envío va incluido en el precio:** el flete se paga del margen.
+- Cifras con los fletes reales cotizados en Dropi el 4 y 5-oct-2026 (con recaudo, transportadora más barata, 7 ciudades):
+
+| Oferta | Flete promedio | Margen por entrega | Ganancia por pedido sin anuncios (70 % de entrega) | CPA máximo (75 %) |
+|---|---|---|---|---|
+| x1 a $139.900 | $19.166 | $50.300 | $23.711 | $26.142 |
+| x2 a $229.900 | $22.831 | $68.497 | $34.249 | $37.957 |
+
+- Las devoluciones se cobran **ida y vuelta** (confirmado por el dueño en su cuenta de Dropi); la calculadora ya lo asume.
+- **Regla de ajuste a los 14 días** (o tras ~15 conversaciones serias): 3 pedidos o más → se mantiene; si preguntan pero dicen "caro" y no compran → $129.900; nunca por debajo de $119.900 (≈ $10.000 por pedido tras devoluciones).
+- Nada de precios tachados inventados ("antes $199.900"): bajar el precio sí; inventar un precio anterior es publicidad engañosa (Ley 1480).
+
 ## Revisión de la foto de Dropi (Claude, 4-oct-2026)
 La galería tiene **una sola foto** (1080 × 1080): una sopladora negra con **bolsa de aspirado**, boquilla, **2 baterías rotuladas "48V LITHIUM-ION"**, cargador con enchufe de 2 patas planas y un adaptador. **No se ven logos ni nombres de terceros.**
 - El nombre del archivo dice "aspirador nasal": está mal nombrado por el proveedor. La imagen es de la sopladora.
-- **"48V" es lo que dice el rótulo de la batería, no un dato verificado.** No se afirma en la tienda, la ficha ni los anuncios hasta medirlo (ver P0). Es el mismo problema que tuvo el taladro de ejemplo.
+- **"48V" es lo que dice el rótulo de la batería, no un dato verificado.** No se afirma en la tienda, la ficha ni los anuncios hasta medirlo (ver P0). Es el mismo problema que tuvo el taladro de ejemplo. **Decisión del dueño (5-oct-2026):** en las imágenes se deja visible el rótulo, porque así viene el producto; en textos, ficha y bot no se afirma. Si un cliente pregunta: "La batería viene rotulada así de fábrica; no tenemos una medición propia."
 - Que "sopla y aspira" sale de la foto, no de una descripción del proveedor: se confirma con la muestra.
 - El conector de Dropi no entrega descripción, especificaciones, peso, medidas ni garantía. Esos datos salen de la muestra y de preguntarle al proveedor.
-- La foto del proveedor es solo referencia: la tienda y los anuncios usan **fotos y videos propios de la muestra**.
+- La foto del proveedor es solo referencia: la tienda y los anuncios usan **fotos y videos propios de la muestra**. **Decisión del dueño (4 y 5-oct-2026, sin capital):** mientras no haya muestra, los anuncios orgánicos usan la foto del proveedor recortada y editada, **sin IA** (`borradores_video/imagenes/`, fuera del repositorio). Las fotos y videos propios llegan con la muestra, que se compra con las primeras ganancias.
 
 ## P0 — Precondiciones del dueño (bloqueantes)
 - [x] **Foto de Dropi sin marcas de terceros** (revisada por Claude el 4-oct-2026). Falta confirmarlo en la muestra: logos en el cuerpo, las baterías, el cargador, la caja y el manual. Si hay marcas de terceros, se descarta (AGENTS.md §8) y se pasa a otro candidato.
-- [ ] **Muestra física recibida** (pedido normal en Dropi, pagado por el dueño).
+- [ ] **Muestra física recibida** (pedido normal en Dropi, pagado por el dueño). **Pospuesta** por decisión del dueño (4-oct-2026): se compra con las primeras ganancias.
 - [ ] **Verificación de la muestra**, anotada en `planes/evidencia/OT-08/muestra.md`. Solo valores **medidos**; lo que no se mida, no va en la ficha:
   1. **Voltaje real** de cada batería con un multímetro, al 100 % de carga. El rótulo dice "48V" y las baterías de este tipo suelen medir mucho menos. La ficha usa el valor medido.
   2. **Rótulos:** capacidad (Ah o Wh) de las baterías y entrada/salida del cargador. Foto de cada etiqueta.
@@ -70,7 +84,7 @@ La galería tiene **una sola foto** (1080 × 1080): una sopladora negra con **bo
   8. **Ruido, vibración y calentamiento** tras 5 minutos de uso, descritos con honestidad y sin cifras inventadas.
   9. **Marcas y logos** en el cuerpo, las baterías, el cargador, la caja y el manual. Foto de cada uno.
   10. **Garantía del proveedor 36223:** preguntarla por Dropi (plazo y cómo se reclama) y anotar la respuesta. Sin garantía del proveedor, la ficha no promete garantía.
-- [ ] **Precio final aprobado por el dueño** con la calculadora y la evidencia de precios de arriba (gate: CPA máximo al 75 % ≥ $25.000 con 1 unidad), y decisión sobre la oferta x2.
+- [x] **Precio final aprobado por el dueño** (5-oct-2026): x1 $139.900 (CPA máximo al 75 % $26.142 ≥ $25.000) y x2 $229.900. Ver "Decisión del dueño" arriba.
 - [ ] **Cotización de fletes al precio final** (Bogotá, Medellín, Cali, Barranquilla y al menos 2 ciudades intermedias).
 - [ ] Producto **importado con Dropify** a Shopify (mismo SKU que en Dropi). No se crea por API (AGENTS.md §6).
 
