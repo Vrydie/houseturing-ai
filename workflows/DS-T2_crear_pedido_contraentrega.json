@@ -160,7 +160,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "UPDATE pedidos SET shopify_order_name = 'SIM-' || id WHERE id = $1 RETURNING id, shopify_order_name;",
+        "query": "\n      WITH upd_pedido AS (\n        UPDATE pedidos \n        SET shopify_order_name = 'SIM-' || id \n        WHERE id = $1 \n        RETURNING id, shopify_order_name, conversacion_id, wa_id\n      ),\n      upd_conv AS (\n        UPDATE conversaciones \n        SET estado = 'pedido' \n        WHERE id = (SELECT conversacion_id FROM upd_pedido) OR wa_id = (SELECT wa_id FROM upd_pedido)\n      )\n      SELECT id, shopify_order_name FROM upd_pedido;\n    ",
         "options": {
           "queryReplacement": "={{ [$json.id] }}"
         }
@@ -322,6 +322,19 @@
         -300
       ],
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\n        const item = $input.first().json;\n        return [{ json: { \n          ok: true, \n          numero_pedido: item.numero_pedido || item.shopify_order_name || 'SIM-OK', \n          total: item.total || 219900, \n          moneda: 'COP', \n          dias_entrega: item.dias_entrega || '1 a 3 días hábiles',\n          mensaje: 'Tu pedido ya fue confirmado previamente.'\n        } }];\n        "
+      },
+      "name": "Result Idempotente",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1400,
+        100
+      ],
+      "id": "result-idempotente-id"
     }
   ],
   "connections": {
@@ -408,7 +421,13 @@
             "index": 0
           }
         ],
-        []
+        [
+          {
+            "node": "Result Idempotente",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "DB Insert Simulado": {
