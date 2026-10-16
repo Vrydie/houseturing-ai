@@ -188,7 +188,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2650,
+        2850,
         -300
       ],
       "id": "40501838-13ad-4017-9208-6ea0416e6df3"
@@ -308,7 +308,7 @@
         "url": "https://api.telegram.org/bot8657757427:AAEQEDZAR9RAuJvqCKhH_7eb_7JYOlVnSi8/sendMessage",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"chat_id\": \"5926139023\",\n  \"text\": \"🎉 *¡NUEVA VENTA CONCRETADA!* 🛒\\n\\n🆔 *Pedido:* `\" + $json.shopify_order_name + \"`\\n👤 *Cliente:* \" + $('Validar Entrada').first().json.env.nombre + \" \" + ($('Validar Entrada').first().json.env.apellido || \"\") + \"\\n📱 *Celular:* [\" + $('Validar Entrada').first().json.env.celular + \"](https://wa.me/57\" + $('Validar Entrada').first().json.env.celular + \")\\n📍 *Ciudad:* \" + $('Construir Payload').first().json.db.ciudad_oficial + \" (\" + $('Construir Payload').first().json.db.shopify_province_code + \")\\n🏠 *Dirección:* \" + $('Validar Entrada').first().json.env.direccion + \"\\n🏘️ *Barrio:* \" + $('Validar Entrada').first().json.env.barrio + ($('Validar Entrada').first().json.env.complemento ? \" - \" + $('Validar Entrada').first().json.env.complemento : \"\") + \"\\n📦 *Producto:* 1 Combo Taladro Percutor Inalámbrico\\n💰 *Total a Cobrar:* $\" + $('Construir Payload').first().json.db.precio_total + \" COP (Contraentrega)\\n🚚 *Tiempo Entrega:* \" + $('Construir Payload').first().json.db.dias_entrega_min + \" a \" + $('Construir Payload').first().json.db.dias_entrega_max + \" días hábiles\",\n  \"parse_mode\": \"Markdown\",\n  \"reply_markup\": {\n    \"inline_keyboard\": [\n      [\n        { \"text\": \"📦 Ver Ficha\", \"callback_data\": \"ver_\" + $json.id },\n        { \"text\": \"🚚 Marcar Despachado\", \"callback_data\": \"estado_\" + $json.id + \"_despachado\" }\n      ],\n      [\n        { \"text\": \"❌ Cancelar Pedido\", \"callback_data\": \"cancelar_\" + $json.id }\n      ]\n    ]\n  }\n}",
+        "jsonBody": "={{ JSON.stringify($json.tg) }}",
         "options": {
           "timeout": 10000
         }
@@ -318,7 +318,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1750,
+        1850,
         -300
       ],
       "onError": "continueRegularOutput"
@@ -351,7 +351,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1850,
+        2050,
         -300
       ],
       "credentials": {
@@ -371,7 +371,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2050,
+        2250,
         -300
       ]
     },
@@ -393,7 +393,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2250,
+        2450,
         -300
       ],
       "credentials": {
@@ -417,7 +417,7 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.3,
       "position": [
-        2450,
+        2650,
         -300
       ],
       "credentials": {
@@ -427,6 +427,19 @@
         }
       },
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nfunction armarMensaje(d) {\n  const texto =\n    '🎉 <b>¡NUEVA VENTA CONCRETADA!</b> 🛒\\n\\n' +\n    '🆔 <b>Pedido:</b> <code>' + esc(d.pedido) + '</code>\\n' +\n    '👤 <b>Cliente:</b> ' + esc(d.cliente) + '\\n' +\n    '📱 <b>Celular:</b> <a href=\"https://wa.me/57' + esc(d.celular) + '\">' + esc(d.celular) + '</a>\\n' +\n    '📍 <b>Ciudad:</b> ' + esc(d.ciudad) + ' (' + esc(d.dpto) + ')\\n' +\n    '🏠 <b>Dirección:</b> ' + esc(d.direccion) + '\\n' +\n    '🏘️ <b>Barrio:</b> ' + esc(d.barrio) + '\\n' +\n    '📦 <b>Producto:</b> 1 Combo Taladro Percutor Inalámbrico\\n' +\n    '💰 <b>Total a Cobrar:</b> $' + esc(d.total) + ' COP (Contraentrega)\\n' +\n    '🚚 <b>Tiempo Entrega:</b> ' + esc(d.dias) + ' días hábiles';\n  return {\n    chat_id: d.chat_id,\n    text: texto,\n    parse_mode: 'HTML',\n    reply_markup: { inline_keyboard: [\n      [ { text: '📋 Ver Ficha', callback_data: 'ver_' + d.id }, { text: '🚚 Marcar Despachado', callback_data: 'estado_' + d.id + '_despachado' } ],\n      [ { text: '❌ Cancelar Pedido', callback_data: 'cancelar_' + d.id } ]\n    ] }\n  };\n}\n\nconst upd = $('DB Update Simulado Name').first().json;\nconst val = $('Validar Entrada').first().json;\nconst pay = $('Construir Payload').first().json;\nconst env = val.input;\nconst tg = armarMensaje({\n  chat_id: '5926139023',\n  id: upd.id,\n  pedido: upd.shopify_order_name,\n  cliente: (env.nombre + ' ' + (env.apellido || '')).trim(),\n  celular: env.celular,\n  ciudad: pay.db.ciudad_oficial,\n  dpto: pay.db.shopify_province_code,\n  direccion: env.direccion,\n  barrio: env.barrio + (env.complemento ? ' - ' + env.complemento : ''),\n  total: pay.db.precio_total,\n  dias: pay.db.dias_entrega_min + ' a ' + pay.db.dias_entrega_max\n});\nreturn [{ json: { tg } }];\n"
+      },
+      "id": "armar-mensaje-telegram-id",
+      "name": "Armar Mensaje Telegram",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1650,
+        -300
+      ]
     }
   ],
   "connections": {
@@ -537,7 +550,7 @@
       "main": [
         [
           {
-            "node": "Notificar Telegram",
+            "node": "Armar Mensaje Telegram",
             "type": "main",
             "index": 0
           }
@@ -638,6 +651,17 @@
         [
           {
             "node": "Result Simulado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar Mensaje Telegram": {
+      "main": [
+        [
+          {
+            "node": "Notificar Telegram",
             "type": "main",
             "index": 0
           }
