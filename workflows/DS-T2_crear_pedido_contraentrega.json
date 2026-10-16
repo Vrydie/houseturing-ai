@@ -182,13 +182,13 @@
     },
     {
       "parameters": {
-        "jsCode": "\n        const data = $('Construir Payload').first().json;\n        const dbId = $json.shopify_order_name;\n        return [{ json: { ok: true, numero_pedido: dbId, total: data.db.precio_total, moneda: 'COP', dias_entrega: data.db.dias_entrega_min + ' a ' + data.db.dias_entrega_max + ' días hábiles' } }];\n        "
+        "jsCode": "\n        const data = $('Construir Payload').first().json;\n        const upd = $('DB Update Simulado Name').first().json;\n        return [{ json: { ok: true, numero_pedido: upd.shopify_order_name, total: data.db.precio_total, moneda: 'COP', dias_entrega: data.db.dias_entrega_min + ' a ' + data.db.dias_entrega_max + ' días hábiles' } }];\n        "
       },
       "name": "Result Simulado",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1950,
+        2650,
         -300
       ],
       "id": "40501838-13ad-4017-9208-6ea0416e6df3"
@@ -338,47 +338,92 @@
     },
     {
       "parameters": {
-        "operation": "append",
-        "documentId": {
-          "__rl": true,
-          "value": "1r8L7KHvkNe2ev_x9run_0pcq2wvOM_UA81wBWjEtqRk",
-          "mode": "id"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "Hoja 1",
-          "mode": "name"
-        },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "Fecha": "={{ $now.setZone('America/Bogota').toFormat('yyyy-MM-dd HH:mm:ss') }}",
-            "ID_Pedido": "={{ $('DB Update Simulado Name')?.first()?.json?.shopify_order_name || ('SIM-' + $json.id) }}",
-            "Cliente": "={{ $('Validar Entrada').first().json.env.nombre }} {{ $('Validar Entrada').first().json.env.apellido || '' }}",
-            "Celular": "={{ $('Validar Entrada').first().json.env.celular }}",
-            "Ciudad": "={{ $('Construir Payload').first().json.db.ciudad_oficial }}",
-            "Departamento": "={{ $('Validar Entrada').first().json.env.departamento || $('Construir Payload').first().json.db.shopify_province_code }}",
-            "Direccion": "={{ $('Validar Entrada').first().json.env.direccion }}",
-            "Barrio": "={{ $('Validar Entrada').first().json.env.barrio }}{{ $('Validar Entrada').first().json.env.complemento ? ' - ' + $('Validar Entrada').first().json.env.complemento : '' }}",
-            "Producto": "Combo Taladro Percutor Inalámbrico",
-            "Total_COP": "={{ $('Construir Payload').first().json.db.precio_total }}",
-            "Metodo_Pago": "Contraentrega"
-          }
-        },
-        "options": {}
+        "method": "GET",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1r8L7KHvkNe2ev_x9run_0pcq2wvOM_UA81wBWjEtqRk/values/A1:K1",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "options": {
+          "timeout": 8000
+        }
       },
-      "id": "google-sheets-append-id",
-      "name": "Google Sheets",
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.5,
+      "id": "sheets-leer-encabezado-id",
+      "name": "Sheets Leer Encabezado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
-        1900,
+        1850,
         -300
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "321Nfx6iWQLnbeZT",
           "name": "Google Sheets account 2"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst res = $input.first().json || {};\nconst upd = $('DB Update Simulado Name').first().json;\nconst val = $('Validar Entrada').first().json;\nconst pay = $('Construir Payload').first().json;\nconst env = val.input;\nconst fecha = new Date().toLocaleString('sv-SE', { timeZone: 'America/Bogota' });\nconst fila = [\n  fecha,\n  upd.shopify_order_name,\n  (env.nombre + ' ' + (env.apellido || '')).trim(),\n  String(env.celular),\n  pay.db.ciudad_oficial,\n  env.departamento || pay.db.shopify_province_code,\n  env.direccion,\n  env.barrio + (env.complemento ? ' - ' + env.complemento : '') + (env.referencias ? ' (' + env.referencias + ')' : ''),\n  'Combo Taladro Percutor Inalámbrico',\n  Number(pay.db.precio_total),\n  'Contraentrega'\n];\nconst sinEncabezado = !res.error && !(Array.isArray(res.values) && res.values.length);\nconst headers = [\"Fecha\",\"ID_Pedido\",\"Cliente\",\"Celular\",\"Ciudad\",\"Departamento\",\"Direccion\",\"Barrio\",\"Producto\",\"Total_COP\",\"Metodo_Pago\"];\nreturn [{ json: { values: sinEncabezado ? [headers, fila] : [fila] } }];\n"
+      },
+      "id": "sheets-armar-filas-id",
+      "name": "Armar Filas Sheets",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2050,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1r8L7KHvkNe2ev_x9run_0pcq2wvOM_UA81wBWjEtqRk/values/A1:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ values: $json.values }) }}",
+        "options": {
+          "timeout": 8000
+        }
+      },
+      "id": "sheets-append-id",
+      "name": "Sheets Append",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2250,
+        -300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "321Nfx6iWQLnbeZT",
+          "name": "Google Sheets account 2"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO config (clave, valor) VALUES ('sheets_ultimo_resultado', $1) ON CONFLICT (clave) DO UPDATE SET valor = EXCLUDED.valor RETURNING clave",
+        "options": {
+          "queryReplacement": "={{ [new Date().toISOString() + ' | ' + JSON.stringify($json).slice(0, 600)] }}"
+        }
+      },
+      "id": "log-sheets-id",
+      "name": "Log Sheets",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [
+        2450,
+        -300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "VqgP7Z77oaN8muQ2",
+          "name": "Postgres dropship"
         }
       },
       "onError": "continueRegularOutput"
@@ -548,14 +593,47 @@
       "main": [
         [
           {
-            "node": "Google Sheets",
+            "node": "Sheets Leer Encabezado",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Google Sheets": {
+    "Sheets Leer Encabezado": {
+      "main": [
+        [
+          {
+            "node": "Armar Filas Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar Filas Sheets": {
+      "main": [
+        [
+          {
+            "node": "Sheets Append",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets Append": {
+      "main": [
+        [
+          {
+            "node": "Log Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Sheets": {
       "main": [
         [
           {
@@ -569,7 +647,9 @@
   },
   "settings": {
     "saveDataErrorExecution": "all",
-    "saveDataSuccessExecution": "none",
-    "errorWorkflow": "ds-00-error-handler-id"
+    "saveDataSuccessExecution": "all",
+    "errorWorkflow": "ds-00-error-handler-id",
+    "executionOrder": "v1",
+    "binaryMode": "separate"
   }
 }
