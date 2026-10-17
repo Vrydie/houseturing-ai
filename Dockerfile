@@ -17,10 +17,6 @@ RUN echo '#!/bin/sh' > /docker-entrypoint-railway.sh && \
     echo 'if [ -n "$PORT" ]; then' >> /docker-entrypoint-railway.sh && \
     echo '  export N8N_PORT=$PORT' >> /docker-entrypoint-railway.sh && \
     echo 'fi' >> /docker-entrypoint-railway.sh && \
-    echo 'if [ -d "/workflows" ] && [ "$(ls -A /workflows 2>/dev/null)" ]; then' >> /docker-entrypoint-railway.sh && \
-    echo '  echo "Importando workflows actualizados via n8n CLI con activeState=fromJson..."' >> /docker-entrypoint-railway.sh && \
-    echo '  n8n import:workflow --separate --input=/workflows --activeState=fromJson || true' >> /docker-entrypoint-railway.sh && \
-    echo 'fi' >> /docker-entrypoint-railway.sh && \
     echo 'if [ -f "/infra/railway_sync.mjs" ]; then' >> /docker-entrypoint-railway.sh && \
     echo '  echo "Sincronizando DB y asegurando estado activo en Railway..."' >> /docker-entrypoint-railway.sh && \
     echo '  node /infra/railway_sync.mjs || true' >> /docker-entrypoint-railway.sh && \
