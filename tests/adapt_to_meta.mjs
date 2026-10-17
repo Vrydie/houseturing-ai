@@ -271,7 +271,7 @@ if (prepNode) {
   if (partes.length > 3) partes.splice(2, partes.length - 2, partes.slice(2).join('\\n\\n'));
 
   return partes.map(texto => {
-    const waitTime = Math.min(7, Math.max(1.5, 0.035 * (texto?.length ?? 0) + 0.5 + random()));
+    const waitTime = 0;
     if (proveedor === 'meta') {
       return {
         texto,

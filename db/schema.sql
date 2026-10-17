@@ -282,7 +282,7 @@ CREATE TABLE config (
 
 INSERT INTO config (clave, valor) VALUES
     -- sistema de ventas
-    ('debounce_segundos',        '8'),
+    ('debounce_segundos',        '0'),
     ('stock_umbral_pausa',       '10'),
     ('max_turnos_agente',        '60'),
     ('shopify_access_token',     ''),          -- lo escribe DS-05
@@ -374,7 +374,7 @@ BEGIN
  UPDATE conversaciones SET ultimo_mensaje_cliente_en=(p->>'recibido_en')::timestamptz WHERE id=c.id;
  RETURN jsonb_build_object('accion',CASE WHEN c.bot_activo THEN 'entrada' ELSE 'solo_leer' END,
  'conversacion_id',c.id,'wa_id',cliente,'wamid',p->>'wamid','proveedor_id',p->>'proveedor_id',
- 'debounce',COALESCE((SELECT valor::numeric FROM config WHERE clave='debounce_segundos'),8));
+ 'debounce',COALESCE((SELECT valor::numeric FROM config WHERE clave='debounce_segundos'),0));
 END $$;
 
 CREATE OR REPLACE FUNCTION ycloud_reclamar(p_id BIGINT,p_wamid TEXT) RETURNS JSONB LANGUAGE plpgsql AS $$

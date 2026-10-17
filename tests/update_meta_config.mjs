@@ -15,7 +15,8 @@ async function run() {
     { k: 'meta_access_token', v: token },
     { k: 'meta_phone_number_id', v: phoneId },
     { k: 'meta_verify_token', v: verifyToken },
-    { k: 'whatsapp_modo_simulado', v: 'false' }
+    { k: 'whatsapp_modo_simulado', v: 'false' },
+    { k: 'debounce_segundos', v: '0' }
   ];
 
   for (const q of queries) {

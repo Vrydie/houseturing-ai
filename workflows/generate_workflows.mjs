@@ -144,7 +144,7 @@ export function bubbles(input, empresa, random = Math.random) {
   // M├íximo tres burbujas, sin perder p├írrafos adicionales.
   if (partes.length > 3) partes.splice(2, partes.length-2, partes.slice(2).join('\n\n'));
   return partes.map(texto=>({
-    texto,waitTime:Math.min(7,Math.max(1.5,0.035*(texto?.length ?? 0)+0.5+random())),
+    texto,waitTime:0,
     body:{from:empresa,to:'+'+input.wa_id,type:input.plantilla?'template':'text',
       ...(input.plantilla?{template:input.plantilla}:{text:{body:texto},...(input.responder_a_wamid?{context:{message_id:input.responder_a_wamid}}:{})})}
   }));
@@ -200,7 +200,7 @@ iff(e,'Es entrada',"={{ $json.accion === 'entrada' }}");
 iff(e,'Solo lectura',"={{ $json.accion === 'solo_leer' }}");
 code(e,'Preparar le├¡do',"return [{json:{...$json,no_responder:true}}];");
 node(e,'Marcar le├¡do','executeWorkflow',{workflowId:ids.enviar,options:{waitForSubWorkflow:true}},1);
-wait(e,'Debounce',"={{ $json.debounce }}");
+wait(e,'Debounce',0);
 code(e,'Iniciar intentos',"return [{json:{...$json,intento:0}}];");
 pg(e,'Reclamar turno','SELECT ycloud_reclamar($1::bigint,$2) AS data, $3::integer AS intento',"={{ [$json.conversacion_id,$json.wamid,$json.intento] }}");
 code(e,'Resultado turno',"return [{json:{...$json.data,intento:$json.intento}}];");
@@ -247,7 +247,7 @@ for(let i=0;i<3;i++) {
   code(s,part,`const p=$('Preparar env├¡o').first().json;return [{json:{...p,...p.burbujas[${i}],permitido:$json.permitido && p.burbujas.length>${i}}}];`);
   iff(s,allowed,"={{ $json.permitido }}");iff(s,sim,"={{ $json.simulado }}");
   request(s,typing,`={{ 'https://api.ycloud.com/v2/whatsapp/inboundMessages/'+encodeURIComponent($('${part}').first().json.proveedor_id)+'/typingIndicator' }}`);
-  wait(s,delay,`={{ $('${part}').first().json.waitTime }}`);
+  wait(s,delay,0);
   pg(s,recheck,guard,args);iff(s,sendAllowed,"={{ $json.permitido }}");
   iff(s,mode,`={{ $('${part}').first().json.simulado }}`);
   code(s,fake,`return [{json:{id:'sim-'+$execution.id+'-${i}',status:'simulado'}}];`);
