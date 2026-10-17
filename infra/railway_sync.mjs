@@ -30,9 +30,10 @@ async function run() {
     return;
   }
 
+  const isLocal = connectionString.includes('127.0.0.1') || connectionString.includes('localhost');
   const client = new pg.Client({
     connectionString,
-    ssl: (connectionString.includes('rlwy.net') || connectionString.includes('railway')) ? { rejectUnauthorized: false } : undefined
+    ssl: isLocal ? false : { rejectUnauthorized: false }
   });
 
   try {
@@ -96,13 +97,30 @@ async function run() {
       }
     }
 
-    // 4. Asegurar que TODOS los flujos principales queden con active = true
-    await client.query(`
-      UPDATE workflow_entity 
-      SET active = true 
-      WHERE name ILIKE '%DS-%';
-    `);
-    console.log('✔ Activación forzada (active = true) garantizada para todos los flujos DS-*');
+    // 4. Asegurar que TODOS los flujos principales queden con active = true y publicados
+    const allWfs = await client.query(`SELECT id, "versionId", nodes, connections FROM workflow_entity WHERE name ILIKE '%DS-%'`);
+    for (const w of allWfs.rows) {
+      if (w.versionId) {
+        await client.query(`
+          INSERT INTO workflow_history ("versionId", "workflowId", nodes, connections, "createdAt", "updatedAt", "authors")
+          VALUES ($1, $2, $3, $4, NOW(), NOW(), 'Samuel Vargas')
+          ON CONFLICT ("versionId") DO NOTHING
+        `, [w.versionId, w.id, JSON.stringify(w.nodes), JSON.stringify(w.connections)]);
+
+        await client.query(`
+          INSERT INTO workflow_published_version ("workflowId", "publishedVersionId", "createdAt", "updatedAt")
+          VALUES ($1, $2, NOW(), NOW())
+          ON CONFLICT ("workflowId") DO UPDATE SET "publishedVersionId" = EXCLUDED."publishedVersionId", "updatedAt" = NOW()
+        `, [w.id, w.versionId]);
+
+        await client.query(`
+          UPDATE workflow_entity 
+          SET active = true, "activeVersionId" = $1, "updatedAt" = NOW() 
+          WHERE id = $2
+        `, [w.versionId, w.id]);
+      }
+    }
+    console.log('✔ Publicación formal y activación (active = true) garantizada para todos los flujos DS-*');
 
     await client.end();
     console.log('=== [Railway HouseTuring] Sincronización DB completada con éxito ===');
