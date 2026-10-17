@@ -115,7 +115,7 @@
       "parameters": {
         "sessionIdType": "customKey",
         "sessionKey": "={{ $('Entrada').first().json.wa_id }}",
-        "contextWindowLength": 20
+        "contextWindowLength": 8
       },
       "id": "Memoria",
       "name": "Memoria",
