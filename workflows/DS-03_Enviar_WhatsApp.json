@@ -1,6 +1,7 @@
 {
   "id": "a0c7abce-0081-4c80-aa6a-72f4200ec489",
   "name": "DS-03 Enviar WhatsApp",
+  "active": true,
   "nodes": [
     {
       "id": "Entrada",

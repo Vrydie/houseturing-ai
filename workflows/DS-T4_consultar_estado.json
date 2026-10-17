@@ -106,5 +106,6 @@
     "saveManualExecutions": false,
     "saveExecutionProgress": false,
     "errorWorkflow": "ds-00-error-handler-id"
-  }
+  },
+  "active": true
 }

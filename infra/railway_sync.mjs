@@ -39,14 +39,23 @@ async function run() {
     await client.connect();
     console.log('✔ Conectado a PostgreSQL en Railway.');
 
-    // 1. Forzar debounce_segundos = '0' para modo feria
+    // 1. Forzar debounce_segundos = '0' para modo feria y reactivar conversaciones bloqueadas
     await client.query(`
       CREATE TABLE IF NOT EXISTS config (clave TEXT PRIMARY KEY, valor TEXT, actualizado_en TIMESTAMPTZ DEFAULT now());
       INSERT INTO config (clave, valor) VALUES ('debounce_segundos', '0')
       ON CONFLICT (clave) DO UPDATE SET valor = '0';
       UPDATE config SET valor = '0' WHERE clave = 'debounce_segundos';
+
+      -- Liberar cualquier conversación bloqueada por error previo del modelo
+      UPDATE conversaciones 
+      SET agente_ocupado_hasta = NULL, bot_activo = true 
+      WHERE bot_activo = false AND motivo_escalamiento IS DISTINCT FROM 'opt_out';
+      
+      UPDATE conversaciones 
+      SET agente_ocupado_hasta = NULL 
+      WHERE agente_ocupado_hasta > now();
     `);
-    console.log('✔ debounce_segundos configurado a 0 en la BD.');
+    console.log('✔ debounce_segundos configurado a 0 y conversaciones liberadas.');
 
     // 2. Aplicar migraciones si existen
     const migrationsDir = path.resolve(__dirname, '../db/migrations');
@@ -63,7 +72,7 @@ async function run() {
       }
     }
 
-    // 3. Inyectar workflows actualizados directamente en workflow_entity (n8n DB)
+    // 3. Inyectar workflows actualizados directamente en workflow_entity (n8n DB) y ACTIVARLOS
     const workflowsDir = path.resolve(__dirname, '../workflows');
     if (fs.existsSync(workflowsDir)) {
       const files = fs.readdirSync(workflowsDir).filter(f => f.endsWith('.json'));
@@ -71,14 +80,14 @@ async function run() {
         try {
           const content = fs.readFileSync(path.join(workflowsDir, file), 'utf8');
           const wf = JSON.parse(content);
-          if (wf.id && wf.nodes && wf.connections) {
+          if (wf.nodes && wf.connections) {
             const res = await client.query(`
               UPDATE workflow_entity 
-              SET nodes = $1, connections = $2 
-              WHERE id = $3
-            `, [JSON.stringify(wf.nodes), JSON.stringify(wf.connections), wf.id]);
+              SET nodes = $1, connections = $2, active = true 
+              WHERE id = $3 OR name = $4
+            `, [JSON.stringify(wf.nodes), JSON.stringify(wf.connections), wf.id || 'none', wf.name || 'none']);
             if (res.rowCount > 0) {
-              console.log(`✔ Workflow ${file} (${wf.name || wf.id}) actualizado en workflow_entity.`);
+              console.log(`✔ Workflow ${file} (${wf.name || wf.id}) actualizado y ACTIVADO en workflow_entity.`);
             }
           }
         } catch (e) {
@@ -86,6 +95,14 @@ async function run() {
         }
       }
     }
+
+    // 4. Asegurar que TODOS los flujos principales queden con active = true
+    await client.query(`
+      UPDATE workflow_entity 
+      SET active = true 
+      WHERE name ILIKE '%DS-%';
+    `);
+    console.log('✔ Activación forzada (active = true) garantizada para todos los flujos DS-*');
 
     await client.end();
     console.log('=== [Railway HouseTuring] Sincronización DB completada con éxito ===');

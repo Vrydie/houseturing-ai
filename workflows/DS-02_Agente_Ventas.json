@@ -1,6 +1,7 @@
 {
   "id": "ae42ab9a-9d5c-40fb-b18b-b8626c78b51b",
   "name": "DS-02 Agente de ventas",
+  "active": true,
   "nodes": [
     {
       "parameters": {},
@@ -107,9 +108,8 @@
         1184,
         -64
       ],
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 3000
+      "retryOnFail": false,
+      "maxTries": 1
     },
     {
       "parameters": {
@@ -460,7 +460,7 @@
     },
     {
       "parameters": {
-        "model": "deepseek-flash",
+        "model": "deepseek-chat",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",

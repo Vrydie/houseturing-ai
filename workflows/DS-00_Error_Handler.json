@@ -171,5 +171,6 @@
     "saveDataErrorExecution": "none",
     "saveManualExecutions": false,
     "saveExecutionProgress": false
-  }
+  },
+  "active": true
 }

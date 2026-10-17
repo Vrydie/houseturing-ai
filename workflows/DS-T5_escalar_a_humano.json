@@ -74,5 +74,6 @@
       ]
     }
   },
-  "settings": {}
+  "settings": {},
+  "active": true
 }

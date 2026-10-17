@@ -360,5 +360,6 @@
     "saveDataErrorExecution": "all",
     "saveDataSuccessExecution": "none",
     "errorWorkflow": "DS-00_Manejador_Errores"
-  }
+  },
+  "active": true
 }

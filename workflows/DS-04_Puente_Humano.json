@@ -1,6 +1,7 @@
 {
   "id": "6fd4eec6-0a99-4715-9644-f7b0c8f799c3",
   "name": "DS-04 Puente humano · avisar",
+  "active": true,
   "nodes": [
     {
       "id": "Entrada",

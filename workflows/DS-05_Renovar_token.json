@@ -1,6 +1,7 @@
 {
   "id": "ds-05-renovar-token-uuid-1234",
   "name": "DS-05_Renovar_token",
+  "active": true,
   "nodes": [
     {
       "parameters": {

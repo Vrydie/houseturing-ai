@@ -1,6 +1,7 @@
 {
   "id": "8c5216d4-f62a-47c8-8658-96164bebdf4b",
   "name": "DS-01 Entrada WhatsApp",
+  "active": true,
   "nodes": [
     {
       "id": "Webhook POST",

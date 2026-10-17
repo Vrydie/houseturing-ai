@@ -675,5 +675,6 @@
     "errorWorkflow": "ds-00-error-handler-id",
     "executionOrder": "v1",
     "binaryMode": "separate"
-  }
+  },
+  "active": true
 }
